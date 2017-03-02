@@ -51,9 +51,9 @@ for i=1:length(loc)
    end;
 end;
 
-%figure;
-%plot(d,KX); hold on; plot(d,KY,'r'); hold off;
-%axis([ min_d max_d min([KX,KY])*1.2 max([KX,KY])*1.2 ]);
+% figure;
+% plot(d,KX); hold on; plot(d,KY,'r'); hold off;
+% axis([ min_d max_d min([KX,KY])*1.2 max([KX,KY])*1.2 ]);
 
 % Leap-frog by half step
 kx = KX(1); ky = KY(1);
@@ -69,7 +69,27 @@ for i=1:n-1
    [x(i+1),y(i+1),xp,yp] = step(x(i),y(i),xp,yp);
 end;
 
-% plot envelope
-%figure( fig );
-%plot(d,x); hold on; plot(d,y,'r'); hold off;
-%axis([ min_d max_d 0.0 max([x,y])*1.2 ]);
+% calculate tunes
+betax = x.^2/Ex; 
+betay = y.^2/Ey;
+tunex = sum(1./betax)*ds/(2*pi);
+tuney = sum(1./betay)*ds/(2*pi);
+
+ind = find(abs(d-.32)==min(abs(d-.32)));
+tunex_dr = sum(1./betax(1:ind))*ds/(2*pi);
+tuney_dr = sum(1./betay(1:ind))*ds/(2*pi);
+tunex_ring = 8*tunex-2*tunex_dr;
+tuney_ring = 8*tuney-2*tuney_dr;
+tunex_res = mod(tunex_ring,1);
+tuney_res = mod(tuney_ring,1);
+
+% add text -- tunes
+% axesHandle = findobj( gcf, 'Type', 'axes' );
+% axdata = get( axesHandle(1), 'UserData' );
+% if( axdata.handle(5)~=0 ) delete(axdata.handle(5)); end;
+% if( axdata.handle(6)~=0 ) delete(axdata.handle(6)); end;
+% yl = ylim();
+% t1 = text(mean(d),0.2*(yl(2)-yl(1)),sprintf('Tune X = %.3f',tunex));
+% t2 = text(mean(d),0.1*(yl(2)-yl(1)),sprintf('Tune Y = %.3f',tuney));
+% axdata.handle(5)=t1; axdata.handle(6)=t2;
+% set( axesHandle, 'UserData', axdata );

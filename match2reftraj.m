@@ -4,7 +4,6 @@ global loc1 loc2 KX KY nsteps;
 global x0 y0 xp0 yp0;
 global x1 y1 xp1 yp1;
 global xw yw xpw ypw;
-global yref refw tunew;
 global OPT_ELE;
 load( paramfile );
 
@@ -39,11 +38,10 @@ len = usrdata.len;      % effective length
 str = usrdata.str;      % strength (kappa)
 dipl_n = usrdata.did;   % diple field index
 % reference trajectory
-refw = 1;
-xref = min_d:ds:max_d;
-yref = interp1(usrdata.xref,usrdata.yref*1e-2,xref*1e2);
-% tune weight
-tunew = .5;
+if exist('usrdata.xref')
+xref = 0:ds:max_d;
+yref = interp1(usrdata.xref,usrdata.yref,xref);
+end
 
 % Optimize which
 opt = usrdata.opt;
@@ -92,5 +90,5 @@ options = optimset('LargeScale', scale, ...
    'Display', 'iter', ...
    'MaxIter', maxIter, ...
    'TolFun', tolFun );
-X = lsqnonlin( 'optifunc', X,[],[],options );
+X = lsqnonlin( 'stepfunc', X,[],[],options );
 

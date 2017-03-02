@@ -269,7 +269,8 @@ case 'Run Periodic Matcher'
    % Save to tempary file
    save 'runtmp' usrdata;
    % Run ......
-   oldptr = getptr(thisFig);  setptr( thisFig, 'watch' );
+   %oldptr = getptr(thisFig);  setptr( thisFig, 'watch' );
+   oldptr = get(thisFig,'pointer');  set( thisFig, 'pointer', 'watch' );
    newX0 = match2period( 'runtmp' );
    set( thisFig, oldptr{:} );
    % Save the new result
@@ -316,6 +317,8 @@ case 'Matcher'
    % Update the listbox
    listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
    updateListboxString( listboxHandle, usrdata, 1 );   
+   % Update figure
+   menvEvent( 'Solution' );
 case 'Coordinate'
    coordTextHandle = findobj( thisFig, 'Tag', 'CoordStaticText' );
    axesHandle = findAxes( thisFig );
@@ -448,6 +451,43 @@ case 'Kappa to Current'
             'SelectionMode','single',...
             'ListSize', [160 160], ...
             'ListString',msg);
+case 'Draw Reference Trajectory'
+    usrdata = get( thisFig, 'UserData' );
+    % Draw on figure
+    axesHandle = findAxes( thisFig );
+    [xref,yref] = DrawReferenceTrajectory(axesHandle);
+    % save in UserData
+    usrdata.xref = xref;
+    usrdata.yref = yref;
+    set( thisFig, 'UserData', usrdata );
+    % Save new reference trajectory to file
+    [filename, pathname] = uiputfile('*.txt', 'Save As');
+    dlmwrite([pathname,filename],[xref,yref]);
+    % Plot on axes
+    hold on
+    if exist('href'), delete(href); end
+    href = plot(xref,yref,':k');
+    hold off
+    
+case 'Load Reference Trajectory'
+    usrdata = get( thisFig, 'UserData' );    
+    % load .txt file
+    [filename, pathname] = uigetfile('*.txt', 'Open File');
+    if( filename==0 ) return; end;
+    len = length( filename );
+    filename = [pathname filename];
+    temp =  importdata(filename);
+    xref = temp(:,1); yref = temp(:,2);    
+    % save in UserData
+    usrdata.xref = xref;
+    usrdata.yref = yref;
+    set( thisFig, 'UserData', usrdata );
+    % Plot on axes
+    hold on
+    if exist('href'), delete(href); end
+    href = plot(xref,yref,':k');
+    hold off
+    
 otherwise
 end
 
@@ -732,12 +772,14 @@ usrdata = struct( ...
    'yw',1.0, ...
    'xpw',1.0, ...
    'ypw',1.0, ...
+   'xref',[], ...
+   'yref',[], ...
    'maxIter',20, ...
    'tolFun',1.e-8 );
 
 function usrdata = zeroAxesUserData
 usrdata = struct( ...
-   'handle',[0,0,0,0], ...
+   'handle',[0,0,0,0,0,0], ...
    'd',[], ...
    'x',[], ...
    'y',[] );
@@ -757,6 +799,10 @@ usrdata.len = data.len*1.e-2;             % cm->m
 %usrdata.str
 usrdata.x1 = data.x1*1.e-2;               % cm->m
 usrdata.y1 = data.y1*1.e-2;               % cm->m
+if exist('data.xref')
+usrdata.xref = data.xref*1.e-2;               % m->cm
+usrdata.yref = data.yref*1.e-2;               % m->cm
+end
 %usrdata.xp1,usrdata.yp1,usrdata.xw,usrdata.yw,usrdata.xpw,usrdata.ypw,usrdata.maxIter,usrdata.tolFun
 
 function usrdata = TransferFromSI( data )
@@ -774,6 +820,10 @@ usrdata.len = data.len*1.e2;             % m->cm
 %usrdata.str
 usrdata.x1 = data.x1*1.e2;               % m->cm
 usrdata.y1 = data.y1*1.e2;               % m->cm
+if exist('data.xref')
+usrdata.xref = data.xref*1.e2;               % m->cm
+usrdata.yref = data.yref*1.e2;               % m->cm
+end
 %usrdata.xp1,usrdata.yp1,usrdata.xw,usrdata.yw,usrdata.xpw,usrdata.ypw,usrdata.maxIter,usrdata.tolFun
 
 function savefile( usrdata, filename )
