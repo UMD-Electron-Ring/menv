@@ -1,4 +1,4 @@
-function [x,y,d] = runmenv( paramfile )
+function [x,y,xp,yp,d,tunex,tuney] = runmenv( paramfile )
 global kx ky K Ex Ey ds;
 load( paramfile );
 
@@ -58,15 +58,15 @@ end;
 % Leap-frog by half step
 kx = KX(1); ky = KY(1);
 [xpp,ypp] = calc_prim2(x0,y0);
-xp = xp0+xpp*ds/2;
-yp = yp0+ypp*ds/2;
+xp(1) = xp0+xpp*ds/2;
+yp(1) = yp0+ypp*ds/2;
 x(1) = x0;
 y(1) = y0;
 
 % Steps
 for i=1:n-1
    kx = KX(i+1); ky = KY(i+1);
-   [x(i+1),y(i+1),xp,yp] = step(x(i),y(i),xp,yp);
+   [x(i+1),y(i+1),xp(i+1),yp(i+1)] = step(x(i),y(i),xp(i),yp(i));
 end;
 
 % calculate tunes
@@ -75,13 +75,7 @@ betay = y.^2/Ey;
 tunex = sum(1./betax)*ds/(2*pi);
 tuney = sum(1./betay)*ds/(2*pi);
 
-ind = find(abs(d-.32)==min(abs(d-.32)));
-tunex_dr = sum(1./betax(1:ind))*ds/(2*pi);
-tuney_dr = sum(1./betay(1:ind))*ds/(2*pi);
-tunex_ring = 8*tunex-2*tunex_dr;
-tuney_ring = 8*tuney-2*tuney_dr;
-tunex_res = mod(tunex_ring,1);
-tuney_res = mod(tuney_ring,1);
+
 
 % add text -- tunes
 % axesHandle = findobj( gcf, 'Type', 'axes' );
