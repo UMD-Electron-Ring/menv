@@ -198,7 +198,7 @@ case 'Solution'
    save 'runtmp' usrdata;
    % Run ......
    oldptr = getptr(thisFig);  setptr( thisFig, 'watch' );
-   [x,y,d] = runmenv( 'runtmp' );
+   [x,y,xp,yp,d,nux,nuy] = runmenv( 'runtmp' );
    x=x*1.e2; y=y*1.e2; d=d*1.e2;  % m-cm
    set( thisFig, oldptr{:} );
    % Axes

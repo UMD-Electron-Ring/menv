@@ -39,12 +39,12 @@ if nargin == 1
     fullpathname = which(filename);
 else
     [filename, pathname] = uigetfile('*.spt', 'Open File');
-    if( filename==0 ) return; end;
+    if( filename==0 ) return; end
     len = length( filename );
     if( len<5 || ~strcmpi(filename(len-3:len),'.spt') )
         errordlg( 'The filename must have an extension .spt!', 'Error', 'modal');
         return;
-    end;
+    end
     fullpathname = [pathname filename];
 end
 
@@ -224,6 +224,12 @@ if( sum(usrdata.opt)==0 )
     warndlg( 'The optimized elements are not defined!', 'ERROR', 'modal' );
     return;
 end;
+
+% clear plot if necessary
+if exist('clm.soldata')
+   if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end;
+   if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end;
+end
 
 % Transfer to SI
 usrdata = Transfer2SI( usrdata );
