@@ -72,6 +72,12 @@ clm.maketarget([FODOmatch.xf,FODOmatch.yf,FODOmatch.xpf,FODOmatch.ypf],[1,1,1,1]
 clm.defmatcher()
 
 % -- should also change lattice parameters here
+elements = clm.usrdata.ele;
+location = clm.usrdata.loc;
+lengths = clm.usrdata.len;
+str = clm.usrdata.str; % quadrupole strength (kappa)
+did = clm.usrdata.did; % dipole index
+opt = clm.usrdata.opt;
 
 
 
