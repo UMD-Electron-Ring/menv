@@ -6,5 +6,7 @@
 *.asv
 # .mat is by-product of clmenv
 *.mat
+!menv.mat
 # .csv is also by-product (sometimes)
 *.csv
+
