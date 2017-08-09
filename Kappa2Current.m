@@ -12,6 +12,7 @@ if( nargin==1 | (nargin==2 & ele=='Q') )
    g0 = 4.14e-2;
    G = (gamma*M*beta*c/q)*kappa;
    I = G/g0;
+   (gamma*M*beta*c/q)/g0
 elseif( nargin==2 & ele=='S' )
    B = 2*(gamma*M*beta*c/q)*sqrt(kappa); %Tesla
    B = B*1e4; %Gauss

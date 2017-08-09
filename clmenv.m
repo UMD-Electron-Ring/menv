@@ -12,23 +12,35 @@
 % 3/7/17
 %
 
+% -- main
 function clm = clmenv()
+
 clm.open = @openspt;
 clm.saveas = @savefile;
+
 clm.defparam = @defparam;
 clm.defmatcher = @defmatcher;
+clm.deflattice = @deflattice;
+clm.draw = @drawlattice;
+
 clm.solve = @solvelattice;
 clm.periodicmatcher = @periodicmatcher;
-clm.matcher = @matcher;
+clm.targetmatcher = @targetmatcher;
+clm.trajmatcher = @trajmatcher;
+
 clm.maketarget = @maketarget;
 clm.makeoptiset = @makeoptiset;
+clm.maketraj = @maketraj;
+clm.makeparams = @makeparams;
 
 clm.thisFig = figure(); axes();
 end
-    
+
+
 % -- functions that can be used externally
 
 function openspt(varargin)
+% Open .spt file describing lattice
 % --  optional argument is string with filename
 global clm
 
@@ -56,13 +68,14 @@ clm.usrdata.filename = fullpathname;  % important to rename its filename
 % To be compatible with previous version file with no usrdata.did
 if( isfield(usrdata,'did')==0 )
     clm.usrdata.did = zeros( size(usrdata.opt) );
-end;
+end
 % Transfer from SI
 clm.usrdata = TransferFromSI( usrdata );
 
 end
 
 function savefile( filename )
+% Save clmenv memory to named file
 clobal clm
 usrdata = clm.usrdata;
 save 'savetmp' usrdata
@@ -71,6 +84,7 @@ delete( 'savetmp.mat' );
 end
 
 function defparam()
+% Load initial beam parameters into clmenv memory
 global clm
 load 'params'
 
@@ -107,7 +121,7 @@ clm.usrdata.tolFun = optiset.tolFun;
 end
 
 function maketarget(targetlist,weightlist)
-% This function sets a target and weights
+% Load beam targets and weights into clmenv memory
 target.x1 = targetlist(1);
 target.y1 = targetlist(2);
 target.xp1 = targetlist(3);
@@ -119,22 +133,80 @@ target.ypw = weightlist(4);
 save 'target' target 
 end
 
+function maketraj(xref,yref)
+% Load trajectory data into clmenv memory
+global clm
+
+clm.usrdata.xref = xref;
+clm.usrdata.yref = yref;
+
+% -- plot trajectory
+if exist('clm.usrdata.handle')
+    if ishandle(clm.usrdata.handle) delete(clm.usrdata.handle); end
+end
+hold on
+href = plot(xref,yref,':k');
+hold off
+clm.usrdata.handle = href;
+
+end
+
 function makeoptiset(iterations,tolerance)
-% This function sets a target and weights
+% Load iteration and tolerance setting into clmenv memory
 optiset.maxIter = iterations;
 optiset.tolFun = tolerance;
 save 'optiset' optiset 
 end
 
+function makeparams(emit,perv,x0,y0,xp0,yp0,stepsize,distance)
+% Make a params file from params arguments
+
+params.emitance = emit;
+params.perveance = perv;
+params.x0 = x0;
+params.y0 = y0;
+params.xp0 = xp0;
+params.yp0 = yp0;
+params.stepsize = stepsize;
+params.distance = distance;
+
+save 'params' params
+end
+
+function deflattice(ele,loc,len,str,opt,did)
+global clm
+
+clm.usrdata.ele = ele;
+clm.usrdata.loc = loc;
+clm.usrdata.len = len;
+clm.usrdata.str = str;
+clm.usrdata.opt = opt;
+clm.usrdata.did = did;
+end
+
+function drawlattice(ele,loc,len,str)
+for i=1:length(ele)
+    hele = abs(str(i))*0.25;
+    sele = loc(i)-len(i)*0.5;
+    eele = loc(i)+len(i)*0.5;
+    if strcmp(ele(i),'D') col = [0,1,0];
+    elseif strcmp(ele(i),'Q') col = [.9,.9,.9]; 
+    end
+    patch([sele,eele,eele,sele],[0,0,hele,hele],col)
+end
+end
+
+
 function solvelattice()
+
 global clm
 usrdata = clm.usrdata;
 
-% only check one parameter is enough
+% check that initial conditions (params) are defined
 if( isempty(usrdata.x0) )
     warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
     return;
-end;
+end
 
 % Transfer to SI
 usrdata = Transfer2SI( usrdata );
@@ -149,23 +221,32 @@ x=x*1.e2; y=y*1.e2; d=d*1.e2;  % m-cm
 % Plot
 % -- clear plots if they exist
 if exist('clm.soldata')
-   if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end;
-   if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end;
+   if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end
+   if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end
 end
 
 hold on; h1 = plot(d,x,'b'); h2 = plot(d,y,'r'); hold off;
 xlabel('z (cm)'); ylabel('X:blue, Y:red (cm)');
 axis([ min(d) max(d) 0.0 max([x,y])*1.2 ]);
 
+
 % Save data
 if( usrdata.stepsize<0.005 ) interval = round(0.005/usrdata.stepsize);
-else interval = 1; end;
+else interval = 1; end
 n = length(d); ind = 1:interval:n;
-if( ind(length(ind))~=n ) ind(length(ind)+1) = n; end;
+if( ind(length(ind))~=n ) ind(length(ind)+1) = n; end
 
-clm.soldata.handle(1) = h1; clm.soldata.handle(2) = h2;
-clm.soldata.d =d(ind); clm.soldata.x = x(ind); clm.soldata.y = y(ind);
-clm.soldata.nux = nux; clm.soldata.nuy = nuy;
+% -- save plot handles
+clm.soldata.handle(1) = h1; 
+clm.soldata.handle(2) = h2;
+% -- save history data 
+clm.soldata.d = d(ind); 
+clm.soldata.x = x(ind);
+clm.soldata.y = y(ind);
+% -- save tunes
+clm.soldata.nux = nux; 
+clm.soldata.nuy = nuy;
+% -- save final conditions
 clm.soldata.xf = x(end);
 clm.soldata.yf = y(end);
 clm.soldata.xpf = xp(end);
@@ -174,6 +255,8 @@ clm.soldata.ypf = yp(end);
 end
 
 function periodicmatcher()
+% Run matching algorithm for periodic solution for given lattice function
+
 global clm
 usrdata = clm.usrdata;
 % only check one parameter is enough
@@ -207,7 +290,9 @@ clm.usrdata = usrdata;
 solvelattice()
 end
 
-function matcher()
+function targetmatcher()
+% Run matching algorithm, find lattice function for desired target (final)
+% condition given initial condition
 global clm
 usrdata = clm.usrdata;
  
@@ -255,6 +340,57 @@ clm.usrdata = usrdata;
 solvelattice()
 end
 
+function trajmatcher()
+% Run matching algorithm, vary lattice function to match target, including
+% reference trajectory
+global clm
+usrdata = clm.usrdata;
+ 
+% only check one parameter is enough
+if( isempty(usrdata.x0) )
+    warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
+    return;
+end;
+if( isempty(usrdata.x1) )
+    warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
+    return;
+end;
+if( sum(usrdata.opt)==0 )
+    warndlg( 'The optimized elements are not defined!', 'ERROR', 'modal' );
+    return;
+end;
+
+% clear plot if necessary
+if exist('clm.soldata')
+   if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end;
+   if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end;
+end
+
+% Transfer to SI
+usrdata = Transfer2SI( usrdata );
+
+% Save to tempary file
+save 'runtmp' usrdata;
+
+% Run ......
+newKappa = match2reftraj( 'runtmp' );
+
+% Save the new result
+[~,n] = size( usrdata.loc ); k = 1;
+for i=1:n
+    if( usrdata.opt(i) )
+        usrdata.str(i) = newKappa(k); k = k+1;
+    end;
+end;
+
+usrdata = TransferFromSI( usrdata );
+clm.usrdata = usrdata;
+
+% Update figure
+solvelattice()
+end
+
+
 % -- functions only used with clmenv()
 
 function usrdata = zeroAxesUserData
@@ -294,7 +430,8 @@ usrdata = struct( ...
    'xref',[], ...
    'yref',[], ...
    'maxIter',20, ...
-   'tolFun',1.e-8 );
+   'tolFun',1.e-8,...
+   'handle',[]);
 end 
 
 function axesHandle = findAxes( fig )
@@ -358,7 +495,7 @@ fid = fopen( dst );
 if( fid~=-1 )
    fclose( fid );
    delete( dst );
-end;
+end
 % After delete dst, src can safely overwrite dst.
 % Otherwise in UNIX, copyfile(src,dst) will stop until Enter key is pressed in the Command Window.
 copyfile( src, dst );
