@@ -1,0 +1,16 @@
+# spot files 
+*.spt
+# txt files (usually trajectory data)
+*.txt
+# .asv is also unnecessary
+*.asv
+# .mat is by-product of clmenv
+*.mat
+!menv.mat
+!DefMatcher.mat
+!DefParam.mat
+!ImportOpt.mat
+!DefElement.mat
+# .csv is also by-product (sometimes)
+*.csv
+

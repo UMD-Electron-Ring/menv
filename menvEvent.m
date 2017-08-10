@@ -274,7 +274,7 @@ case 'Run Periodic Matcher'
    %oldptr = getptr(thisFig);  setptr( thisFig, 'watch' );
    oldptr = get(thisFig,'pointer');  set( thisFig, 'pointer', 'watch' );
    newX0 = match2period( 'runtmp' );
-   set( thisFig, oldptr{:} );
+   set( thisFig, 'pointer', oldptr );
    % Save the new result
    usrdata.x0 = newX0(1);
    usrdata.y0 = newX0(2);

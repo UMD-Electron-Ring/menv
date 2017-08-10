@@ -22,10 +22,10 @@ temp = clm.soldata;
 
 %%
 % -- load a different .spt file
-clm.open('octant-traj-start1.spt')
+clm.open('INJ_minsize_100mA_dipl.spt')
 clm.maketarget([temp.xf,temp.yf,temp.xpf,temp.ypf],[1,1,1,1])
 clm.defmatcher()
-clm.matcher()
+clm.targetmatcher()
 
 
 
