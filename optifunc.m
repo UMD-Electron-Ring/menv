@@ -4,7 +4,7 @@ global loc1 loc2 KX KY nsteps;
 global x0 y0 xp0 yp0;
 global x1 y1 xp1 yp1;
 global xw yw xpw ypw;
-global yref refw tunew;
+global yref refw;
 global OPT_ELE;
 
 
@@ -63,8 +63,8 @@ tuney_res = mod(tuney_ring,1);
 
 
 % minimization function
-f = [x(end)-x1,y(end)-y1,xp(end)-xp1,yp(end)-yp1,mean(abs(x-yref)),mean(abs(y-yref)),tunex-.1522,tuney-.1525];
-f = f.*[xw yw xpw ypw refw refw tunew tunew];
+f = [x(end)-x1,y(end)-y1,xp(end)-xp1,yp(end)-yp1,mean(abs(x-yref)),mean(abs(y-yref))];
+f = f.*[xw yw xpw ypw refw refw];
 
 
 

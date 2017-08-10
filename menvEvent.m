@@ -219,6 +219,8 @@ case 'Solution'
    if( ind(length(ind))~=n ) ind(length(ind)+1) = n; end;   
    axdata.handle(1)=h1; axdata.handle(2)=h2; 
    axdata.d=d(ind); axdata.x=x(ind); axdata.y=y(ind);
+   axdata.xp=xp(ind); axdata.yp=yp(ind);
+   axdata.nux = nux; axdata.nuy = nuy;
    set( axesHandle, 'UserData', axdata );   
 case 'MatcherParam'
    fig = defMatcher;
@@ -303,7 +305,7 @@ case 'Matcher'
    save 'runtmp' usrdata;
    % Run ......
    oldptr = getptr(thisFig);  setptr( thisFig, 'watch' );
-   newKappa = match2target( 'runtmp' );
+   newKappa = match2reftraj( 'runtmp' );
    set( thisFig, oldptr{:} );
    % Save the new result
    usrdata = get( thisFig, 'UserData' );

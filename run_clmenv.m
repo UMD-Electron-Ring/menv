@@ -20,6 +20,7 @@ clm.periodicmatcher()
 % -- save matching parameters to file
 temp = clm.soldata;
 
+%%
 % -- load a different .spt file
 clm.open('octant-traj-start1.spt')
 clm.maketarget([temp.xf,temp.yf,temp.xpf,temp.ypf],[1,1,1,1])
