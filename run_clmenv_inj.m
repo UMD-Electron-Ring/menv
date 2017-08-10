@@ -33,6 +33,7 @@ did = [0 0.7200 0]; % dipole index
 opt = [0,0,0];
 
 % -- assign params to menv structures
+clm.maketarget([1,1,1,1],[1,1,1,1])
 clm.makeoptiset(iterations,tolerance)  % Makes file optiset
 clm.defmatcher() % loads matcher settings
 
