@@ -305,7 +305,7 @@ case 'Matcher'
    save 'runtmp' usrdata;
    % Run ......
    oldptr = getptr(thisFig);  setptr( thisFig, 'watch' );
-   newKappa = match2reftraj( 'runtmp' );
+   newKappa = match2target( 'runtmp' );
    set( thisFig, oldptr{:} );
    % Save the new result
    usrdata = get( thisFig, 'UserData' );
