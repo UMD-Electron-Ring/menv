@@ -29,6 +29,7 @@ clm.periodicmatcher = @periodicmatcher;
 clm.targetmatcher = @targetmatcher; % target is x,y,xp,yp
 clm.targetmatcher2 = @targetmatcher2; % target is x,y,xp,yp,nux,nuy,betax~betay
 clm.trajmatcher = @trajmatcher; % target x,y,xp,yp plus tries to match trajectory
+clm.GSmatcher = @GStargetmatcher;
 
 clm.maketarget = @maketarget;
 clm.makeoptiset = @makeoptiset;
@@ -460,6 +461,7 @@ clm.usrdata = usrdata;
 solvelattice()
 end
 
+
 function targetmatcher2()
 % Run matching algorithm, find lattice function for desired target (final)
 % condition given initial condition
@@ -510,7 +512,7 @@ clm.usrdata = usrdata;
 solvelattice()
 end
 
-function trajmatcher()
+function GStargetmatcher()
 % Run matching algorithm, vary lattice function to match target, including
 % reference trajectory
 global clm
@@ -543,7 +545,7 @@ usrdata = Transfer2SI( usrdata );
 save 'runtmp' usrdata;
 
 % Run ......
-newKappa = match2reftraj( 'runtmp' );
+newKappa = GSmatch2target( 'runtmp' );
 
 % Save the new result
 [~,n] = size( usrdata.loc ); k = 1;

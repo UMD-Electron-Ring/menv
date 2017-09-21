@@ -1,9 +1,10 @@
-function X = match2target2( paramfile )
+function X = GSmatch2target( paramfile )
+% nonlinear/global search algorithm. Run w/ matlab 2012.
 
 global loc1 loc2 KX KY;
 global OPT_ELE;
 
-load 'runtmp';
+load(paramfile);
 % Global beam parateters
 K = usrdata.perveance; % Pervence
 Ex = usrdata.emitance; % Emmitance x
@@ -75,12 +76,27 @@ for i=1:length(loc)
    end;
 end;
 
+
+% % -- old lsqnonlin
+% X = X0; % X is values of optimization variables
+% if( length(X)<=4 ) scale = 'on';
+% else scale = 'off'; end;
+% options = optimset('LargeScale', scale, ...
+%    'Display', 'iter', ...
+%    'MaxIter', maxIter, ...
+%    'TolFun', tolFun );
+% X = lsqnonlin( 'stepfunc2', X,[],[],options );
+
+%%
+% -- new gs
 X = X0; % X is values of optimization variables
-if( length(X)<=4 ) scale = 'on';
-else scale = 'off'; end;
-options = optimset('LargeScale', scale, ...
-   'Display', 'iter', ...
-   'MaxIter', maxIter, ...
-   'TolFun', tolFun );
-X = lsqnonlin( 'stepfunc2', X,[],[],options );
+
+sf2 = @(x)GSstepfunc(x); % objective
+problem = createOptimProblem('fmincon',...
+    'objective',sf2,...
+    'lb',[-300,-300,-300,-300],...
+    'ub',[300,300,300,300],...
+    'x0',X0);
+gs = GlobalSearch;
+[xg fg flg og] = run(gs,problem);
 

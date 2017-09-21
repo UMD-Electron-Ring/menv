@@ -3,7 +3,7 @@ global KX KY
 global loc1 loc2 
 global OPT_ELE;
 
-usrdata = load('runtmp');
+load 'runtmp';
 x0 = usrdata.x0;
 y0 = usrdata.y0;
 xp0 = usrdata.xp0;
@@ -16,14 +16,18 @@ xw = usrdata.xw;
 yw = usrdata.yw;
 xpw = usrdata.xpw;
 ypw =usrdata.ypw;
-emittance = usrdata.emittance;
+emittance = usrdata.emitance;
 
+nuxt = usrdata.nuxt;
+nuyt = usrdata.nuyt;
 nuxw = usrdata.nuxw;
 nuyw = usrdata.nuyw;
 betaw = usrdata.betaw;
 
 ds = usrdata.stepsize;
-nsteps = usrdata.nsteps;
+distance = usrdata.distance;
+nsteps = round(distance/ds) +1;
+stepsize = usrdata.stepsize;
 
 % Evaluate kappa
 for i=1:length( X )

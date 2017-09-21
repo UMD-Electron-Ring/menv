@@ -69,7 +69,7 @@ for i=1:n-1
    [x(i+1),y(i+1),xp(i+1),yp(i+1)] = step(x(i),y(i),xp(i),yp(i));
 end;
 
-% calculate tunes
+% calculate tunesn
 betax = x.^2/Ex; 
 betay = y.^2/Ey;
 tunex = sum(1./betax)*ds/(2*pi);

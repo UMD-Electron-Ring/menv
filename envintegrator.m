@@ -1,8 +1,9 @@
 function [X,Y,XP,YP] = envintegrator(KX,KY,ic,ds,nsteps,allflag)
 
-global clm
-K = clm.usrdata.perveance; % Pervence
-Ex = clm.usrdata.emitance; % Emmitance x
+usrdata = [];
+load 'runtmp'
+K = usrdata.perveance; % Pervence
+Ex = usrdata.emitance; % Emmitance x
 Ey = Ex;
 
 x0 = ic(1);
@@ -13,10 +14,6 @@ yp0 = ic(4);
 kx=[]; ky=[]; % need to be initialized so they are available to all function workspaces
 
 if allflag
-    % -- init arrays
-    [X,Y,XP,YP] = deal(zeros(1,nsteps));
-    X(1) = x0;
-    Y(1) = y0;
     % -- integrate
     [X,Y,XP,YP] = integrate();
 else
@@ -29,6 +26,9 @@ end
     function [X,Y,XP,YP] = integrate()
         % function integrates envelope equations, saves data for every step
         
+        % -- init arrays
+        [X,Y,XP,YP] = deal(zeros(1,nsteps));
+        
         % Leap frog half step
         kx = KX(1); ky = KY(1);
         [xpp,ypp] = calc_prim2(x0,y0);
@@ -36,6 +36,8 @@ end
         yp = yp0+ypp*ds/2;
         x = x0;
         y = y0;
+        X(1) = x0;
+        Y(1) = y0;
         XP(1) = xp;
         YP(1) = yp;
         
