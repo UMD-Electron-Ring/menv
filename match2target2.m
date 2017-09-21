@@ -1,44 +1,44 @@
-function X = match2target2()
+function X = match2target2(paramfile)
 global loc1 loc2 KX KY;
 global OPT_ELE;
-global clm
 
+usrdata = load('runtmp');
 % Global beam parateters
-K = clm.usrdata.perveance; % Pervence
-Ex = clm.usrdata.emitance; % Emmitance x
+K = usrdata.perveance; % Pervence
+Ex = usrdata.emitance; % Emmitance x
 Ey = Ex;               % Emmitance y
 % Initial conditions
-x0 = clm.usrdata.x0;
-y0 = clm.usrdata.y0;
-xp0 = clm.usrdata.xp0;
-yp0 = clm.usrdata.yp0;
+x0 = usrdata.x0;
+y0 = usrdata.y0;
+xp0 = usrdata.xp0;
+yp0 = usrdata.yp0;
 % target conditions
-x1 = clm.usrdata.x1;
-y1 = clm.usrdata.y1;
-xp1 = clm.usrdata.xp1;
-yp1 = clm.usrdata.yp1;
+x1 = usrdata.x1;
+y1 = usrdata.y1;
+xp1 = usrdata.xp1;
+yp1 = usrdata.yp1;
 % weights
-xw = clm.usrdata.xw;
-yw = clm.usrdata.yw;
-xpw = clm.usrdata.xpw;
-ypw = clm.usrdata.ypw;
+xw = usrdata.xw;
+yw = usrdata.yw;
+xpw = usrdata.xpw;
+ypw = usrdata.ypw;
 % Numerical parameters
-max_d = clm.usrdata.distance;
+max_d = usrdata.distance;
 min_d = 0.0;
-ds = clm.usrdata.stepsize;          % Step-size
+ds = usrdata.stepsize;          % Step-size
 nsteps = round((max_d-min_d)/ds)+1;  % steps
 % Lattice
-ele = clm.usrdata.ele;      % element: 'Q'/'S'
-loc = clm.usrdata.loc;      % locations
-len = clm.usrdata.len;      % effective length
-str = clm.usrdata.str;      % strength (kappa)
-dipl_n = clm.usrdata.did;   % diple field index
+ele = usrdata.ele;      % element: 'Q'/'S'
+loc = usrdata.loc;      % locations
+len = usrdata.len;      % effective length
+str = usrdata.str;      % strength (kappa)
+dipl_n = usrdata.did;   % diple field index
 
 % Optimize which
-opt = clm.usrdata.opt;
+opt = usrdata.opt;
 % Iterations
-maxIter = round(clm.usrdata.maxIter);
-tolFun = clm.usrdata.tolFun;
+maxIter = round(usrdata.maxIter);
+tolFun = usrdata.tolFun;
 
 % Envlope-array(x,y), Kappa-array(KX,KY), distance-array(d)
 x = zeros(1,nsteps);

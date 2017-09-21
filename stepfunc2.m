@@ -3,26 +3,27 @@ global KX KY
 global loc1 loc2 
 global OPT_ELE;
 
-x0 = clm.usrdata.x0;
-y0 = clm.usrdata.y0;
-xp0 = clm.usrdata.xp0;
-yp0 = clm.usrdata.yp0;
-x1 = clm.usrdata.x1;
-y1 = clm.usrdata.y1;
-xp1 = clm.usrdata.xp1;
-yp1 = clm.usrdata.yp1;
-xw = clm.usrdata.xw;
-yw = clm.usrdata.yw;
-xpw = clm.usrdata.xpw;
-ypw = clm.usrdata.ypw;
-emittance = clm.usrdata.emittance;
+usrdata = load('runtmp');
+x0 = usrdata.x0;
+y0 = usrdata.y0;
+xp0 = usrdata.xp0;
+yp0 = usrdata.yp0;
+x1 = usrdata.x1;
+y1 = usrdata.y1;
+xp1 = usrdata.xp1;
+yp1 = usrdata.yp1;
+xw = usrdata.xw;
+yw = usrdata.yw;
+xpw = usrdata.xpw;
+ypw =usrdata.ypw;
+emittance = usrdata.emittance;
 
-nuxw = clm.usrdata.nuxw;
-nuyw = clm.usrdata.nuyw;
-betaw = clm.usrdata.betaw;
+nuxw = usrdata.nuxw;
+nuyw = usrdata.nuyw;
+betaw = usrdata.betaw;
 
-ds = clm.usrdata.stepsize;
-nsteps = clm.usrdata.nsteps;
+ds = usrdata.stepsize;
+nsteps = usrdata.nsteps;
 
 % Evaluate kappa
 for i=1:length( X )
@@ -44,8 +45,8 @@ end;
 % -- calculate tune values
 Lchan = 32;
 
-betax = (1e-2*x).^2/(emittance*1e-6);
-betay = (1e-2*y).^2/(emittance*1e-6);
+betax = (x).^2/(emittance);
+betay = (y).^2/(emittance);
 
 % -- channel tune
 iend = find(d==Lchan);
