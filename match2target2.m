@@ -1,4 +1,4 @@
-function X = match2target2()
+function X = match2target2( paramfile )
 global loc1 loc2 KX KY;
 global OPT_ELE;
 global clm

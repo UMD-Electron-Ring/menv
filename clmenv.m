@@ -121,6 +121,8 @@ clm.usrdata.yw = target.yw;
 clm.usrdata.xpw = target.xpw;
 clm.usrdata.ypw = target.ypw;
 
+try clm.usrdata.nuxt = target.nuxt; catch; end
+try clm.usrdata.nuyt = target.nuyt; catch; end
 try clm.usrdata.nuxw = target.nuxw; catch; end
 try clm.usrdata.nuyw = target.nuyw; catch; end
 try clm.usrdata.betaw = target.betaw; catch; end
@@ -136,21 +138,23 @@ function maketarget(varargin)
 % 3 -- optional weightlist
 %
 if nargin > 0
-    targetlist = varargin(1);
+    targetlist = varargin{1};
     target.x1 = targetlist(1);
     target.y1 = targetlist(2);
     target.xp1 = targetlist(3);
     target.yp1 = targetlist(4);
-end
-if nargin > 1
-    weightlist = varargin(2);
+    
+    weightlist = varargin{2};
     target.xw = weightlist(1);
     target.yw = weightlist(2);
     target.xpw = weightlist(3);
     target.ypw = weightlist(4);
 end
 if nargin > 2
-    optweightlist = varargin(3);
+    opttargetlist = varargin{3};
+    optweightlist = varargin{4};
+    target.nuxt = opttargetlist(1);
+    target.nuyt = opttargetlist(2);
     target.nuxw = optweightlist(1);
     target.nuyw = optweightlist(2);
     target.betaw = optweightlist(3);

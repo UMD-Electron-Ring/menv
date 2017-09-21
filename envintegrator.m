@@ -80,19 +80,19 @@ end
         
     end
 
-    function [x,y,xp,yp] = step(x0,y0,xp0,yp0)
+    function [x2,y2,xp2,yp2] = step(x1,y1,xp1,yp1)
         % function for single step
-        x = x0+xp0*ds;
-        y = y0+yp0*ds;
-        [xpp,ypp] = calc_prim2(x,y);
-        xp = xp0+xpp*ds;
-        yp = yp0+ypp*ds;
+        x2 = x1+xp1*ds;
+        y2 = y1+yp1*ds;
+        [xpp,ypp] = calc_prim2(x2,y2);
+        xp2 = xp1+xpp*ds;
+        yp2 = yp1+ypp*ds;
     end
 
-    function [xpp,ypp] = calc_prim2(x,y)
+    function [xpp1,ypp1] = calc_prim2(x1,y1)
         % function to calculate velocity impulse
-        xpp = -( kx*x-2*K/(x+y)-Ex^2/(x^3) );
-        ypp = -( ky*y-2*K/(x+y)-Ey^2/(y^3) );
+        xpp1 = -( kx*x1-2*K/(x1+y1)-Ex^2/(x1^3) );
+        ypp1 = -( ky*y1-2*K/(x1+y1)-Ey^2/(y1^3) );
     end
   
 end

@@ -2,6 +2,7 @@ function f =  stepfunc2( X )
 global KX KY
 global loc1 loc2 
 global OPT_ELE;
+global clm
 
 x0 = clm.usrdata.x0;
 y0 = clm.usrdata.y0;
@@ -15,14 +16,18 @@ xw = clm.usrdata.xw;
 yw = clm.usrdata.yw;
 xpw = clm.usrdata.xpw;
 ypw = clm.usrdata.ypw;
-emittance = clm.usrdata.emittance;
+emittance = clm.usrdata.emitance;
 
+nuxt = clm.usrdata.nuxt;
+nuyt = clm.usrdata.nuyt;
 nuxw = clm.usrdata.nuxw;
 nuyw = clm.usrdata.nuyw;
 betaw = clm.usrdata.betaw;
 
 ds = clm.usrdata.stepsize;
-nsteps = clm.usrdata.nsteps;
+distance = clm.usrdata.distance;
+stepsize = clm.usrdata.stepsize;
+nsteps = round((distance)/ds)+1;  % steps
 
 % Evaluate kappa
 for i=1:length( X )
@@ -43,16 +48,10 @@ end;
 
 % -- calculate tune values
 Lchan = 32;
+d = 0:ds:distance;
 
-betax = (1e-2*x).^2/(emittance*1e-6);
-betay = (1e-2*y).^2/(emittance*1e-6);
-
-% -- channel tune
-iend = find(d==Lchan);
-psixch = stepsize*sum(1./betax(1:iend));
-psiych = stepsize*sum(1./betay(1:iend));
-nuxch = psixch/(2*pi);
-nuych = psiych/(2*pi);
+betax = (x).^2/(emittance);
+betay = (y).^2/(emittance);
 
 % -- full lattice tune
 psix = stepsize*sum(1./betax);
@@ -60,23 +59,15 @@ psiy = stepsize*sum(1./betay);
 nux = psix/(2*pi);
 nuy = psiy/(2*pi);
 
-% -- linear lattice tune
-nuxlat = nux-nuxch;
-nuylat = nuy-nuych;
-
-% -- 340 deg ring phase advance
-nuxring = periodicity*2*nux - 2*nuxch;
-nuyring = periodicity*2*nuy - 2*nuych;
-
 % condition for integer ring tune
-nuxcontr = min(1-mod(nuxring,1),mod(nuxring,1));
-nuycontr = min(1-mod(nuyring,1),mod(nuyring,1));
+nuxcontr = nux-nuxt;
+nuycontr = nuy-nuyt;
 
 % condition for envelope target
-xcontr = x-x1;
-ycontr = y-y1;
-xpcontr = xp-xp1;
-ypcontr = yp-yp1; 
+xcontr = x(end)-x1;
+ycontr = y(end)-y1;
+xpcontr = xp(end)-xp1;
+ypcontr = yp(end)-yp1; 
 
 % condition for symmetric beam
 betacontr = max(abs(betax-betay));
