@@ -143,7 +143,7 @@ if nargin > 0
     target.y1 = targetlist(2);
     target.xp1 = targetlist(3);
     target.yp1 = targetlist(4);
-    
+
     weightlist = varargin{2};
     target.xw = weightlist(1);
     target.yw = weightlist(2);
