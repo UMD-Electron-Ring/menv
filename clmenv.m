@@ -26,8 +26,9 @@ clm.build = @buildFODO;
 
 clm.solve = @solvelattice;
 clm.periodicmatcher = @periodicmatcher;
-clm.targetmatcher = @targetmatcher;
-clm.trajmatcher = @trajmatcher;
+clm.targetmatcher = @targetmatcher; % target is x,y,xp,yp
+clm.targetmatcher2 = @targetmatcher2; % target is x,y,xp,yp,nux,nuy,betax~betay
+clm.trajmatcher = @trajmatcher; % target x,y,xp,yp plus tries to match trajectory
 
 clm.maketarget = @maketarget;
 clm.makeoptiset = @makeoptiset;
@@ -108,6 +109,9 @@ global clm
 load 'target'
 load 'optiset'
 
+clm.usrdata.maxIter = optiset.maxIter;
+clm.usrdata.tolFun = optiset.tolFun;
+
 clm.usrdata.x1 = target.x1;
 clm.usrdata.y1 = target.y1;
 clm.usrdata.xp1 = target.xp1;
@@ -116,21 +120,42 @@ clm.usrdata.xw = target.xw;
 clm.usrdata.yw = target.yw;
 clm.usrdata.xpw = target.xpw;
 clm.usrdata.ypw = target.ypw;
-clm.usrdata.maxIter = optiset.maxIter;
-clm.usrdata.tolFun = optiset.tolFun;
+
+try clm.usrdata.nuxw = target.nuxw; catch; end
+try clm.usrdata.nuyw = target.nuyw; catch; end
+try clm.usrdata.betaw = target.betaw; catch; end
+
 
 end
 
-function maketarget(targetlist,weightlist)
+function maketarget(varargin)
 % Load beam targets and weights into clmenv memory
-target.x1 = targetlist(1);
-target.y1 = targetlist(2);
-target.xp1 = targetlist(3);
-target.yp1 = targetlist(4);
-target.xw = weightlist(1);
-target.yw = weightlist(2);
-target.xpw = weightlist(3);
-target.ypw = weightlist(4);
+% varargin:
+% 1 -- targetlist
+% 2 -- weightlist
+% 3 -- optional weightlist
+%
+if nargin > 0
+    targetlist = varargin(1);
+    target.x1 = targetlist(1);
+    target.y1 = targetlist(2);
+    target.xp1 = targetlist(3);
+    target.yp1 = targetlist(4);
+end
+if nargin > 1
+    weightlist = varargin(2);
+    target.xw = weightlist(1);
+    target.yw = weightlist(2);
+    target.xpw = weightlist(3);
+    target.ypw = weightlist(4);
+end
+if nargin > 2
+    optweightlist = varargin(3);
+    target.nuxw = optweightlist(1);
+    target.nuyw = optweightlist(2);
+    target.betaw = optweightlist(3);
+end
+
 save 'target' target 
 end
 
@@ -415,6 +440,56 @@ save 'runtmp' usrdata;
 
 % Run ......
 newKappa = match2target( 'runtmp' );
+
+% Save the new result
+[~,n] = size( usrdata.loc ); k = 1;
+for i=1:n
+    if( usrdata.opt(i) )
+        usrdata.str(i) = newKappa(k); k = k+1;
+    end;
+end;
+
+usrdata = TransferFromSI( usrdata );
+clm.usrdata = usrdata;
+
+% Update figure
+solvelattice()
+end
+
+function targetmatcher2()
+% Run matching algorithm, find lattice function for desired target (final)
+% condition given initial condition
+global clm
+usrdata = clm.usrdata;
+ 
+% only check one parameter is enough
+if( isempty(usrdata.x0) )
+    warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
+    return;
+end;
+if( isempty(usrdata.x1) )
+    warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
+    return;
+end;
+if( sum(usrdata.opt)==0 )
+    warndlg( 'The optimized elements are not defined!', 'ERROR', 'modal' );
+    return;
+end;
+
+% clear plot if necessary
+if exist('clm.soldata')
+   if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end;
+   if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end;
+end
+
+% Transfer to SI
+usrdata = Transfer2SI( usrdata );
+
+% Save to tempary file
+save 'runtmp' usrdata;
+
+% Run ......
+newKappa = match2target2( 'runtmp' );
 
 % Save the new result
 [~,n] = size( usrdata.loc ); k = 1;
