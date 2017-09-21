@@ -22,6 +22,7 @@ clm.defparam = @defparam;
 clm.defmatcher = @defmatcher;
 clm.deflattice = @deflattice;
 clm.draw = @drawlattice;
+clm.build = @buildFODO;
 
 clm.solve = @solvelattice;
 clm.periodicmatcher = @periodicmatcher;
@@ -173,27 +174,117 @@ params.distance = distance;
 save 'params' params
 end
 
-function deflattice(ele,loc,len,str,opt,did)
+function deflattice(varargin)
 global clm
 
-clm.usrdata.ele = ele;
-clm.usrdata.loc = loc;
-clm.usrdata.len = len;
-clm.usrdata.str = str;
-clm.usrdata.opt = opt;
-clm.usrdata.did = did;
+if length(varargin)==1
+    lat = varargin{1};
+    clm.usrdata.ele = lat.ele;
+    clm.usrdata.loc = lat.loc;
+    clm.usrdata.len = lat.len;
+    clm.usrdata.str = lat.str;
+    clm.usrdata.opt = lat.opt;
+    clm.usrdata.did = lat.did;
+elseif length(varargin)==6
+    clm.usrdata.ele = varargin(1);
+    clm.usrdata.loc = varargin(2);
+    clm.usrdata.len = varargin(3);
+    clm.usrdata.str = varargin(4);
+    clm.usrdata.opt = varargin(5);
+    clm.usrdata.did = varargin(6);
 end
 
-function drawlattice(ele,loc,len,str)
+end
+
+function drawlattice(varargin)
+
+if length(varargin)==1
+    lat = varargin{1};
+    ele = lat.ele;
+    loc = lat.loc;
+    len = lat.len;
+    str = lat.str;
+    opt = lat.opt;
+elseif length(varargin)==5
+    ele = varargin(1);
+    loc = varargin(2);
+    len = varargin(3);
+    str = varargin(4);
+    opt = varargin(5);
+end
+
+
+
 for i=1:length(ele)
-    hele = abs(str(i))*0.25;
+    hele = 1;
+    if str(i)==0; continue % -- if str==0, don't draw a patch
+    end
     sele = loc(i)-len(i)*0.5;
     eele = loc(i)+len(i)*0.5;
+    % -- choose color based on element, optimization
     if strcmp(ele(i),'D') col = [0,1,0];
-    elseif strcmp(ele(i),'Q') col = [.9,.9,.9]; 
+    elseif strcmp(ele(i),'Q') && opt(i)==0 col = [.9,.9,.9]; 
+    elseif strcmp(ele(i),'Q') && opt(i)==1 col = [.3,.3,.3]; 
     end
+    % -- draw a patch for each element
     patch([sele,eele,eele,sele],[0,0,hele,hele],col)
 end
+end
+
+function [lat] = buildFODO(ncells)
+
+nD = ncells;
+nQ = 2*ncells;
+nele = nD+nQ;
+lcell = 32;
+L = lcell*ncells;
+
+
+ele ='';
+loc = zeros(1,nele);
+len = zeros(1,nele);
+str = zeros(1,nele);
+did = zeros(1,nele);
+opt = zeros(1,nele);
+
+% -- make list of elements
+for i=1:ncells
+    ele = [ele,'QDQ'];
+end
+
+% -- define quads
+for i=1:nQ
+    loc(i) = 8 + 16*(i-1);
+    len(i) = 3.6400;
+    str(i) = 140 * (-2*mod(i,2)+1);
+    did(i) = 0;
+    opt(i) = 0;
+end
+
+% -- define dipoles
+for i=1:nD
+    loc(i+nQ) = 16 + 32*(i-1);
+    len(i+nQ) = 3.8500;
+    str(i+nQ) = 15.7;
+    did(i+nQ) = 0.72;
+    opt(i+nQ) = 0;  
+end
+
+% -- sort list
+[loc,isort] = sort(loc);
+
+len = len(isort);
+str = str(isort);
+did = did(isort);
+opt = opt(isort);
+
+lat.ele = ele;
+lat.len = len;
+lat.loc = loc;
+lat.str = str;
+lat.did = did;
+lat.opt = opt;
+
 end
 
 
