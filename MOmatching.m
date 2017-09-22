@@ -1,6 +1,6 @@
 function [x fval flag output population]=MOmatching()
 
-load 'runtmpMO';
+load 'runtmp';
 % Global beam parateters
 K = runtmp.perveance; % Pervence
 Ex = runtmp.emitance; % Emmitance x
@@ -82,8 +82,8 @@ save 'runtmp' runtmp;
 
 % make initial population
 NPOP = 20;
-pop0 = [59.59	-51.493	-42.11	52.735];
-IP = ((rand(NPOP,length(pop0))*2)-1)*300; IP(1,:) = pop0;
+% pop0 = [59.59	-51.493	-42.11	52.735];
+% IP = ((rand(NPOP,length(pop0))*2)-1)*300; IP(1,:) = pop0;
 
 
 options = gaoptimset('CreationFcn', @gacreationlinearfeasible,...
@@ -92,8 +92,8 @@ options = gaoptimset('CreationFcn', @gacreationlinearfeasible,...
                     'PopulationSize',NPOP,...
                     'ParetoFraction',0.7,...
                     'PlotFcns',@gaplotpareto,...
-                    'PopInitRange',[-300;300],...
-                    'InitialPopulation',pop0);
+                    'PopInitRange',[-300;300]);
+%                    'InitialPopulation',pop0);
  NVARS = length(OPT_ELE);
  UB = 300*ones(1,NVARS); LB=-UB;
 [x fval flag output population] = gamultiobj(@stepfuncMO,NVARS,...
