@@ -321,19 +321,19 @@ end
 function solvelattice()
 
 global clm
-usrdata = clm.usrdata;
+runtmp = clm.usrdata;
 
 % check that initial conditions (params) are defined
-if( isempty(usrdata.x0) )
+if( isempty(runtmp.x0) )
     warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
     return;
 end
 
 % Transfer to SI
-usrdata = Transfer2SI( usrdata );
+runtmp = Transfer2SI( runtmp );
 
 % Save to tempary file
-save 'runtmp' usrdata;
+save 'runtmp' runtmp;
 
 % Run ......
 [x,y,xp,yp,d,nux,nuy] = runmenv( 'runtmp' );
@@ -352,7 +352,7 @@ axis([ min(d) max(d) 0.0 max([x,y])*1.2 ]);
 
 
 % Save data
-if( usrdata.stepsize<0.005 ) interval = round(0.005/usrdata.stepsize);
+if( runtmp.stepsize<0.005 ) interval = round(0.005/runtmp.stepsize);
 else interval = 1; end
 n = length(d); ind = 1:interval:n;
 if( ind(length(ind))~=n ) ind(length(ind)+1) = n; end
@@ -379,34 +379,34 @@ function periodicmatcher()
 % Run matching algorithm for periodic solution for given lattice function
 
 global clm
-usrdata = clm.usrdata;
+runtmp = clm.usrdata;
 % only check one parameter is enough
-if( isempty(usrdata.x0) )
+if( isempty(runtmp.x0) )
     warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
     return;
 end;
-if( isempty(usrdata.x1) )
+if( isempty(runtmp.x1) )
     warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
     return;
 end;
 
 % Transfer to SI
-usrdata = Transfer2SI( usrdata );
+runtmp = Transfer2SI( runtmp );
 
 % Save to tempary file
-save 'runtmp' usrdata;
+save 'runtmp' runtmp;
 
 % Run ......
 newX0 = match2period( 'runtmp' );
 
 % Save the new result
-usrdata.x0 = newX0(1);
-usrdata.y0 = newX0(2);
-usrdata.xp0= newX0(3);
-usrdata.yp0= newX0(4);
-usrdata = TransferFromSI( usrdata );
+runtmp.x0 = newX0(1);
+runtmp.y0 = newX0(2);
+runtmp.xp0= newX0(3);
+runtmp.yp0= newX0(4);
+runtmp = TransferFromSI( runtmp );
 
-clm.usrdata = usrdata;
+clm.usrdata = runtmp;
 % Update figure
 solvelattice()
 end
@@ -415,18 +415,18 @@ function targetmatcher()
 % Run matching algorithm, find lattice function for desired target (final)
 % condition given initial condition
 global clm
-usrdata = clm.usrdata;
+runtmp = clm.usrdata;
  
 % only check one parameter is enough
-if( isempty(usrdata.x0) )
+if( isempty(runtmp.x0) )
     warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
     return;
 end;
-if( isempty(usrdata.x1) )
+if( isempty(runtmp.x1) )
     warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
     return;
 end;
-if( sum(usrdata.opt)==0 )
+if( sum(runtmp.opt)==0 )
     warndlg( 'The optimized elements are not defined!', 'ERROR', 'modal' );
     return;
 end;
@@ -438,24 +438,24 @@ if exist('clm.soldata')
 end
 
 % Transfer to SI
-usrdata = Transfer2SI( usrdata );
+runtmp = Transfer2SI( runtmp );
 
 % Save to tempary file
-save 'runtmp' usrdata;
+save 'runtmp' runtmp;
 
 % Run ......
 newKappa = match2target( 'runtmp' );
 
 % Save the new result
-[~,n] = size( usrdata.loc ); k = 1;
+[~,n] = size( runtmp.loc ); k = 1;
 for i=1:n
-    if( usrdata.opt(i) )
-        usrdata.str(i) = newKappa(k); k = k+1;
+    if( runtmp.opt(i) )
+        runtmp.str(i) = newKappa(k); k = k+1;
     end;
 end;
 
-usrdata = TransferFromSI( usrdata );
-clm.usrdata = usrdata;
+runtmp = TransferFromSI( runtmp );
+clm.usrdata = runtmp;
 
 % Update figure
 solvelattice()
@@ -466,18 +466,18 @@ function targetmatcher2()
 % Run matching algorithm, find lattice function for desired target (final)
 % condition given initial condition
 global clm
-usrdata = clm.usrdata;
+runtmp = clm.usrdata;
  
 % only check one parameter is enough
-if( isempty(usrdata.x0) )
+if( isempty(runtmp.x0) )
     warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
     return;
 end;
-if( isempty(usrdata.x1) )
+if( isempty(runtmp.x1) )
     warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
     return;
 end;
-if( sum(usrdata.opt)==0 )
+if( sum(runtmp.opt)==0 )
     warndlg( 'The optimized elements are not defined!', 'ERROR', 'modal' );
     return;
 end;
@@ -489,24 +489,24 @@ if exist('clm.soldata')
 end
 
 % Transfer to SI
-usrdata = Transfer2SI( usrdata );
+runtmp = Transfer2SI( runtmp );
 
 % Save to tempary file
-save 'runtmp' usrdata;
+save 'runtmp' runtmp;
 
 % Run ......
 newKappa = match2target2( 'runtmp' );
 
 % Save the new result
-[~,n] = size( usrdata.loc ); k = 1;
+[~,n] = size( runtmp.loc ); k = 1;
 for i=1:n
-    if( usrdata.opt(i) )
-        usrdata.str(i) = newKappa(k); k = k+1;
+    if( runtmp.opt(i) )
+        runtmp.str(i) = newKappa(k); k = k+1;
     end;
 end;
 
-usrdata = TransferFromSI( usrdata );
-clm.usrdata = usrdata;
+runtmp = TransferFromSI( runtmp );
+clm.usrdata = runtmp;
 
 % Update figure
 solvelattice()
@@ -516,18 +516,18 @@ function GStargetmatcher()
 % Run matching algorithm, vary lattice function to match target, including
 % reference trajectory
 global clm
-usrdata = clm.usrdata;
+runtmp = clm.usrdata;
  
 % only check one parameter is enough
-if( isempty(usrdata.x0) )
+if( isempty(runtmp.x0) )
     warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
     return;
 end;
-if( isempty(usrdata.x1) )
+if( isempty(runtmp.x1) )
     warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
     return;
 end;
-if( sum(usrdata.opt)==0 )
+if( sum(runtmp.opt)==0 )
     warndlg( 'The optimized elements are not defined!', 'ERROR', 'modal' );
     return;
 end;
@@ -539,24 +539,27 @@ if exist('clm.soldata')
 end
 
 % Transfer to SI
-usrdata = Transfer2SI( usrdata );
+runtmp = Transfer2SI( runtmp );
 
 % Save to tempary file
-save 'runtmp' usrdata;
+save 'runtmp' runtmp;
 
 % Run ......
-newKappa = GSmatch2target( 'runtmp' );
+[newKappa,f] = GSmatch2target( 'runtmp' );
 
 % Save the new result
-[~,n] = size( usrdata.loc ); k = 1;
+[~,n] = size( runtmp.loc ); k = 1;
 for i=1:n
-    if( usrdata.opt(i) )
-        usrdata.str(i) = newKappa(k); k = k+1;
+    if( runtmp.opt(i) )
+        runtmp.str(i) = newKappa(k); k = k+1;
     end;
 end;
 
-usrdata = TransferFromSI( usrdata );
-clm.usrdata = usrdata;
+% - save error contribution terms
+runtmp.GSfunc = f;
+
+runtmp = TransferFromSI( runtmp );
+clm.usrdata = runtmp;
 
 % Update figure
 solvelattice()

@@ -1,7 +1,6 @@
-function [X,f] = GSmatch2target( paramfile )
-% nonlinear/global search algorithm. Run w/ matlab 2012.
+function [x fval flag output population]=MOmatching()
 
-load(paramfile);
+load 'runtmpMO';
 % Global beam parateters
 K = runtmp.perveance; % Pervence
 Ex = runtmp.emitance; % Emmitance x
@@ -81,40 +80,24 @@ runtmp.loc2 = loc2;
 runtmp.OPT_ELE = OPT_ELE;
 save 'runtmp' runtmp;
 
-% % -- old lsqnonlin
-% X = X0; % X is values of optimization variables
-% if( length(X)<=4 ) scale = 'on';
-% else scale = 'off'; end;
-% options = optimset('LargeScale', scale, ...
-%    'Display', 'iter', ...
-%    'MaxIter', maxIter, ...
-%    'TolFun', tolFun );
-% X = lsqnonlin( 'stepfunc2', X,[],[],options );
-
-%%
-% -- new gs
-X = X0; % X is values of optimization variables
-
-sf2 = @(x)GSstepfunc(x); % objective
-problem = createOptimProblem('fmincon',...
-    'x0',X0,...
-    'lb',[-300,-300,-300,-300],...
-    'ub',[300,300,300,300],...
-    'objective',sf2);
-    
-gs = GlobalSearch;
-tic
-[xg fg flg og] = run(gs,problem);
-toc
-
-X = xg; % new strength settings
-f =  stepfunc2( X ); % run just to get error contributions;
+% make initial population
+NPOP = 20;
+pop0 = [59.59	-51.493	-42.11	52.735, fliplr([59.59	-51.493	-42.11	52.735])];
+IP = ((rand(NPOP,length(pop0))*2)-1)*300; IP(1,:) = pop0;
 
 
-% -- delete new fields in runtmp
-rmfield(runtmp,'KX');
-rmfield(runtmp,'KY');
-rmfield(runtmp,'loc1');
-rmfield(runtmp,'loc2');
-rmfield(runtmp,'OPT_ELE');
-save 'runtmp' runtmp;
+options = gaoptimset('CreationFcn', @gacreationlinearfeasible,...
+                    'MutationFcn', @mutationadaptfeasible,...
+                    'CrossoverFcn', @crossoverintermediate,...
+                    'PopulationSize',NPOP,...
+                    'ParetoFraction',0.7,...
+                    'PlotFcns',@gaplotpareto,...
+                    'InitialPopulation',IP);
+ NVARS = length(OPT_ELE);
+ UB = 300*ones(1,NVARS); LB=-UB;
+[x fval flag output population] = gamultiobj(@stepfuncMO,NVARS,...
+                          [],[],[],[],LB,UB,options);
+                      
+end
+
+

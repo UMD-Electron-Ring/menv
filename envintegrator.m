@@ -1,9 +1,9 @@
 function [X,Y,XP,YP] = envintegrator(KX,KY,ic,ds,nsteps,allflag)
 
-usrdata = [];
+runtmp = []; % needed for fixed workspace
 load 'runtmp'
-K = usrdata.perveance; % Pervence
-Ex = usrdata.emitance; % Emmitance x
+K = runtmp.perveance; % Pervence
+Ex = runtmp.emitance; % Emmitance x
 Ey = Ex;
 
 x0 = ic(1);

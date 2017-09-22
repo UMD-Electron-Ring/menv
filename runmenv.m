@@ -3,28 +3,28 @@ global kx ky K Ex Ey ds;
 load( paramfile );
 
 % Global beam parateters
-K = usrdata.perveance; % Pervence
-Ex = usrdata.emitance; % Emmitance x
+K = runtmp.perveance; % Pervence
+Ex = runtmp.emitance; % Emmitance x
 Ey = Ex;               % Emmitance y
 
 % Initail conditions
-x0 = usrdata.x0;
-y0 = usrdata.y0;
-xp0 = usrdata.xp0;
-yp0 = usrdata.yp0;
+x0 = runtmp.x0;
+y0 = runtmp.y0;
+xp0 = runtmp.xp0;
+yp0 = runtmp.yp0;
 
 % Numerical parameters
-max_d = usrdata.distance;
+max_d = runtmp.distance;
 min_d = 0.0;
-ds = usrdata.stepsize;          % Step-size
+ds = runtmp.stepsize;          % Step-size
 n = round((max_d-min_d)/ds)+1;  % steps
 
 % Lattice
-ele = usrdata.ele;      % element: 'Q'/'S'
-loc = usrdata.loc;      % locations
-len = usrdata.len;      % effective length
-str = usrdata.str;      % strength (kappa)
-dipl_n = usrdata.did;   % diple field index
+ele = runtmp.ele;      % element: 'Q'/'S'
+loc = runtmp.loc;      % locations
+len = runtmp.len;      % effective length
+str = runtmp.str;      % strength (kappa)
+dipl_n = runtmp.did;   % diple field index
 
 % Envlope-array(x,y), Kappa-array(KX,KY), distance-array(d)
 x = zeros(1,n);

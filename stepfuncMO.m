@@ -1,12 +1,10 @@
-function f =  stepfunc2( X )
+function f =  stepfuncMO( X )
 
 load 'runtmp';
 
 KX = runtmp.KX;
 KY = runtmp.KY;
 nsteps = round(runtmp.distance/runtmp.stepsize) +1;
-
-
 
 % Evaluate kappa
 for i=1:length( X )
@@ -52,5 +50,9 @@ ypcontr = yp(end)-runtmp.yp1;
 % condition for symmetric beam
 betacontr = max(abs(betax-betay));
 
-f = [xcontr,ycontr,xpcontr,ypcontr,nuxcontr,nuycontr,betacontr];
-f = f.*[runtmp.xw runtmp.yw runtmp.xpw runtmp.ypw runtmp.nuxw runtmp.nuyw runtmp.betaw];
+f1 = [xcontr,ycontr,xpcontr,ypcontr];
+f2 = [nuxcontr,nuycontr];
+f1 = f1.*[runtmp.xw runtmp.yw runtmp.xpw runtmp.ypw ];
+f2 = f2.*[runtmp.nuxw runtmp.nuyw];
+f(1) = sum(abs(f1));
+f(2) = sum(abs(f2));
