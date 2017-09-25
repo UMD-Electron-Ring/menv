@@ -446,6 +446,8 @@ save 'runtmp' runtmp;
 % Run ......
 newKappa = match2target( 'runtmp' );
 
+load runtmp
+
 % Save the new result
 [~,n] = size( runtmp.loc ); k = 1;
 for i=1:n
@@ -453,6 +455,7 @@ for i=1:n
         runtmp.str(i) = newKappa(k); k = k+1;
     end;
 end;
+
 
 runtmp = TransferFromSI( runtmp );
 clm.usrdata = runtmp;

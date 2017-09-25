@@ -112,9 +112,10 @@ f =  stepfunc2( X ); % run just to get error contributions;
 
 
 % -- delete new fields in runtmp
-rmfield(runtmp,'KX');
-rmfield(runtmp,'KY');
-rmfield(runtmp,'loc1');
-rmfield(runtmp,'loc2');
-rmfield(runtmp,'OPT_ELE');
+% rmfield(runtmp,'KX');
+% rmfield(runtmp,'KY');
+% rmfield(runtmp,'loc1');
+% rmfield(runtmp,'loc2');
+% rmfield(runtmp,'OPT_ELE');
+runtmp.f = f;
 save 'runtmp' runtmp;

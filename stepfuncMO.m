@@ -50,9 +50,12 @@ ypcontr = yp(end)-runtmp.yp1;
 % condition for symmetric beam
 betacontr = max(abs(betax-betay));
 
-f1 = [xcontr,ycontr,xpcontr,ypcontr];
-f2 = [nuxcontr,nuycontr];
-f1 = f1.*[runtmp.xw runtmp.yw runtmp.xpw runtmp.ypw ];
-f2 = f2.*[runtmp.nuxw runtmp.nuyw];
+f1 = [xcontr,xpcontr];
+f2 = [ycontr,ypcontr];
+f3 = [nuxcontr,nuycontr];
+f1 = f1.*[runtmp.xw runtmp.xpw ];
+f2 = f2.*[runtmp.yw runtmp.ypw ];
+f3 = f3.*[runtmp.nuxw runtmp.nuyw];
 f(1) = sum(abs(f1));
 f(2) = sum(abs(f2));
+f(3) = sum(abs(f3));

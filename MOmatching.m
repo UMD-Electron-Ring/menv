@@ -1,6 +1,6 @@
 function [x fval flag output population]=MOmatching()
 
-load 'runtmp';
+load 'runtmpMO';
 % Global beam parateters
 K = runtmp.perveance; % Pervence
 Ex = runtmp.emitance; % Emmitance x
@@ -98,6 +98,10 @@ options = gaoptimset('CreationFcn', @gacreationlinearfeasible,...
  UB = 300*ones(1,NVARS); LB=-UB;
 [x fval flag output population] = gamultiobj(@stepfuncMO,NVARS,...
                           [],[],[],[],LB,UB,options);
+
+
+runtmp.f = fval;
+save 'runtmp' runtmp;
                       
 end
 

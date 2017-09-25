@@ -5,44 +5,44 @@ global x0 y0 xp0 yp0;
 global x1 y1 xp1 yp1;
 global xw yw xpw ypw;
 global OPT_ELE;
-load( paramfile );
+load 'runtmp';
 
 % Global beam parateters
-K = usrdata.perveance; % Pervence
-Ex = usrdata.emitance; % Emmitance x
+K = runtmp.perveance; % Pervence
+Ex = runtmp.emitance; % Emmitance x
 Ey = Ex;               % Emmitance y
 % Initial conditions
-x0 = usrdata.x0;
-y0 = usrdata.y0;
-xp0 = usrdata.xp0;
-yp0 = usrdata.yp0;
+x0 = runtmp.x0;
+y0 = runtmp.y0;
+xp0 = runtmp.xp0;
+yp0 = runtmp.yp0;
 % target conditions
-x1 = usrdata.x1;
-y1 = usrdata.y1;
-xp1 = usrdata.xp1;
-yp1 = usrdata.yp1;
+x1 = runtmp.x1;
+y1 = runtmp.y1;
+xp1 = runtmp.xp1;
+yp1 = runtmp.yp1;
 % weights
-xw = usrdata.xw;
-yw = usrdata.yw;
-xpw = usrdata.xpw;
-ypw = usrdata.ypw;
+xw = runtmp.xw;
+yw = runtmp.yw;
+xpw = runtmp.xpw;
+ypw = runtmp.ypw;
 % Numerical parameters
-max_d = usrdata.distance;
+max_d = runtmp.distance;
 min_d = 0.0;
-ds = usrdata.stepsize;          % Step-size
+ds = runtmp.stepsize;          % Step-size
 nsteps = round((max_d-min_d)/ds)+1;  % steps
 % Lattice
-ele = usrdata.ele;      % element: 'Q'/'S'
-loc = usrdata.loc;      % locations
-len = usrdata.len;      % effective length
-str = usrdata.str;      % strength (kappa)
-dipl_n = usrdata.did;   % diple field index
+ele = runtmp.ele;      % element: 'Q'/'S'
+loc = runtmp.loc;      % locations
+len = runtmp.len;      % effective length
+str = runtmp.str;      % strength (kappa)
+dipl_n = runtmp.did;   % diple field index
 
 % Optimize which
-opt = usrdata.opt;
+opt = runtmp.opt;
 % Iterations
-maxIter = round(usrdata.maxIter);
-tolFun = usrdata.tolFun;
+maxIter = round(runtmp.maxIter);
+tolFun = runtmp.tolFun;
 
 % Envlope-array(x,y), Kappa-array(KX,KY), distance-array(d)
 x = zeros(1,nsteps);
@@ -86,4 +86,9 @@ options = optimset('LargeScale', scale, ...
    'MaxIter', maxIter, ...
    'TolFun', tolFun );
 X = lsqnonlin( 'stepfunc', X,[],[],options );
+
+
+f =  stepfunc( X ); % run just to get error contributions;
+runtmp.f = f;
+save 'runtmp' runtmp;
 
