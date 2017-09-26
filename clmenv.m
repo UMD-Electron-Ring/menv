@@ -636,8 +636,10 @@ usrdata.distance = data.distance*1.e2;   % m->cm
 usrdata.loc = data.loc*1.e2;             % m->cm
 usrdata.len = data.len*1.e2;             % m->cm
 %usrdata.str
+if exist('data.x1')
 usrdata.x1 = data.x1*1.e2;               % m->cm
 usrdata.y1 = data.y1*1.e2;               % m->cm
+end
 if exist('data.xref')
     usrdata.xref = data.xref*1.e2;               % m->cm
     usrdata.yref = data.yref*1.e2;               % m->cm
@@ -658,8 +660,10 @@ usrdata.distance = data.distance*1.e-2;   % cm->m
 usrdata.loc = data.loc*1.e-2;             % cm->m
 usrdata.len = data.len*1.e-2;             % cm->m   
 %usrdata.str
+if exist('data.x1')
 usrdata.x1 = data.x1*1.e-2;               % cm->m
 usrdata.y1 = data.y1*1.e-2;               % cm->m
+end
 if exist('data.xref')
 usrdata.xref = data.xref*1.e-2;               % m->cm
 usrdata.yref = data.yref*1.e-2;               % m->cm
