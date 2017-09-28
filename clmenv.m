@@ -285,7 +285,7 @@ end
 % -- define quads
 for i=1:nQ
     loc(i) = 8 + 16*(i-1);
-    len(i) = 3.6400;
+    len(i) = 3.7384;
     str(i) = 140 * (-2*mod(i,2)+1);
     did(i) = 0;
     opt(i) = 0;
@@ -341,7 +341,7 @@ x=x*1.e2; y=y*1.e2; d=d*1.e2;  % m-cm
 
 % Plot
 % -- clear plots if they exist
-if exist('clm.soldata')
+if isstruct(clm.soldata)
    if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end
    if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end
 end

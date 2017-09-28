@@ -9,7 +9,7 @@ gamma = 1+T/(M*c^2);
 beta = sqrt(1-gamma^-2);
 
 if( nargin==1 | (nargin==2 & ele=='Q') )
-   g0 = 4.14e-2;
+   g0 = 3.608e-2;
    G = (gamma*M*beta*c/q)*kappa;
    I = G/g0;
    (gamma*M*beta*c/q)/g0
