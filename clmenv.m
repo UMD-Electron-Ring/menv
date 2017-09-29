@@ -341,7 +341,7 @@ x=x*1.e2; y=y*1.e2; d=d*1.e2;  % m-cm
 
 % Plot
 % -- clear plots if they exist
-if isstruct(clm.soldata)
+if isfield(clm,'soldata')
    if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end
    if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end
 end

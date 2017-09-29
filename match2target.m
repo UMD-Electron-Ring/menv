@@ -64,10 +64,10 @@ for i=1:length(loc)
          KX( d1:d2 ) = str(i);
          KY( d1:d2 ) = str(i);
       elseif ele(i)=='Q'
-         KX( d1:d2 ) = str(i);
-         KY( d1:d2 ) = -str(i);
+         KX( d1:d2 ) = 0.955*str(i);
+         KY( d1:d2 ) = -0.935*str(i);
       elseif ele(i)=='D'
-         KX( d1:d2 ) = str(i)*(1-dipl_n(i));
+         KX( d1:d2 ) = 1.9687*str(i)*(1-dipl_n(i));
          KY( d1:d2 ) = str(i)*dipl_n(i);
       end;
    else
