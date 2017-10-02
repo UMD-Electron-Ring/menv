@@ -246,7 +246,7 @@ end
 
 
 for i=1:length(ele)
-    hele = 1;
+    hele = 0.3;
     if str(i)==0; continue % -- if str==0, don't draw a patch
     end
     sele = loc(i)-len(i)*0.5;
