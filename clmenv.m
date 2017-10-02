@@ -269,6 +269,11 @@ nele = nD+nQ;
 lcell = 32;
 L = lcell*ncells;
 
+% -- dipo params
+dlen = 3.8500;
+dang = 8*pi/180;
+rho = dlen/dang;
+
 
 ele ='';
 loc = zeros(1,nele);
@@ -276,6 +281,7 @@ len = zeros(1,nele);
 str = zeros(1,nele);
 did = zeros(1,nele);
 opt = zeros(1,nele);
+irho = zeros(1,nele);
 
 % -- make list of elements
 for i=1:ncells
@@ -294,10 +300,11 @@ end
 % -- define dipoles
 for i=1:nD
     loc(i+nQ) = 16 + 32*(i-1);
-    len(i+nQ) = 3.8500;
+    len(i+nQ) = dlen;
     str(i+nQ) = 15.7;
     did(i+nQ) = 0.72;
     opt(i+nQ) = 0;  
+    irho(i+nQ) = 1/rho;
 end
 
 % -- sort list
@@ -385,10 +392,10 @@ if( isempty(runtmp.x0) )
     warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
     return;
 end;
-if( isempty(runtmp.x1) )
-    warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
-    return;
-end;
+% if( isempty(runtmp.x1) )
+%     warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
+%     return;
+% end;
 
 % Transfer to SI
 runtmp = Transfer2SI( runtmp );
@@ -397,7 +404,7 @@ runtmp = Transfer2SI( runtmp );
 save 'runtmp' runtmp;
 
 % Run ......
-newX0 = match2period( 'runtmp' );
+newX0 = match2eriod( 'runtmp' );
 
 % Save the new result
 runtmp.x0 = newX0(1);
