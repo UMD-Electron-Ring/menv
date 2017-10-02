@@ -404,7 +404,7 @@ runtmp = Transfer2SI( runtmp );
 save 'runtmp' runtmp;
 
 % Run ......
-newX0 = match2eriod( 'runtmp' );
+newX0 = match2period( 'runtmp' );
 
 % Save the new result
 runtmp.x0 = newX0(1);
