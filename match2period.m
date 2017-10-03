@@ -1,7 +1,7 @@
 function X = match2period( paramfile )
-global kx ky K Ex Ey ds;
-global KX KY nsteps;
-global xw yw xpw ypw;
+global kx ky irho K Ex Ey ds;
+global KX KY IRHO nsteps;
+global xw yw xpw ypw Dw Dpw;
 load( paramfile );
 
 % Global beam parateters
@@ -13,11 +13,15 @@ x0 = runtmp.x0;
 y0 = runtmp.y0;
 xp0 = runtmp.xp0;
 yp0 = runtmp.yp0;
+D0 = runtmp.D0;
+Dp0 = runtmp.Dp0;
 % weights
 xw = runtmp.xw;
 yw = runtmp.yw;
 xpw = runtmp.xpw;
 ypw = runtmp.ypw;
+Dw = runtmp.Dw;
+Dpw = runtmp.Dpw;
 % Numerical parameters
 max_d = runtmp.distance;
 min_d = 0.0;
@@ -29,6 +33,7 @@ loc = runtmp.loc;      % locations
 len = runtmp.len;      % effective length
 str = runtmp.str;      % strength (kappa)
 dipl_n = runtmp.did;   % diple field index
+invrho = runtmp.irho;
 
 % Iterations
 maxIter = round(runtmp.maxIter);
@@ -41,7 +46,7 @@ d = [0:nsteps-1]*ds + min_d;
 
 
 % Kappa-array
-KX = zeros(1,nsteps); KY = KX;
+[KX,KY,IRHO] = deal(zeros(1,nsteps));
 for i=1:length(loc)
    d1 = round( (loc(i)-len(i)/2-min_d)/ds ) + 1;
    d2 = round( (loc(i)+len(i)/2-min_d)/ds ) + 1;
@@ -51,16 +56,19 @@ for i=1:length(loc)
    if ele(i)=='S'
       KX( d1:d2 ) = str(i);
       KY( d1:d2 ) = str(i);
+      IRHO( d1:d2 ) = invrho(i);
    elseif ele(i)=='Q'
       KX( d1:d2 ) = str(i);
       KY( d1:d2 ) = -str(i);
+      IRHO( d1:d2 ) = invrho(i);
    elseif ele(i)=='D'
       KX( d1:d2 ) = str(i)*(1-dipl_n(i));
       KY( d1:d2 ) = str(i)*dipl_n(i);
+      IRHO( d1:d2 ) = invrho(i);
    end;
 end;
 
-X = [x0 y0 xp0 yp0];
+X = [x0 y0 xp0 yp0 D0 Dp0];
 options = optimset('LargeScale', 'on', ...
    'Display', 'iter', ...
    'MaxIter', maxIter, ...

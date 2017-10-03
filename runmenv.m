@@ -1,5 +1,5 @@
-function [x,y,xp,yp,d,tunex,tuney] = runmenv( paramfile )
-global kx ky K Ex Ey ds;
+function [x,y,xp,yp,D,Dp,d,tunex,tuney] = runmenv( paramfile )
+global kx ky K Ex Ey ds irho;
 load( paramfile );
 
 % Global beam parateters
@@ -12,6 +12,8 @@ x0 = runtmp.x0;
 y0 = runtmp.y0;
 xp0 = runtmp.xp0;
 yp0 = runtmp.yp0;
+D0 = runtmp.D0;
+Dp0 = runtmp.Dp0;
 
 % Numerical parameters
 max_d = runtmp.distance;
@@ -25,6 +27,7 @@ loc = runtmp.loc;      % locations
 len = runtmp.len;      % effective length
 str = runtmp.str;      % strength (kappa)
 dipl_n = runtmp.did;   % diple field index
+invrho = runtmp.irho; % inverse rho
 
 % Envlope-array(x,y), Kappa-array(KX,KY), distance-array(d)
 x = zeros(1,n);
@@ -32,7 +35,7 @@ y = x;
 d = [0:n-1]*ds + min_d;
 
 % Kappa-array
-KX = zeros(1,n); KY = KX;
+[KX,KY,IRHO] = deal(zeros(1,n));
 for i=1:length(loc)
    d1 = round( (loc(i)-len(i)/2-min_d)/ds ) + 1;
    d2 = round( (loc(i)+len(i)/2-min_d)/ds ) + 1;
@@ -40,15 +43,18 @@ for i=1:length(loc)
       d2 = n;
    end;
    if ele(i)=='S'
-      KX( d1:d2 ) = str(i); %str(i)*0.96891;
-      KY( d1:d2 ) = str(i); %-str(i);
+       KX( d1:d2 ) = str(i); %str(i)*0.96891;
+       KY( d1:d2 ) = str(i); %-str(i);
+       IRHO( d1:d2 ) = invrho(i);
    elseif ele(i)=='Q'
        % -- fudge factors for agreement w/ WARP env. model
        KX( d1:d2 ) = .955*str(i);
        KY( d1:d2 ) = -.935*str(i);
+       IRHO( d1:d2 ) = invrho(i);
    elseif ele(i)=='D'
        KX( d1:d2 ) = 1.9687*str(i)*(1-dipl_n(i)); % 1.9687 is fudge factor used to get agreement w/ WARP env model
        KY( d1:d2 ) = str(i)*dipl_n(i);
+       IRHO( d1:d2 ) = invrho(i);
    end;
 end;
 
@@ -57,17 +63,19 @@ end;
 % axis([ min_d max_d min([KX,KY])*1.2 max([KX,KY])*1.2 ]);
 
 % Leap-frog by half step
-kx = KX(1); ky = KY(1);
-[xpp,ypp] = calc_prim2(x0,y0);
+kx = KX(1); ky = KY(1); irho = IRHO(1);
+[xpp,ypp,Dpp] = calc_prim2(x0,y0,D0);
 xp(1) = xp0+xpp*ds/2;
 yp(1) = yp0+ypp*ds/2;
+Dp(1) = Dp0+Dpp*ds/2;
 x(1) = x0;
 y(1) = y0;
+D(1) = D0;
 
 % Steps
 for i=1:n-1
-   kx = KX(i+1); ky = KY(i+1);
-   [x(i+1),y(i+1),xp(i+1),yp(i+1)] = step(x(i),y(i),xp(i),yp(i));
+   kx = KX(i+1); ky = KY(i+1); irho = IRHO(i+1);
+   [x(i+1),y(i+1),xp(i+1),yp(i+1),D(i+1),Dp(i+1)] = step(x(i),y(i),xp(i),yp(i),D(i),Dp(i));
 end;
 
 % calculate tunesn

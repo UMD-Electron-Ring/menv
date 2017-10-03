@@ -97,6 +97,8 @@ clm.usrdata.x0 = params.x0;
 clm.usrdata.y0 = params.y0;
 clm.usrdata.xp0 = params.xp0;
 clm.usrdata.yp0 = params.yp0;
+clm.usrdata.D0 = params.D0;
+clm.usrdata.Dp0 = params.Dp0;
 clm.usrdata.stepsize = params.stepsize;
 clm.usrdata.distance = params.distance;
 end
@@ -117,10 +119,14 @@ clm.usrdata.x1 = target.x1;
 clm.usrdata.y1 = target.y1;
 clm.usrdata.xp1 = target.xp1;
 clm.usrdata.yp1 = target.yp1;
+clm.usrdata.D1 = target.D1;
+clm.usrdata.Dp1 = target.Dp1;
 clm.usrdata.xw = target.xw;
 clm.usrdata.yw = target.yw;
 clm.usrdata.xpw = target.xpw;
 clm.usrdata.ypw = target.ypw;
+clm.usrdata.Dw = target.Dw;
+clm.usrdata.Dpw = target.Dpw;
 
 try clm.usrdata.nuxt = target.nuxt; catch; end
 try clm.usrdata.nuyt = target.nuyt; catch; end
@@ -144,12 +150,16 @@ if nargin > 0
     target.y1 = targetlist(2);
     target.xp1 = targetlist(3);
     target.yp1 = targetlist(4);
-
+    target.D1 = targetlist(5);
+    target.Dp1 = targetlist(6);
+    
     weightlist = varargin{2};
     target.xw = weightlist(1);
     target.yw = weightlist(2);
     target.xpw = weightlist(3);
     target.ypw = weightlist(4);
+    target.Dw = weightlist(5);
+    target.Dpw = weightlist(6);
 end
 if nargin > 2
     opttargetlist = varargin{3};
@@ -189,7 +199,7 @@ optiset.tolFun = tolerance;
 save 'optiset' optiset 
 end
 
-function makeparams(emit,perv,x0,y0,xp0,yp0,stepsize,distance)
+function makeparams(emit,perv,x0,y0,xp0,yp0,D0,Dp0,stepsize,distance)
 % Make a params file from params arguments
 
 params.emitance = emit;
@@ -200,6 +210,8 @@ params.xp0 = xp0;
 params.yp0 = yp0;
 params.stepsize = stepsize;
 params.distance = distance;
+params.D0 = D0;
+params.Dp0 = Dp0;
 
 save 'params' params
 end
@@ -215,6 +227,7 @@ if length(varargin)==1
     clm.usrdata.str = lat.str;
     clm.usrdata.opt = lat.opt;
     clm.usrdata.did = lat.did;
+    clm.usrdata.irho = lat.irho;
 elseif length(varargin)==6
     clm.usrdata.ele = varargin(1);
     clm.usrdata.loc = varargin(2);
@@ -222,6 +235,7 @@ elseif length(varargin)==6
     clm.usrdata.str = varargin(4);
     clm.usrdata.opt = varargin(5);
     clm.usrdata.did = varargin(6);
+    clm.usrdata.irho = varargin(7);
 end
 
 end
@@ -314,6 +328,7 @@ len = len(isort);
 str = str(isort);
 did = did(isort);
 opt = opt(isort);
+irho = irho(isort);
 
 lat.ele = ele;
 lat.len = len;
@@ -321,6 +336,7 @@ lat.loc = loc;
 lat.str = str;
 lat.did = did;
 lat.opt = opt;
+lat.irho = irho;
 
 end
 
@@ -343,18 +359,20 @@ runtmp = Transfer2SI( runtmp );
 save 'runtmp' runtmp;
 
 % Run ......
-[x,y,xp,yp,d,nux,nuy] = runmenv( 'runtmp' );
+[x,y,xp,yp,D,Dp,d,nux,nuy] = runmenv( 'runtmp' );
 x=x*1.e2; y=y*1.e2; d=d*1.e2;  % m-cm
+D=D*1.e2;
 
 % Plot
 % -- clear plots if they exist
 if isfield(clm,'soldata')
    if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end
    if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end
+   if ishandle(clm.soldata.handle(3)) delete(clm.soldata.handle(3)); end
 end
 
-hold on; h1 = plot(d,x,'b'); h2 = plot(d,y,'r'); hold off;
-xlabel('z (cm)'); ylabel('X:blue, Y:red (cm)');
+hold on; h1 = plot(d,x,'b'); h2 = plot(d,y,'r'); h3 = plot(d,D,'k'); hold off;
+xlabel('z (cm)'); ylabel('X:blue, Y:red, D:black (cm)');
 axis([ min(d) max(d) 0.0 max([x,y])*1.2 ]);
 
 
@@ -367,10 +385,12 @@ if( ind(length(ind))~=n ) ind(length(ind)+1) = n; end
 % -- save plot handles
 clm.soldata.handle(1) = h1; 
 clm.soldata.handle(2) = h2;
+clm.soldata.handle(3) = h3;
 % -- save history data 
 clm.soldata.d = d(ind); 
 clm.soldata.x = x(ind);
 clm.soldata.y = y(ind);
+clm.soldata.D = D(ind);
 % -- save tunes
 clm.soldata.nux = nux; 
 clm.soldata.nuy = nuy;
@@ -379,6 +399,8 @@ clm.soldata.xf = x(end);
 clm.soldata.yf = y(end);
 clm.soldata.xpf = xp(end);
 clm.soldata.ypf = yp(end);
+clm.soldata.Df = D(end);
+clm.soldata.Dpf = Dp(end);
 
 end
 
@@ -411,6 +433,9 @@ runtmp.x0 = newX0(1);
 runtmp.y0 = newX0(2);
 runtmp.xp0= newX0(3);
 runtmp.yp0= newX0(4);
+runtmp.D0= newX0(5);
+runtmp.Dp0= newX0(6);
+
 runtmp = TransferFromSI( runtmp );
 
 clm.usrdata = runtmp;
@@ -442,6 +467,7 @@ end;
 if exist('clm.soldata')
    if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end;
    if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end;
+   if ishandle(clm.soldata.handle(3)) delete(clm.soldata.handle(3)); end;
 end
 
 % Transfer to SI
@@ -634,6 +660,7 @@ function usrdata = TransferFromSI( data )
 usrdata = data;
 usrdata.x0 = data.x0*1.e2;               % m->cm
 usrdata.y0 = data.y0*1.e2;               % m->cm
+usrdata.D0 = data.D0*1.e2;
 %usrdata.xp0,usrdata.yp0
 usrdata.emitance = data.emitance*1.e6;   % mrad->mm.mrad
 %usrdata.perveance
@@ -658,7 +685,8 @@ function usrdata = Transfer2SI( data )
 usrdata = data;
 usrdata.x0 = data.x0*1.e-2;               % cm->m
 usrdata.y0 = data.y0*1.e-2;               % cm->m
-%usrdata.xp0,usrdata.yp0   
+usrdata.D0 = data.D0*1e-2;
+%usrdata.xp0,usrdata.yp0,usrdata.D0 
 usrdata.emitance = data.emitance*1.e-6;   % mm.mrad->mrad
 %usrdata.perveance
 usrdata.stepsize = data.stepsize*1.e-2;   % cm->m
