@@ -216,13 +216,14 @@ end
 
 
 for i=1:length(ele)
-    hele = 1;
+    hele = .25;
     if str(i)==0; continue % -- if str==0, don't draw a patch
     end
     sele = loc(i)-len(i)*0.5;
     eele = loc(i)+len(i)*0.5;
     % -- choose color based on element, optimization
-    if strcmp(ele(i),'D') col = [0,1,0];
+    if strcmp(ele(i),'S'); col = [0,0,1];
+    elseif strcmp(ele(i),'D'); col = [0,1,0];
     elseif strcmp(ele(i),'Q') && opt(i)==0 col = [.9,.9,.9]; 
     elseif strcmp(ele(i),'Q') && opt(i)==1 col = [.3,.3,.3]; 
     end
