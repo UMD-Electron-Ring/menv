@@ -101,6 +101,9 @@ clm.usrdata.D0 = params.D0;
 clm.usrdata.Dp0 = params.Dp0;
 clm.usrdata.stepsize = params.stepsize;
 clm.usrdata.distance = params.distance;
+try clm.usrdata.s0 = params.s0;
+catch clm.usrdata.s0 = 0;
+end
 end
 
 function defmatcher()
@@ -199,7 +202,7 @@ optiset.tolFun = tolerance;
 save 'optiset' optiset 
 end
 
-function makeparams(emit,perv,x0,y0,xp0,yp0,D0,Dp0,stepsize,distance)
+function makeparams(emit,perv,x0,y0,xp0,yp0,D0,Dp0,stepsize,startend)
 % Make a params file from params arguments
 
 params.emitance = emit;
@@ -209,9 +212,17 @@ params.y0 = y0;
 params.xp0 = xp0;
 params.yp0 = yp0;
 params.stepsize = stepsize;
-params.distance = distance;
 params.D0 = D0;
 params.Dp0 = Dp0;
+
+
+if length(startend)==1
+   params.s0 = 0;
+   params.distance = startend;
+elseif length(startend)==2
+   params.s0 = startend(1);
+   params.distance = startend(2);
+end
 
 save 'params' params
 end
@@ -359,7 +370,7 @@ runtmp = Transfer2SI( runtmp );
 save 'runtmp' runtmp;
 
 % Run ......
-[x,y,xp,yp,D,Dp,d,nux,nuy] = runmenv( 'runtmp' );
+[x,y,xp,yp,D,Dp,d,nux,nuy,Cx,Cy] = runmenv( 'runtmp' );
 x=x*1.e2; y=y*1.e2; d=d*1.e2;  % m-cm
 D=D*1.e2;
 
@@ -390,10 +401,15 @@ clm.soldata.handle(3) = h3;
 clm.soldata.d = d(ind); 
 clm.soldata.x = x(ind);
 clm.soldata.y = y(ind);
+clm.soldata.xp = xp(ind);
+clm.soldata.yp = yp(ind);
 clm.soldata.D = D(ind);
-% -- save tunes
+clm.soldata.Dp = Dp(ind);
+% -- save tunes + chromaticity
 clm.soldata.nux = nux; 
 clm.soldata.nuy = nuy;
+clm.soldata.Cx = Cx;
+clm.soldata.Cy = Cy;
 % -- save final conditions
 clm.soldata.xf = x(end);
 clm.soldata.yf = y(end);
@@ -666,6 +682,7 @@ usrdata.emitance = data.emitance*1.e6;   % mrad->mm.mrad
 %usrdata.perveance
 usrdata.stepsize = data.stepsize*1.e2;   % m->cm
 usrdata.distance = data.distance*1.e2;   % m->cm
+usrdata.s0 = data.s0*1.e2;   % m->cm
 %usrdata.ele
 usrdata.loc = data.loc*1.e2;             % m->cm
 usrdata.len = data.len*1.e2;             % m->cm
@@ -691,6 +708,7 @@ usrdata.emitance = data.emitance*1.e-6;   % mm.mrad->mrad
 %usrdata.perveance
 usrdata.stepsize = data.stepsize*1.e-2;   % cm->m
 usrdata.distance = data.distance*1.e-2;   % cm->m
+usrdata.s0 = data.s0*1.e-2;   % cm->m
 %usrdata.ele
 usrdata.loc = data.loc*1.e-2;             % cm->m
 usrdata.len = data.len*1.e-2;             % cm->m   
