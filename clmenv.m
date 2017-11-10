@@ -186,12 +186,12 @@ if length(varargin)==1
     clm.usrdata.opt = lat.opt;
     clm.usrdata.did = lat.did;
 elseif length(varargin)==6
-    clm.usrdata.ele = varargin(1);
-    clm.usrdata.loc = varargin(2);
-    clm.usrdata.len = varargin(3);
-    clm.usrdata.str = varargin(4);
-    clm.usrdata.opt = varargin(5);
-    clm.usrdata.did = varargin(6);
+    clm.usrdata.ele = varargin{1};
+    clm.usrdata.loc = varargin{2};
+    clm.usrdata.len = varargin{3};
+    clm.usrdata.str = varargin{4};
+    clm.usrdata.opt = varargin{5};
+    clm.usrdata.did = varargin{6};
 end
 
 end
@@ -206,11 +206,11 @@ if length(varargin)==1
     str = lat.str;
     opt = lat.opt;
 elseif length(varargin)==5
-    ele = varargin(1);
-    loc = varargin(2);
-    len = varargin(3);
-    str = varargin(4);
-    opt = varargin(5);
+    ele = varargin{1};
+    loc = varargin{2};
+    len = varargin{3};
+    str = varargin{4};
+    opt = varargin{5};
 end
 
 
