@@ -285,7 +285,7 @@ L = lcell*ncells;
 
 % -- dipo params
 dlen = 3.8500;
-dang = 8*pi/180;
+dang = 10*pi/180;
 rho = dlen/dang;
 
 
@@ -572,6 +572,7 @@ end;
 if exist('clm.soldata')
    if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end;
    if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end;
+   if ishandle(clm.soldata.handle(3)) delete(clm.soldata.handle(3)); end;
 end
 
 % Transfer to SI
