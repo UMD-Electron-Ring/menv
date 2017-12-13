@@ -1,4 +1,4 @@
-function [x,y,xp,yp,D,Dp,d,tunex,tuney] = runmenv( paramfile )
+function [x,y,xp,yp,D,Dp,d,tunex,tuney,Cx,Cy] = runmenv( paramfile )
 global kx ky K Ex Ey ds irho;
 load( paramfile );
 
@@ -17,7 +17,7 @@ Dp0 = runtmp.Dp0;
 
 % Numerical parameters
 max_d = runtmp.distance;
-min_d = 0.0;
+min_d = runtmp.s0;
 ds = runtmp.stepsize;          % Step-size
 n = round((max_d-min_d)/ds)+1;  % steps
 
@@ -42,6 +42,14 @@ for i=1:length(loc)
    if( d2>n )
       d2 = n;
    end;
+   % -- break if d2 < 0 (before run start)
+   if d2<0
+       continue
+   end
+   % -- if starting mid-element, applying partial element as needed
+   if d1<0
+       d1=1
+   end
    if ele(i)=='S'
        KX( d1:d2 ) = str(i); %str(i)*0.96891;
        KY( d1:d2 ) = str(i); %-str(i);
@@ -83,6 +91,11 @@ betax = x.^2/Ex;
 betay = y.^2/Ey;
 tunex = sum(1./betax)*ds/(2*pi);
 tuney = sum(1./betay)*ds/(2*pi);
+
+% Calculate chromaticity
+
+Cx = -1/(4*pi)*sum(KX.*betax)*ds;
+Cy = -1/(4*pi)*sum(KY.*betay)*ds;
 
 
 

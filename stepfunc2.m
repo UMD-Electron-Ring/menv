@@ -28,7 +28,7 @@ ic = [runtmp.x0,runtmp.y0,runtmp.xp0,runtmp.yp0]; % initial conditions
 
 % -- calculate tune values
 Lchan = 32;
-d = 0:runtmp.stepsize:runtmp.distance;
+d = runtmp.s0:runtmp.stepsize:runtmp.distance;
 
 betax = (x).^2/(runtmp.emitance);
 betay = (y).^2/(runtmp.emitance);

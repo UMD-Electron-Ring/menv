@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+=======
 function [X,f] = GSmatch2target( paramfile )
 % nonlinear/global search algorithm. Run w/ matlab 2012.
 
@@ -12,22 +12,16 @@ x0 = runtmp.x0;
 y0 = runtmp.y0;
 xp0 = runtmp.xp0;
 yp0 = runtmp.yp0;
-D0 = runtmp.D0;
-Dp0 = runtmp.Dp0;
 % target conditions
 x1 = runtmp.x1;
 y1 = runtmp.y1;
 xp1 = runtmp.xp1;
 yp1 = runtmp.yp1;
-D1 = runtmp.D1;
-Dp1 = runtmp.Dp1;
 % weights
 xw = runtmp.xw;
 yw = runtmp.yw;
 xpw = runtmp.xpw;
 ypw = runtmp.ypw;
-Dw = runtmp.Dw;
-Dpw = runtmp.Dpw;
 % Numerical parameters
 max_d = runtmp.distance;
 min_d = 0.0;
@@ -39,7 +33,6 @@ loc = runtmp.loc;      % locations
 len = runtmp.len;      % effective length
 str = runtmp.str;      % strength (kappa)
 dipl_n = runtmp.did;   % diple field index
-invrho = runtmp.irho;
 
 % Optimize which
 opt = runtmp.opt;
@@ -48,13 +41,13 @@ maxIter = round(runtmp.maxIter);
 tolFun = runtmp.tolFun;
 
 % Envlope-array(x,y), Kappa-array(KX,KY), distance-array(d)
-% Envlope-array(x,y), Kappa-array(KX,KY), distance-array(d)
-[x,y,D] = deal(zeros(1,nsteps));
+x = zeros(1,nsteps);
+y = x;
 d = [0:nsteps-1]*ds + min_d;
 
 
 % Kappa-array
-[KX,KY,IRHO] = deal(zeros(1,nsteps)); 
+KX = zeros(1,nsteps); KY = KX;
 loc1 = []; loc2 = []; X0 = []; OPT_ELE = [];
 for i=1:length(loc)
    d1 = round( (loc(i)-len(i)/2-min_d)/ds ) + 1;
@@ -66,15 +59,12 @@ for i=1:length(loc)
       if ele(i)=='S'
          KX( d1:d2 ) = str(i);
          KY( d1:d2 ) = str(i);
-         IRHO( d1:d2 ) = invrho(i);
       elseif ele(i)=='Q'
-         KX( d1:d2 ) = 0.955*str(i);
-         KY( d1:d2 ) = -0.935*str(i);
-         IRHO( d1:d2 ) = invrho(i);
+         KX( d1:d2 ) = str(i);
+         KY( d1:d2 ) = -str(i);
       elseif ele(i)=='D'
-         KX( d1:d2 ) = 1.9687*str(i)*(1-dipl_n(i));
+         KX( d1:d2 ) = str(i)*(1-dipl_n(i));
          KY( d1:d2 ) = str(i)*dipl_n(i);
-         IRHO( d1:d2 ) = invrho(i);
       end;
    else
       loc1 = [ loc1, d1 ];
@@ -82,7 +72,7 @@ for i=1:length(loc)
       X0 = [ X0, str(i) ];
       OPT_ELE = [ OPT_ELE, ele(i) ];
    end;
-end
+end;
 
 % -- save new fields in runtmp
 runtmp.KX = KX;
@@ -130,4 +120,4 @@ f =  stepfunc2( X ); % run just to get error contributions;
 % rmfield(runtmp,'OPT_ELE');
 runtmp.f = f;
 save 'runtmp' runtmp;
-
+>>>>>>> fb43bc1a7a024e0ac458b449ec529244b60dbcea
