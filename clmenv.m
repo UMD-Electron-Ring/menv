@@ -280,6 +280,7 @@ for i=1:length(ele)
     if strcmp(ele(i),'D') col = [0,1,0];
     elseif strcmp(ele(i),'Q') && opt(i)==0 col = [.9,.9,.9]; 
     elseif strcmp(ele(i),'Q') && opt(i)==1 col = [.3,.3,.3]; 
+    elseif strcmp(ele(i),'S') col = [0,0,0];
     end
     % -- draw a patch for each element
     patch([sele,eele,eele,sele],[0,0,hele,hele],col)
