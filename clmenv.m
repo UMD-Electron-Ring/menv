@@ -734,5 +734,4 @@ end
 % After delete dst, src can safely overwrite dst.
 % Otherwise in UNIX, copyfile(src,dst) will stop until Enter key is pressed in the Command Window.
 copyfile( src, dst );
->>>>>>> fb43bc1a7a024e0ac458b449ec529244b60dbcea
 end
