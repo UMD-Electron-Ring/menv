@@ -494,9 +494,9 @@ runtmp = Transfer2SI( runtmp );
 save 'runtmp' runtmp;
 
 % Run ......
-newKappa = match2target( 'runtmp' );
+newKappa = match2target;
 
-load runtmp
+load runtmp % this might be problematic, moves unwanted data to usrdata
 
 % Save the new result
 [~,n] = size( runtmp.loc ); k = 1;
