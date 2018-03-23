@@ -8,16 +8,17 @@ nsteps = round(runtmp.distance/runtmp.stepsize) +1;
 
 % Evaluate kappa
 for i=1:length( X )
-    if runtmp.OPT_ELE(i)=='S'
-        KX( runtmp.loc1(i):runtmp.loc2(i) ) = X(i); %0.96891*X(i);
-        KY( runtmp.loc1(i):runtmp.loc2(i) ) = X(i); %-X(i);
-    elseif runtmp.OPT_ELE(i)=='Q'
-        KX( runtmp.loc1(i):runtmp.loc2(i) ) = X(i);
-        KY( runtmp.loc1(i):runtmp.loc2(i) ) = -X(i);
-    elseif runtmp.OPT_ELE(i)=='D'
-        KX( runtmp.loc1(i):runtmp.loc2(i) ) = X(i)*(1-dipl_n(i));
-        KY( runtmp.loc1(i):runtmp.loc2(i) ) = X(i)*dipl_n(i);
-    end;
+for i=1:length( X )
+    if OPT_ELE(i)=='S'
+        KX( loc1(i):loc2(i) ) = X(i); %0.96891*X(i);
+        KY( loc1(i):loc2(i) ) = X(i); %-X(i);
+    elseif OPT_ELE(i)=='Q'
+        KX( loc1(i):loc2(i) ) = 0.955*X(i);
+        KY( loc1(i):loc2(i) ) = -0.935*X(i);
+    elseif ele(i)=='D'
+        KX( loc1(i):loc2(i) ) = 1.9687*X(i)*(1-dipl_n(i));
+        KY( loc1(i):loc2(i) ) = X(i)*dipl_n(i);
+    end
 end;
 
 % -- integrate

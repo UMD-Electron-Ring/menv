@@ -186,20 +186,21 @@ case 'Param'
       set( distEditHandle, 'String', num2str(usrdata.distance) );
    end;   
 case 'Solution'
-   usrdata = get( thisFig, 'UserData' );
+   runtmp = get( thisFig, 'UserData' );
    % only check one parameter is enough
-   if( isempty(usrdata.x0) )
+   if( isempty(runtmp.x0) )
       warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
       return;
    end;
    % Transfer to SI
-   usrdata = Transfer2SI( usrdata );
+   runtmp = Transfer2SI( runtmp );
    % Save to tempary file
-   save 'runtmp' usrdata;
+   save 'runtmp' runtmp;
    % Run ......
    oldptr = getptr(thisFig);  setptr( thisFig, 'watch' );
-   [x,y,xp,yp,d,nux,nuy] = runmenv( 'runtmp' );
+   [x,y,xp,yp,D,Dp,d,nux,nuy,Cx,Cy] = runmenv( 'runtmp' );
    x=x*1.e2; y=y*1.e2; d=d*1.e2;  % m-cm
+   D=D*1.e2;
    set( thisFig, oldptr{:} );
    % Axes
    axesHandle = findAxes( thisFig );

@@ -54,17 +54,18 @@ for i=1:length(loc)
       d2 = nsteps ;
    end;
    if ele(i)=='S'
-      KX( d1:d2 ) = str(i);
-      KY( d1:d2 ) = str(i);
-      IRHO( d1:d2 ) = invrho(i);
+       KX( d1:d2 ) = str(i); %str(i)*0.96891;
+       KY( d1:d2 ) = str(i); %-str(i);
+       IRHO( d1:d2 ) = invrho(i);
    elseif ele(i)=='Q'
-      KX( d1:d2 ) = str(i);
-      KY( d1:d2 ) = -str(i);
-      IRHO( d1:d2 ) = invrho(i);
+       % -- fudge factors for agreement w/ WARP env. model
+       KX( d1:d2 ) = .955*str(i);
+       KY( d1:d2 ) = -.935*str(i);
+       IRHO( d1:d2 ) = invrho(i);
    elseif ele(i)=='D'
-      KX( d1:d2 ) = str(i)*(1-dipl_n(i));
-      KY( d1:d2 ) = str(i)*dipl_n(i);
-      IRHO( d1:d2 ) = invrho(i);
+       KX( d1:d2 ) = 1.9687*str(i)*(1-dipl_n(i)); % 1.9687 is fudge factor used to get agreement w/ WARP env model
+       KY( d1:d2 ) = str(i)*dipl_n(i);
+       IRHO( d1:d2 ) = invrho(i);
    end;
 end;
 

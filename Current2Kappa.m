@@ -10,10 +10,10 @@ beta = sqrt(1-gamma^-2);
 
 if( nargin==1 | (nargin==2 & ele=='Q') )
    g0 = 3.608e-2;
-   kappa = (I*g0)/(gamma*M*beta*c/q)
+   kappa = (I*g0)/(gamma*M*beta*c/q);
 elseif( nargin==2 & ele=='S' )
 	B0 = 17.6; %Gauss/Amp
-	kappa = ((I*B0+1.35)/(1e4*2*(gamma*M*beta*c/q)))^2
+	kappa = ((I*B0+1.35)/(1e4*2*(gamma*M*beta*c/q)))^2;
 
 else
    I = 0;

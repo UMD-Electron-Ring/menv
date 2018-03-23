@@ -91,3 +91,6 @@ options = optimset('LargeScale', scale, ...
    'TolFun', tolFun );
 X = lsqnonlin( 'stepfunc2', X,[],[],options );
 
+
+
+

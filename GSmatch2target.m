@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 function [X,f] = GSmatch2target( paramfile )
 % nonlinear/global search algorithm. Run w/ matlab 2012.
 

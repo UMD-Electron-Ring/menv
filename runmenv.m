@@ -12,12 +12,21 @@ x0 = runtmp.x0;
 y0 = runtmp.y0;
 xp0 = runtmp.xp0;
 yp0 = runtmp.yp0;
-D0 = runtmp.D0;
-Dp0 = runtmp.Dp0;
+try
+    D0 = runtmp.D0;
+    Dp0 = runtmp.Dp0;
+catch
+    D0=0;
+    Dp0 = 0;
+end
 
 % Numerical parameters
 max_d = runtmp.distance;
-min_d = runtmp.s0;
+try
+    min_d = runtmp.s0;
+catch
+    min_d = 0;
+end
 ds = runtmp.stepsize;          % Step-size
 n = round((max_d-min_d)/ds)+1;  % steps
 
@@ -85,6 +94,14 @@ for i=1:n-1
    kx = KX(i+1); ky = KY(i+1); irho = IRHO(i+1);
    [x(i+1),y(i+1),xp(i+1),yp(i+1),D(i+1),Dp(i+1)] = step(x(i),y(i),xp(i),yp(i),D(i),Dp(i));
 end;
+
+
+% xp and yp back half step
+[xpp,ypp,Dpp] = calc_prim2(x(end),y(end),D(end));
+xp(n) = xp(n) - xpp*ds/2;
+yp(n) = yp(n) - ypp*ds/2;
+Dp(n) = Dp(n) - Dpp*ds/2;
+
 
 % calculate tunesn
 betax = x.^2/Ex; 

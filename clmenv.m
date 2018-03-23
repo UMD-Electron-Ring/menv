@@ -26,10 +26,10 @@ clm.build = @buildFODO;
 
 clm.solve = @solvelattice;
 clm.periodicmatcher = @periodicmatcher;
-clm.targetmatcher = @targetmatcher; % target is x,y,xp,yp
-clm.targetmatcher2 = @targetmatcher2; % target is x,y,xp,yp,nux,nuy,betax~betay
+clm.targetmatcher = @targetmatcher; % target is x,y,xp,yp,D,Dp
+clm.targetmatcher2 = @targetmatcher2; % target is x,y,xp,yp,D,Dp,nux,nuy,betax~betay
 clm.trajmatcher = @trajmatcher; % target x,y,xp,yp plus tries to match trajectory
-clm.GSmatcher = @GStargetmatcher;
+clm.GSmatcher = @GStargetmatcher; % GlobalSearch method, requires globalsearch optimizer
 
 clm.maketarget = @maketarget;
 clm.makeoptiset = @makeoptiset;
@@ -145,8 +145,8 @@ function maketarget(varargin)
 % varargin:
 % 1 -- targetlist
 % 2 -- weightlist
-% 3 -- optional weightlist
-%
+% 3 -- optional targetlist
+% 4 -- optional weightlist
 if nargin > 0
     targetlist = varargin{1};
     target.x1 = targetlist(1);
@@ -561,8 +561,12 @@ end;
 runtmp = TransferFromSI( runtmp );
 clm.usrdata = runtmp;
 
+% -- save error function in solution data
+clm.soldata.f = stepfunc2(newKappa);
+
 % Update figure
 solvelattice()
+
 end
 
 function GStargetmatcher()
