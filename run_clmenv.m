@@ -14,6 +14,11 @@ clm.open('FODO_0_7mA_dipl.spt')
 % clm.defparams()
 % clm.defmatcher()
 
+clm.usrdata.weights.xw=1
+clm.usrdata.weights.yw=1
+clm.usrdata.weights.xpw=1
+clm.usrdata.weights.ypw=1
+
 % -- solve
 clm.periodicmatcher()
 

@@ -26,7 +26,9 @@ opt = runtmp.opt;      % flag to use element in optimization
 % distance-array(d)
 d = [0:nsteps-1]*ds + min_d;
 
-% Kappa-array
+% Kappa-array 
+% includes fudge-factors, which should be moved to a different place
+% (current2kappa probably)
 [KX,KY,IRHO] = deal(zeros(1,nsteps)); 
 loc1 = []; loc2 = []; X0 = []; OPT_ELE = [];
 for i=1:length(loc)

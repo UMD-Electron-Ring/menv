@@ -4,9 +4,8 @@
 % Notes: 
 % The GUI is updated to include reference trajectories, this change is not
 % reflected in clmenv yet.
-% clmenv can import .spt files but cannot define new lattices -- .spt files
-% can be created in GUI interface and then loaded by clmenv. A "define
-% element" function should be added in the future.
+% Otherwise, clmenv is much more advanced than Gui menv, changes need to be
+% propagated through
 %
 % Kiersten R. 
 % 3/7/17
@@ -68,7 +67,11 @@ fcopyfile( fullpathname, 'savetmp.mat' );
 load 'savetmp';
 clm.usrdata = usrdata;
 clm.usrdata.filename = fullpathname;  % important to rename its filename
-% To be compatible with previous version file with no usrdata.did
+
+
+% -- the rest is ensuring backwards compatibility with old .spt files from
+% Hui Li / MENV examples folder.
+% -- Dipole index:
 if( isfield(usrdata,'did')==0 )
     clm.usrdata.did = zeros( size(usrdata.opt) );
 end
@@ -101,7 +104,7 @@ clm.usrdata.weights.ypw = clm.usrdata.ypw;
 clm.usrdata=rmfield(clm.usrdata,{'xw','xpw','yw','ypw'});
 end
 
-% Transfer from SI
+% -- Transfer from SI
 clm.usrdata = TransferFromSI( clm.usrdata );
 
 end
@@ -489,7 +492,7 @@ function periodicmatcher()
 global clm
 runtmp = clm.usrdata;
 % only check one parameter is enough
-if( isempty(runtmp.x0) )
+if( isempty(runtmp.ic.x0) )
     warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
     return;
 end
@@ -501,15 +504,10 @@ runtmp = Transfer2SI( runtmp );
 save 'runtmp' runtmp;
 
 % Run ......
-newX0 = match2period( 'runtmp' );
+newX0 = match2period();
 
 % Save the new result
-runtmp.x0 = newX0(1);
-runtmp.y0 = newX0(2);
-runtmp.xp0= newX0(3);
-runtmp.yp0= newX0(4);
-runtmp.D0= newX0(5);
-runtmp.Dp0= newX0(6);
+runtmp.ic = newX0;
 
 runtmp = TransferFromSI( runtmp );
 

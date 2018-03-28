@@ -1,37 +1,47 @@
 function f =  periodfunc( X )
-global kx ky irho ds;
-global KX KY IRHO nsteps;
-global xw yw xpw ypw;
-global Dw Dpw
+global clm
 
-% Evaluate x0 y0 xp0 yp0
-x0 = X(1);
-y0 = X(2);
-xp0= X(3);
-yp0= X(4);
-D0 = X(5);
-Dp0 = X(6);
+% Initial conditions based on optimization parameter X
+ic = struct();
+ic.x0 = X(1);
+ic.y0 = X(2);
+ic.xp0= X(3);
+ic.yp0= X(4);
+ic.D0 = X(5);
+ic.Dp0 = X(6);
 
-% Leap frog half step
-kx = KX(1); ky = KY(1); irho = IRHO(1);
-[xpp,ypp,Dpp] = calc_prim2(x0,y0,D0);
-xp = xp0+xpp*ds/2;
-yp = yp0+ypp*ds/2;
-Dp(1) = Dp0+Dpp*ds/2;
-x = x0;
-y = y0;
-D = D0;
+% -- load lattice model parameters
+load 'lattmp'
+IRHO = lattmp.IRHO;
+KX = lattmp.KX;
+KY = lattmp.KY;
+loc1 = lattmp.loc1;
+loc2 = lattmp.loc2;
+OPT_ELE = lattmp.OPT_ELE;
+nsteps = lattmp.nsteps;
 
-% Steps
-for i=1:nsteps-1
-   kx = KX(i+1); ky = KY(i+1); irho = IRHO(i+1);
-   [x,y,xp,yp,D,Dp] = step(x,y,xp,yp,D,Dp);
-end;
+% -- load runtmp (just use emitance and stepsize, in SI units)
+load 'runtmp'
+K = runtmp.perveance; % Perveance
+Ex = runtmp.emitance; % Emmitance x
+Ey = Ex;
+ds = runtmp.stepsize;
 
-% xp and yp back half step
-[xpp,ypp,Dpp] = calc_prim2(x,y,D);
-xp = xp - xpp*ds/2;
-yp = yp - ypp*ds/2;
-Dp = Dp - Dpp*ds/2;
-f = [x-x0,y-y0,xp-xp0,yp-yp0,D-D0,Dp-Dp0];
-f = f.*[xw yw xpw ypw Dw Dpw];
+% -- integrate envelope
+[x,y,xp,yp,D,Dp] = menv_integrator(Ex,Ey,K,KX,KY,IRHO,ic,ds,0);
+
+% -- calculate min. function
+f = [x-ic.x0,y-ic.y0,...
+    xp-ic.xp0,yp-ic.yp0,...
+    D-ic.D0,Dp-ic.Dp0];
+
+% -- apply weight factors
+try 
+f = f.*[clm.usrdata.weights.xw, clm.usrdata.weights.yw,...
+    clm.usrdata.weights.xpw clm.usrdata.weights.ypw,...
+    clm.usrdata.weights.Dw clm.usrdata.weights.Dpw];
+catch % -- if dispersion weights are not set (old version)
+f = f.*[clm.usrdata.weights.xw, clm.usrdata.weights.yw,...
+    clm.usrdata.weights.xpw clm.usrdata.weights.ypw,...
+    0,0];
+end
