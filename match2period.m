@@ -20,8 +20,12 @@ xw = runtmp.xw;
 yw = runtmp.yw;
 xpw = runtmp.xpw;
 ypw = runtmp.ypw;
-Dw = runtmp.Dw;
-Dpw = runtmp.Dpw;
+try
+    Dw = runtmp.Dw;
+    Dpw = runtmp.Dpw;
+catch
+    Dw = 0; Dpw = 0;
+end
 % Numerical parameters
 max_d = runtmp.distance;
 min_d = 0.0;
@@ -33,7 +37,11 @@ loc = runtmp.loc;      % locations
 len = runtmp.len;      % effective length
 str = runtmp.str;      % strength (kappa)
 dipl_n = runtmp.did;   % diple field index
+try
 invrho = runtmp.irho;
+catch
+   invrho = 0*str;
+end
 
 % Iterations
 maxIter = round(runtmp.maxIter);

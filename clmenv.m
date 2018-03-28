@@ -72,8 +72,37 @@ clm.usrdata.filename = fullpathname;  % important to rename its filename
 if( isfield(usrdata,'did')==0 )
     clm.usrdata.did = zeros( size(usrdata.opt) );
 end
+
+% -- need to move ic, targets, weights to sub-structures (new format)
+if not(exist('clm.usrdata.ic'))
+clm.usrdata.ic = struct();
+clm.usrdata.ic.x0 = clm.usrdata.x0;
+clm.usrdata.ic.xp0 = clm.usrdata.xp0;
+clm.usrdata.ic.y0 = clm.usrdata.y0;
+clm.usrdata.ic.yp0 = clm.usrdata.yp0;
+clm.usrdata=rmfield(clm.usrdata,{'x0','xp0','y0','yp0'});
+end
+
+if not(exist('clm.usrdata.target'))
+clm.usrdata.target = struct();
+clm.usrdata.target.x1 = clm.usrdata.x1;
+clm.usrdata.target.xp1 = clm.usrdata.xp1;
+clm.usrdata.target.y1 = clm.usrdata.y1;
+clm.usrdata.target.yp1 = clm.usrdata.yp1;
+clm.usrdata=rmfield(clm.usrdata,{'x1','xp1','y1','yp1'});
+end
+
+if not(exist('clm.usrdata.weights'))
+clm.usrdata.weights = struct();
+clm.usrdata.weights.xw = clm.usrdata.xw;
+clm.usrdata.weights.xpw = clm.usrdata.xpw;
+clm.usrdata.weights.yw = clm.usrdata.yw;
+clm.usrdata.weights.ypw = clm.usrdata.ypw;
+clm.usrdata=rmfield(clm.usrdata,{'xw','xpw','yw','ypw'});
+end
+
 % Transfer from SI
-clm.usrdata = TransferFromSI( usrdata );
+clm.usrdata = TransferFromSI( clm.usrdata );
 
 end
 
@@ -93,12 +122,13 @@ load 'params'
 
 clm.usrdata.emitance = params.emitance;
 clm.usrdata.perveance = params.perveance;
-clm.usrdata.x0 = params.x0;
-clm.usrdata.y0 = params.y0;
-clm.usrdata.xp0 = params.xp0;
-clm.usrdata.yp0 = params.yp0;
-clm.usrdata.D0 = params.D0;
-clm.usrdata.Dp0 = params.Dp0;
+clm.usrdata.ic = [];
+clm.usrdata.ic.x0 = params.x0;
+clm.usrdata.ic.y0 = params.y0;
+clm.usrdata.ic.xp0 = params.xp0;
+clm.usrdata.ic.yp0 = params.yp0;
+clm.usrdata.ic.D0 = params.D0;
+clm.usrdata.ic.Dp0 = params.Dp0;
 clm.usrdata.stepsize = params.stepsize;
 clm.usrdata.distance = params.distance;
 try clm.usrdata.s0 = params.s0;
@@ -118,24 +148,41 @@ load 'optiset'
 clm.usrdata.maxIter = optiset.maxIter;
 clm.usrdata.tolFun = optiset.tolFun;
 
-clm.usrdata.x1 = target.x1;
-clm.usrdata.y1 = target.y1;
-clm.usrdata.xp1 = target.xp1;
-clm.usrdata.yp1 = target.yp1;
-clm.usrdata.D1 = target.D1;
-clm.usrdata.Dp1 = target.Dp1;
-clm.usrdata.xw = target.xw;
-clm.usrdata.yw = target.yw;
-clm.usrdata.xpw = target.xpw;
-clm.usrdata.ypw = target.ypw;
-clm.usrdata.Dw = target.Dw;
-clm.usrdata.Dpw = target.Dpw;
+clm.usrdata.target = [];
+clm.usrdata.target.x1 = target.x1;
+clm.usrdata.target.y1 = target.y1;
+clm.usrdata.target.xp1 = target.xp1;
+clm.usrdata.target.yp1 = target.yp1;
+try
+    clm.usrdata.target.D1 = target.D1;
+    clm.usrdata.target.Dp1 = target.Dp1;
+catch
+    clm.usrdata.target.D1 = 0;
+    clm.usrdata.target.Dp1 = 0;
+end
+clm.usrdata.weights = [];
+clm.usrdata.weights.xw = target.xw;
+clm.usrdata.weights.yw = target.yw;
+clm.usrdata.weights.xpw = target.xpw;
+clm.usrdata.weights.ypw = target.ypw;
+try
+    clm.usrdata.weights.Dw = target.Dw;
+    clm.usrdata.weights.Dpw = target.Dpw;
+catch
+    clm.usrdata.weights.Dw = 0;
+    clm.usrdata.weights.Dpw = 0;
+end
 
-try clm.usrdata.nuxt = target.nuxt; catch; end
-try clm.usrdata.nuyt = target.nuyt; catch; end
-try clm.usrdata.nuxw = target.nuxw; catch; end
-try clm.usrdata.nuyw = target.nuyw; catch; end
-try clm.usrdata.betaw = target.betaw; catch; end
+try clm.usrdata.target.nuxt = target.nuxt;
+catch clm.usrdata.target.nuxt = 0; end
+try clm.usrdata.target.nuyt = target.nuyt;
+catch  clm.usrdata.target.nuyt = 0; end
+try clm.usrdata.weights.nuxw = target.nuxw;
+catch clm.usrdata.weights.nuxw = 0; end
+try clm.usrdata.weights.nuyw = target.nuyw;
+catch clm.usrdata.weights.nuyw = 0; end
+try clm.usrdata.weights.betaw = target.betaw;
+catch clm.usrdata.weights.betaw =0 ; end
 
 
 end
@@ -153,16 +200,26 @@ if nargin > 0
     target.y1 = targetlist(2);
     target.xp1 = targetlist(3);
     target.yp1 = targetlist(4);
-    target.D1 = targetlist(5);
-    target.Dp1 = targetlist(6);
+    try
+        target.D1 = targetlist(5);
+        target.Dp1 = targetlist(6);
+    catch
+        target.D1 = 0;
+        target.Dp1 = 0;
+    end
     
     weightlist = varargin{2};
     target.xw = weightlist(1);
     target.yw = weightlist(2);
     target.xpw = weightlist(3);
     target.ypw = weightlist(4);
+    
+    try
     target.Dw = weightlist(5);
     target.Dpw = weightlist(6);
+    catch
+        target.Dw = 0; target.Dpw = 0;
+    end
 end
 if nargin > 2
     opttargetlist = varargin{3};
@@ -207,13 +264,17 @@ function makeparams(emit,perv,x0,y0,xp0,yp0,D0,Dp0,stepsize,startend)
 
 params.emitance = emit;
 params.perveance = perv;
-params.x0 = x0;
-params.y0 = y0;
-params.xp0 = xp0;
-params.yp0 = yp0;
 params.stepsize = stepsize;
-params.D0 = D0;
-params.Dp0 = Dp0;
+
+% -- initial conditions
+ic = [];
+ic.x0 = x0;
+ic.y0 = y0;
+ic.xp0 = xp0;
+ic.yp0 = yp0;
+ic.D0 = D0;
+ic.Dp0 = Dp0;
+params.ic = ic;
 
 
 if length(startend)==1
@@ -359,23 +420,24 @@ global clm
 runtmp = clm.usrdata;
 
 % check that initial conditions (params) are defined
-if( isempty(runtmp.x0) )
+if( isempty(runtmp.ic.x0) )
     warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
     return;
 end
 
-% Transfer to SI
+% -- Transfer to SI
 runtmp = Transfer2SI( runtmp );
 
-% Save to tempary file
+% -- Save to tempary file
 save 'runtmp' runtmp;
 
-% Run ......
-[x,y,xp,yp,D,Dp,d,nux,nuy,Cx,Cy] = runmenv( 'runtmp' );
+% -- Run ......
+[x,y,xp,yp,D,Dp,d,nux,nuy,Cx,Cy] = runmenv();
+% -- transfer results from SI units to cm;
 x=x*1.e2; y=y*1.e2; d=d*1.e2;  % m-cm
 D=D*1.e2;
 
-% Plot
+% -- Plotting
 % -- clear plots if they exist
 if isfield(clm,'soldata')
    if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end
@@ -388,7 +450,7 @@ xlabel('z (cm)'); ylabel('X:blue, Y:red, D:black (cm)');
 axis([ min(d) max(d) 0.0 max([x,y])*1.2 ]);
 
 
-% Save data
+% Save data, down-convert resolution if needed.
 if( runtmp.stepsize<0.005 ) interval = round(0.005/runtmp.stepsize);
 else interval = 1; end
 n = length(d); ind = 1:interval:n;
@@ -430,11 +492,7 @@ runtmp = clm.usrdata;
 if( isempty(runtmp.x0) )
     warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
     return;
-end;
-% if( isempty(runtmp.x1) )
-%     warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
-%     return;
-% end;
+end
 
 % Transfer to SI
 runtmp = Transfer2SI( runtmp );
@@ -467,44 +525,44 @@ global clm
 runtmp = clm.usrdata;
  
 % only check one parameter is enough
-if( isempty(runtmp.x0) )
+if( isempty(runtmp.ic.x0) )
     warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
     return;
-end;
-if( isempty(runtmp.x1) )
+end
+if( isempty(runtmp.target.x1) )
     warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
     return;
-end;
+end
 if( sum(runtmp.opt)==0 )
     warndlg( 'The optimized elements are not defined!', 'ERROR', 'modal' );
     return;
-end;
+end
 
 % clear plot if necessary
 if exist('clm.soldata')
-   if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end;
-   if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end;
-   if ishandle(clm.soldata.handle(3)) delete(clm.soldata.handle(3)); end;
+   if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end
+   if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end
+   if ishandle(clm.soldata.handle(3)) delete(clm.soldata.handle(3)); end
 end
 
 % Transfer to SI
 runtmp = Transfer2SI( runtmp );
 
-% Save to tempary file
+% Save to temporary file
 save 'runtmp' runtmp;
 
 % Run ......
 newKappa = match2target;
 
-load runtmp % this might be problematic, moves unwanted data to usrdata
+load runtmp % this might be problematic, moves unwanted data to usrdata?
 
 % Save the new result
 [~,n] = size( runtmp.loc ); k = 1;
 for i=1:n
     if( runtmp.opt(i) )
         runtmp.str(i) = newKappa(k); k = k+1;
-    end;
-end;
+    end
+end
 
 
 runtmp = TransferFromSI( runtmp );
@@ -679,22 +737,34 @@ end
 
 function usrdata = TransferFromSI( data )
 usrdata = data;
-usrdata.x0 = data.x0*1.e2;               % m->cm
-usrdata.y0 = data.y0*1.e2;               % m->cm
-usrdata.D0 = data.D0*1.e2;
+usrdata.ic.x0 = data.ic.x0*1.e2;               % m->cm
+usrdata.ic.y0 = data.ic.y0*1.e2;               % m->cm
+try
+    usrdata.ic.D0 = data.ic.D0*1.e2;
+catch
+    warning('Dispersion D0 not defined, setting D0 = Dp0 = 0')
+    usrdata.ic.D0 = 0;
+    usrdata.ic.Dp0 = 0;
+end
 %usrdata.xp0,usrdata.yp0
 usrdata.emitance = data.emitance*1.e6;   % mrad->mm.mrad
 %usrdata.perveance
 usrdata.stepsize = data.stepsize*1.e2;   % m->cm
 usrdata.distance = data.distance*1.e2;   % m->cm
+try
 usrdata.s0 = data.s0*1.e2;   % m->cm
+catch
+    warning('Start-point s0 not defined, setting s0 = 0')
+    usrdata.s0 = 0;
+end
+
 %usrdata.ele
 usrdata.loc = data.loc*1.e2;             % m->cm
 usrdata.len = data.len*1.e2;             % m->cm
 %usrdata.str
-if exist('data.x1')
-usrdata.x1 = data.x1*1.e2;               % m->cm
-usrdata.y1 = data.y1*1.e2;               % m->cm
+if exist('data.target.x1')
+    usrdata.target.x1 = data.x1*1.e2;               % m->cm
+    usrdata.target.y1 = data.y1*1.e2;               % m->cm
 end
 if exist('data.xref')
     usrdata.xref = data.xref*1.e2;               % m->cm
@@ -705,9 +775,11 @@ end
 
 function usrdata = Transfer2SI( data )
 usrdata = data;
-usrdata.x0 = data.x0*1.e-2;               % cm->m
-usrdata.y0 = data.y0*1.e-2;               % cm->m
-usrdata.D0 = data.D0*1e-2;
+usrdata.ic.x0 = data.ic.x0*1.e-2;               % cm->m
+usrdata.ic.y0 = data.ic.y0*1.e-2;               % cm->m
+try
+usrdata.ic.D0 = data.ic.D0*1e-2;
+catch end
 %usrdata.xp0,usrdata.yp0,usrdata.D0 
 usrdata.emitance = data.emitance*1.e-6;   % mm.mrad->mrad
 %usrdata.perveance
@@ -718,9 +790,9 @@ usrdata.s0 = data.s0*1.e-2;   % cm->m
 usrdata.loc = data.loc*1.e-2;             % cm->m
 usrdata.len = data.len*1.e-2;             % cm->m   
 %usrdata.str
-if exist('data.x1')
-usrdata.x1 = data.x1*1.e-2;               % cm->m
-usrdata.y1 = data.y1*1.e-2;               % cm->m
+if exist('data.target.x1')
+usrdata.target.x1 = data.x1*1.e-2;               % cm->m
+usrdata.target.y1 = data.y1*1.e-2;               % cm->m
 end
 if exist('data.xref')
 usrdata.xref = data.xref*1.e-2;               % m->cm

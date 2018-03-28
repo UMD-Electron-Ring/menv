@@ -1,15 +1,25 @@
 function [X,Y,XP,YP,D,DP] = menv_integrator(Ex,Ey,K,KX,KY,IRHO,ic,ds,allflag)
+% Arguments:
+% Ex is x-emittance, Ey is y-emittance
+% KX,KY is array of linear focusing gradient for each step
+% IRHO is array of inverse bending radius at each step
+% ic is structure array holding initial conditions, in SI units
+% ds is stepsize [unit meters]
+% allflag = 1 returns data for every step. 
+% allflag = 0 only returns data at end of last step
+
 
 nsteps = length(KX);
 
-x0 = ic(1);
-y0 = ic(2);
-xp0 = ic(3);
-yp0 = ic(4);
-D0 = ic(5);
-Dp0 = ic(6);
+x0 = ic.x0;
+y0 = ic.y0;
+xp0 = ic.xp0;
+yp0 = ic.yp0;
+D0 = ic.D0;
+Dp0 = ic.Dp0;
 
 kx=[]; ky=[]; % need to be initialized so they are available to all function workspaces
+irho = [];
 
 if allflag
     % -- integrate
