@@ -26,7 +26,6 @@ clm.build = @buildFODO;
 clm.solve = @solvelattice;
 clm.periodicmatcher = @periodicmatcher;
 clm.targetmatcher = @targetmatcher; % target is x,y,xp,yp,D,Dp
-clm.targetmatcher2 = @targetmatcher2; % target is x,y,xp,yp,D,Dp,nux,nuy,betax~betay
 clm.trajmatcher = @trajmatcher; % target x,y,xp,yp plus tries to match trajectory
 clm.GSmatcher = @GStargetmatcher; % GlobalSearch method, requires globalsearch optimizer
 
@@ -571,60 +570,6 @@ solvelattice()
 end
 
 
-function targetmatcher2()
-% Run matching algorithm, find lattice function for desired target (final)
-% condition given initial condition
-global clm
-runtmp = clm.usrdata;
- 
-% only check one parameter is enough
-if( isempty(runtmp.x0) )
-    warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
-    return;
-end;
-if( isempty(runtmp.x1) )
-    warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
-    return;
-end;
-if( sum(runtmp.opt)==0 )
-    warndlg( 'The optimized elements are not defined!', 'ERROR', 'modal' );
-    return;
-end;
-
-% clear plot if necessary
-if exist('clm.soldata')
-   if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end;
-   if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end;
-end
-
-% Transfer to SI
-runtmp = Transfer2SI( runtmp );
-
-% Save to tempary file
-save 'runtmp' runtmp;
-
-% Run ......
-newKappa = match2target2( 'runtmp' );
-
-% Save the new result
-[~,n] = size( runtmp.loc ); k = 1;
-for i=1:n
-    if( runtmp.opt(i) )
-        runtmp.str(i) = newKappa(k); k = k+1;
-    end;
-end;
-
-runtmp = TransferFromSI( runtmp );
-clm.usrdata = runtmp;
-
-% -- save error function in solution data
-clm.soldata.f = stepfunc2(newKappa);
-
-% Update figure
-solvelattice()
-
-end
-
 function GStargetmatcher()
 % Run matching algorithm, vary lattice function to match target, including
 % reference trajectory
@@ -632,23 +577,23 @@ global clm
 runtmp = clm.usrdata;
  
 % only check one parameter is enough
-if( isempty(runtmp.x0) )
+if( isempty(runtmp.ic.x0) )
     warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
     return;
-end;
-if( isempty(runtmp.x1) )
+end
+if( isempty(runtmp.target.x1) )
     warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
     return;
-end;
+end
 if( sum(runtmp.opt)==0 )
     warndlg( 'The optimized elements are not defined!', 'ERROR', 'modal' );
     return;
-end;
+end
 
 % clear plot if necessary
 if exist('clm.soldata')
-   if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end;
-   if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end;
+   if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end
+   if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end
 end
 
 % Transfer to SI
@@ -658,18 +603,15 @@ runtmp = Transfer2SI( runtmp );
 save 'runtmp' runtmp;
 
 % Run ......
-[newKappa,f] = GSmatch2target( 'runtmp' );
+[newKappa] = GSmatch2target( 'runtmp' );
 
 % Save the new result
 [~,n] = size( runtmp.loc ); k = 1;
 for i=1:n
     if( runtmp.opt(i) )
         runtmp.str(i) = newKappa(k); k = k+1;
-    end;
-end;
-
-% - save error contribution terms
-runtmp.GSfunc = f;
+    end
+end
 
 runtmp = TransferFromSI( runtmp );
 clm.usrdata = runtmp;

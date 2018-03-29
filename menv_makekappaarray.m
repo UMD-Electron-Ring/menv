@@ -22,9 +22,14 @@ catch
 end
 opt = runtmp.opt;      % flag to use element in optimization
 
-
 % distance-array(d)
 d = [0:nsteps-1]*ds + min_d;
+
+% fudge factors (base don bench-marking with WARP bgrd elements
+Qffx = 0.955;
+Qffy = 0.935;
+Dffx = 1.9687;
+Dffy = 1;
 
 % Kappa-array 
 % includes fudge-factors, which should be moved to a different place
@@ -43,12 +48,12 @@ for i=1:length(loc)
          KY( d1:d2 ) = str(i);
          IRHO( d1:d2 ) = irho(i);
       elseif ele(i)=='Q'
-         KX( d1:d2 ) = str(i);%0.955*str(i);
-         KY( d1:d2 ) = -str(i);%0.935*str(i);
+         KX( d1:d2 ) = Qffx*str(i);
+         KY( d1:d2 ) = -Qffy*str(i);
          IRHO( d1:d2 ) = irho(i);
       elseif ele(i)=='D'
-         KX( d1:d2 ) = str(i)*(1-dipl_n(i))*1.9687;
-         KY( d1:d2 ) = str(i)*dipl_n(i);
+         KX( d1:d2 ) = Dffx*str(i)*(1-dipl_n(i));
+         KY( d1:d2 ) = Dffy*str(i)*dipl_n(i);
          IRHO( d1:d2 ) = irho(i);
       end
    else

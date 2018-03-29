@@ -8,19 +8,23 @@ tolFun = runtmp.tolFun;
 % -- make lattmp variable
 X0 = menv_makekappaarray(); clear X0;
 
+% -- define initial condition
 X = [runtmp.ic.x0 runtmp.ic.y0,...
     runtmp.ic.xp0 runtmp.ic.yp0,...
     runtmp.ic.D0 runtmp.ic.Dp0];
-% options = optimset('LargeScale', 'on', ...
-%     'Display', 'iter', ...
-%     'MaxIter', maxIter, ...
-%     'TolFun', tolFun );
-% X = lsqnonlin( 'periodfunc', X,[],[],options );
 
-% xw = 1;
-% yw = 1;
-% xpw = 1;
-% ypw = 1;
+% -- least square optimization
+options = optimset('LargeScale', 'on', ...
+    'Display', 'iter', ...
+    'MaxIter', maxIter, ...
+    'TolFun', tolFun );
+X = lsqnonlin( 'periodfunc', X,[],[],options );
+
+% -- another iterative optimization step to fine-tune
+% -- first set all weights equal
+[runtmp.weight.xw,runtmp.weight.yw,runtmp.weight.xpw,runtmp.weight.ypw] = deal(1);
+save 'runtmp' runtmp
+
 disp(' ');
 disp('The X found by lsqnonlin:');
 format long;
@@ -33,13 +37,13 @@ for i=1:maxIter
    disp(X);
    if( err<tolFun )
       break;
-   end;
-end;
+   end
+end
 format;
 
 
-
-f =  periodfunc( X ); % run just to get error contributions;
+% -- save error contributions in runtmp;
+f =  periodfunc( X ); 
 runtmp.f = f;
 save 'runtmp' runtmp;
 
