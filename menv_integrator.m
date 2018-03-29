@@ -104,7 +104,7 @@ end
         dp = dp - dpp*ds/2;
         
         % return last step
-        X = x; Y = y; XP = xp; YP = xp; D = d; DP = dp;
+        X = x; Y = y; XP = xp; YP = yp; D = d; DP = dp;
         
     end
 
