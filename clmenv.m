@@ -11,7 +11,7 @@
 % 3/7/17
 %
 
-% -- main
+% -- main, initializing function
 function clm = clmenv()
 
 clm.open = @openspt;
@@ -29,7 +29,9 @@ clm.solve = @solvelattice;
 % -- optimization routines
 clm.periodicmatcher = @periodicmatcher; % target is matched periodic solution
 clm.targetmatcher = @targetmatcher; % target is x,y,x',y' [optional D,D',nux,nuy,ref-trajectory]
-clm.GSmatcher = @GStargetmatcher; % GlobalSearch method, requires globalsearch optimizer
+clm.GSmatcher = @GStargetmatcher; % GlobalSearch method, requires globalsearch optimization toolbox
+clm.MOmatcher = @MOtargetmatcher; % multi-objective search method, still not functional 
+
 
 % -- set-up for optimizations
 clm.maketarget = @maketarget;
@@ -40,8 +42,7 @@ clm.makeparams = @makeparams;
 clm.thisFig = figure(); axes();
 end
 
-
-% -- functions that can be used externally
+% -- functions to be used from command line
 
 function openspt(varargin)
 % Open .spt file describing lattice
@@ -287,24 +288,6 @@ end
 save 'target' target 
 end
 
-function maketraj(xref,yref)
-% Load trajectory data into clmenv memory
-global clm
-
-clm.usrdata.target.xref = xref;
-clm.usrdata.target.yref = yref;
-
-% -- plot trajectory
-if exist('clm.usrdata.handle')
-    if ishandle(clm.usrdata.handle) delete(clm.usrdata.handle); end
-end
-hold on
-href = plot(xref,yref,':k');
-hold off
-clm.usrdata.handle = href;
-
-end
-
 function makeoptiset(iterations,tolerance)
 % Load iteration and tolerance setting into clmenv memory
 optiset.maxIter = iterations;
@@ -339,6 +322,38 @@ elseif length(startend)==2
 end
 
 save 'params' params
+end
+
+function maketraj(xref,yref)
+% Load trajectory data into clmenv memory
+global clm
+
+clm.usrdata.target.xref = xref;
+clm.usrdata.target.yref = yref;
+
+% -- plot trajectory
+if exist('clm.usrdata.handle')
+    if ishandle(clm.usrdata.handle) delete(clm.usrdata.handle); end
+end
+hold on
+href = plot(xref,yref,':k');
+hold off
+clm.usrdata.handle = href;
+
+end
+
+function cleartraj()
+% Delete stored trajectory data
+global clm
+
+% -- delete data
+clm.usrdata = rmfield(clm.usrdata,{'xref','yref'});
+
+% -- deleted plotted trajectory
+if exist('clm.usrdata.handle')
+    if ishandle(clm.usrdata.handle) delete(clm.usrdata.handle); end
+end
+
 end
 
 function deflattice(varargin)
@@ -495,9 +510,11 @@ D=D*1.e2;
 % -- Plotting
 % -- clear plots if they exist
 if isfield(clm,'soldata')
-   if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end
-   if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end
-   if ishandle(clm.soldata.handle(3)) delete(clm.soldata.handle(3)); end
+    if isfield(clm.soldata,'handle')
+        if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end
+        if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end
+        if ishandle(clm.soldata.handle(3)) delete(clm.soldata.handle(3)); end
+    end
 end
 
 hold on; h1 = plot(d,x,'b'); h2 = plot(d,y,'r'); h3 = plot(d,D,'k'); hold off;
@@ -673,8 +690,58 @@ clm.usrdata = runtmp;
 solvelattice()
 end
 
+function MOtargetmatcher()
+% Run matching algorithm, vary lattice function to match target, including
+% reference trajectory
+global clm
+runtmp = clm.usrdata;
+ 
+% only check one parameter is enough
+if( isempty(runtmp.ic.x0) )
+    warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
+    return;
+end
+if( isempty(runtmp.target.x1) )
+    warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
+    return;
+end
+if( sum(runtmp.opt)==0 )
+    warndlg( 'The optimized elements are not defined!', 'ERROR', 'modal' );
+    return;
+end
 
-% -- functions only used with clmenv()
+% clear plot if necessary
+if exist('clm.soldata')
+   if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end
+   if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end
+end
+
+% Transfer to SI
+runtmp = Transfer2SI( runtmp );
+
+% Save to tempary file
+save 'runtmp' runtmp;
+
+% Run ......
+[newKappa] = MOmatch2target( 'runtmp' );
+
+% Save the new result
+[~,n] = size( runtmp.loc ); k = 1;
+for i=1:n
+    if( runtmp.opt(i) )
+        runtmp.str(i) = newKappa(k); k = k+1;
+    end
+end
+
+runtmp = TransferFromSI( runtmp );
+clm.usrdata = runtmp;
+
+% Update figure
+solvelattice()
+end
+
+
+% -- sub-functions only ever called from within clmenv()
 
 function usrdata = zeroAxesUserData
 usrdata = struct( ...
