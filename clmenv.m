@@ -17,21 +17,24 @@ function clm = clmenv()
 clm.open = @openspt;
 clm.saveas = @savefile;
 
-clm.defparam = @defparam;
-clm.defmatcher = @defmatcher;
-clm.deflattice = @deflattice;
-clm.draw = @drawlattice;
-clm.build = @buildFODO;
+clm.defparam = @defparam; % define beam, sim. params
+clm.defmatcher = @defmatcher; % load optimization settings
+clm.deflattice = @deflattice; % load lattice definition
+clm.draw = @drawlattice; % plot lattice structure on figure
+clm.build = @buildFODO; % create a basic FODO lattice.
 
+% -- integrate env. for defined problem
 clm.solve = @solvelattice;
-clm.periodicmatcher = @periodicmatcher;
-clm.targetmatcher = @targetmatcher; % target is x,y,xp,yp,D,Dp
-clm.trajmatcher = @trajmatcher; % target x,y,xp,yp plus tries to match trajectory
+
+% -- optimization routines
+clm.periodicmatcher = @periodicmatcher; % target is matched periodic solution
+clm.targetmatcher = @targetmatcher; % target is x,y,x',y' [optional D,D',nux,nuy,ref-trajectory]
 clm.GSmatcher = @GStargetmatcher; % GlobalSearch method, requires globalsearch optimizer
 
+% -- set-up for optimizations
 clm.maketarget = @maketarget;
 clm.makeoptiset = @makeoptiset;
-clm.maketraj = @maketraj;
+clm.maketraj = @maketraj; % load ref-trajectory data, plot on figure
 clm.makeparams = @makeparams;
 
 clm.thisFig = figure(); axes();
@@ -150,11 +153,13 @@ load 'optiset'
 clm.usrdata.maxIter = optiset.maxIter;
 clm.usrdata.tolFun = optiset.tolFun;
 
-clm.usrdata.target = [];
+% -- load targets
+clm.usrdata.target = struct();
 clm.usrdata.target.x1 = target.x1;
 clm.usrdata.target.y1 = target.y1;
 clm.usrdata.target.xp1 = target.xp1;
 clm.usrdata.target.yp1 = target.yp1;
+% -- try adding dispersion targets, set to 0 if undefined
 try
     clm.usrdata.target.D1 = target.D1;
     clm.usrdata.target.Dp1 = target.Dp1;
@@ -162,11 +167,14 @@ catch
     clm.usrdata.target.D1 = 0;
     clm.usrdata.target.Dp1 = 0;
 end
-clm.usrdata.weights = [];
+
+% -- load weights
+clm.usrdata.weights = struct();
 clm.usrdata.weights.xw = target.xw;
 clm.usrdata.weights.yw = target.yw;
 clm.usrdata.weights.xpw = target.xpw;
 clm.usrdata.weights.ypw = target.ypw;
+% -- try adding dispersion weights, set to 0 if undefined
 try
     clm.usrdata.weights.Dw = target.Dw;
     clm.usrdata.weights.Dpw = target.Dpw;
@@ -175,6 +183,7 @@ catch
     clm.usrdata.weights.Dpw = 0;
 end
 
+% -- try adding tune targets + weights, set to 0 if undefined
 try clm.usrdata.target.nuxt = target.nuxt;
 catch clm.usrdata.target.nuxt = 0; end
 try clm.usrdata.target.nuyt = target.nuyt;
@@ -183,8 +192,12 @@ try clm.usrdata.weights.nuxw = target.nuxw;
 catch clm.usrdata.weights.nuxw = 0; end
 try clm.usrdata.weights.nuyw = target.nuyw;
 catch clm.usrdata.weights.nuyw = 0; end
+
+% -- try adding envelope weights, set to 0 if undefined
 try clm.usrdata.weights.betaw = target.betaw;
 catch clm.usrdata.weights.betaw =0 ; end
+try clm.usrdata.weights.refw = target.refw;
+catch clm.usrdata.weights.refw =0 ; end
 
 
 end
@@ -192,45 +205,83 @@ end
 function maketarget(varargin)
 % Load beam targets and weights into clmenv memory
 % varargin:
-% 1 -- targetlist
-% 2 -- weightlist
-% 3 -- optional targetlist
-% 4 -- optional weightlist
-if nargin > 0
-    targetlist = varargin{1};
-    target.x1 = targetlist(1);
-    target.y1 = targetlist(2);
-    target.xp1 = targetlist(3);
-    target.yp1 = targetlist(4);
-    try
-        target.D1 = targetlist(5);
-        target.Dp1 = targetlist(6);
-    catch
-        target.D1 = 0;
-        target.Dp1 = 0;
-    end
-    
-    weightlist = varargin{2};
-    target.xw = weightlist(1);
-    target.yw = weightlist(2);
-    target.xpw = weightlist(3);
-    target.ypw = weightlist(4);
-    
-    try
+% 1 -- targetlist, matrix w/ 6 entries, x,y,x',y',D,D' (D,D' optional)
+% 2 -- weightlist, matrix w/ 6 entries, x,y,x',y',D,D' (D,D' optional)
+% 3 -- optional targetlist, matrix w/ 2 entries nux,nuy
+% 4 -- optional weightlist nux,nuy,beta (for symmetry condition betax=betay)
+
+% -- read in target list (4 or 6 entries required)
+targetlist = varargin{1};
+target.x1 = targetlist(1);
+target.y1 = targetlist(2);
+target.xp1 = targetlist(3);
+target.yp1 = targetlist(4);
+try
+    target.D1 = targetlist(5);
+    target.Dp1 = targetlist(6);
+catch
+    target.D1 = 0;
+    target.Dp1 = 0;
+    warning('Dispersion target not specified, set D=D''=0')
+end
+
+% -- read in weight list (4 or 6 entries required)
+weightlist = varargin{2};
+target.xw = weightlist(1);
+target.yw = weightlist(2);
+target.xpw = weightlist(3);
+target.ypw = weightlist(4);
+try
     target.Dw = weightlist(5);
     target.Dpw = weightlist(6);
-    catch
-        target.Dw = 0; target.Dpw = 0;
-    end
+catch
+    target.Dw = 0; target.Dpw = 0;
+    warning('Dispersion matching will not be included')
 end
-if nargin > 2
+
+% -- parse in optional target/weight lists if given. 
+if nargin == 2 % no optional targets/weights set
+    target.nuxt = 0;
+    target.nuyt = 0;
+    target.nuxw = 0;
+    target.nuyw = 0;
+    target.betaw = 0;
+    target.refw = 0;
+elseif nargin == 3 % envelope weights specified (no tune target/weight)
+    optweightlist = varargin{3};
+    target.nuxt = 0;
+    target.nuyt = 0;
+    target.nuxw = 0;
+    target.nuyw = 0;
+    target.betaw = optweightlist(1);
+    target.refw = optweightlist(2);
+elseif nargin ==4 % some combination of env + tune target/ weights
     opttargetlist = varargin{3};
     optweightlist = varargin{4};
-    target.nuxt = opttargetlist(1);
-    target.nuyt = opttargetlist(2);
-    target.nuxw = optweightlist(1);
-    target.nuyw = optweightlist(2);
-    target.betaw = optweightlist(3);
+    if isempty(opttargetlist) && length(optweightlist)==2
+        target.nuxt = 0;
+        target.nuyt = 0;
+        target.nuxw = 0;
+        target.nuyw = 0;
+        target.betaw = optweightlist(1);
+        target.refw = optweightlist(2);
+    elseif length(opttargetlist) ==2
+        target.nuxt = opttargetlist(1);
+        target.nuyt = opttargetlist(2);
+        if length(optweightlist)==2
+            target.nuxw = optweightlist(1);
+            target.nuyw = optweightlist(2);
+            target.betaw = 0;
+            target.refw = 0;
+        elseif length(optweightlist)==4
+            target.nuxw = optweightlist(1);
+            target.nuyw = optweightlist(2);
+            target.betaw = optweightlist(3);
+            target.refw = optweightlist(4);
+        else error('Wrong number of entries in optional list of weights sent to maketarget')
+        end
+    else error('Wrong number of entries in optional list of targets sent to maketarget')
+    end  
 end
 
 save 'target' target 
@@ -240,8 +291,8 @@ function maketraj(xref,yref)
 % Load trajectory data into clmenv memory
 global clm
 
-clm.usrdata.xref = xref;
-clm.usrdata.yref = yref;
+clm.usrdata.target.xref = xref;
+clm.usrdata.target.yref = yref;
 
 % -- plot trajectory
 if exist('clm.usrdata.handle')
@@ -264,7 +315,7 @@ end
 function makeparams(emit,perv,x0,y0,xp0,yp0,D0,Dp0,stepsize,startend)
 % Make a params file from params arguments
 
-params.emitance = emit;
+params.emitance = emit; % I know this is misspelled, but if I change it here I have to change it everywhere
 params.perveance = perv;
 params.stepsize = stepsize;
 
@@ -351,6 +402,8 @@ end
 end
 
 function [lat] = buildFODO(ncells)
+
+% -- to-do: make input parser for optional FODO parameters
 
 nD = ncells;
 nQ = 2*ncells;
@@ -452,7 +505,7 @@ xlabel('z (cm)'); ylabel('X:blue, Y:red, D:black (cm)');
 axis([ min(d) max(d) 0.0 max([x,y])*1.2 ]);
 
 
-% Save data, down-convert resolution if needed.
+% Save data, first down-convert resolution if needed.
 if( runtmp.stepsize<0.005 ) interval = round(0.005/runtmp.stepsize);
 else interval = 1; end
 n = length(d); ind = 1:interval:n;

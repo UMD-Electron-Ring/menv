@@ -18,9 +18,13 @@ options = optimset('LargeScale', scale, ...
 X = lsqnonlin( 'optfunc', X,[],[],options );
 
 
-f =  optfunc( X ); % run just to get error contributions;
+% -- save error contributions in runtmp and clm.soldata;
+f =  optfunc( X ); 
 runtmp.f = f;
 save 'runtmp' runtmp;
+global clm
+clm.soldata.f = f;
+
 
 % -- return optimization variable X
 

@@ -42,10 +42,12 @@ end
 format;
 
 
-% -- save error contributions in runtmp;
+% -- save error contributions in runtmp and clm.soldata;
 f =  periodfunc( X ); 
 runtmp.f = f;
 save 'runtmp' runtmp;
+global clm
+clm.soldata.f = f;
 
 % -- return initial conditions
 newX = struct();

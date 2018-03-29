@@ -34,11 +34,17 @@ psiy = runtmp.stepsize*sum(1./betay);
 nux = psix/(2*pi);
 nuy = psiy/(2*pi);
 
-% condition for symmetric beam
+% -- condition for symmetric beam
 env_diff = rms(x-y);
 % another option: max(abs(betax-betay));
 
-% (need to add condition for ref. traj)
+% -- condition for reference trajectory
+try
+    refx = mean(abs(x-runtmp.target.yref));
+    refy = mean(abs(y-runtmp.target.yref));
+catch
+    [refx,refy] = deal(0);
+end
 
 % -- calculate min. function
 try
@@ -50,24 +56,26 @@ f = [x(end)-runtmp.target.x1,...
     Dp(end)-runtmp.target.Dp1,...
     nux-runtmp.target.nuxt,...
     nuy-runtmp.target.nuyt,...
-    env_diff];
-catch % -- backwards compatibility; unspecified targets set to 0
+    env_diff,refx,refy];
+catch % -- backwards compatibility; Dispersion target set to 0
    f = [x(end)-runtmp.target.x1,...
     y(end)-runtmp.target.y1,...
     xp(end)-runtmp.target.xp1,...
     yp(end)-runtmp.target.yp1,...
-    0,0,0,0,0];
+    0,0,0,0,env_diff,refx,refy];
+    warning('No dispersion or tune targets set')
 end
 
-% -- apply weight factors
+% -- apply weight factors to min. function vector
 try
 f = f.*[runtmp.weights.xw, runtmp.weights.yw,...
     runtmp.weights.xpw runtmp.weights.ypw,...
     runtmp.weights.Dw runtmp.weights.Dpw,...
     runtmp.weights.nuxw runtmp.weights.nuyw,...
-    runtmp.weights.betaw];
+    runtmp.weights.betaw,runtmp.weights.refw,runtmp.weights.refw];
 catch % -- backwards compatibility; unspecified weights set to 0
     f = f.*[runtmp.weights.xw, runtmp.weights.yw,...
     runtmp.weights.xpw runtmp.weights.ypw,...
-    0,0,0,0,0];
+    0,0,0,0,0,0,0];
+    warning('Missing some weight factors, only matching to x,y,x'',y'' target')
 end
