@@ -37,7 +37,9 @@ clm.maketarget([1,1,1,1],[1,1,1,1])
 clm.makeoptiset(iterations,tolerance)  % Makes file optiset
 clm.defmatcher() % loads matcher settings
 
-clm.makeparams(emittance,perveance,x0,y0,xp0,yp0,stepsize,distance) % makes param file
+ic = struct();
+ic.x0 = x0; ic.y0=y0; ic.xp0=xp0; ic.yp0=yp0; ic.D0 =0 ; ic.Dp0 = 0;
+clm.makeparams(emittance,perveance,ic,stepsize,distance) % makes param file
 clm.defparam() % loads params
 
 clm.deflattice(elements,location,lengths,str,opt,did) % loads lattice
@@ -62,10 +64,12 @@ x0aper = 0.3;
 y0aper = 0.3;
 xp0aper = 0;
 yp0aper = 0;
+icaper = struct();
+icaper.x0 = x0aper; icaper.y0=y0aper; icaper.xp0=xp0aper; icaper.yp0=yp0aper;
 
 inj_distance = clm.usrdata.distance; % length of injection line sim
 
-clm.makeparams(emittance,perveance,x0aper,y0aper,xp0aper,yp0aper,stepsize,inj_distance) % makes param file
+clm.makeparams(emittance,perveance,icaper,stepsize,inj_distance) % makes param file
 clm.defparam()
 
 clm.makeoptiset(iterations,tolerance) 

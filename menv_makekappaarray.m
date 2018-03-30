@@ -42,7 +42,6 @@ for i=1:length(loc)
    if( d2>nsteps )
       d2 = nsteps ;
    end
-   if( opt(i)==0 )
       if ele(i)=='S'
          KX( d1:d2 ) = str(i);
          KY( d1:d2 ) = str(i);
@@ -56,7 +55,7 @@ for i=1:length(loc)
          KY( d1:d2 ) = Dffy*str(i)*dipl_n(i);
          IRHO( d1:d2 ) = irho(i);
       end
-   else
+   if( opt(i)==1 )
       loc1 = [ loc1, d1 ];
       loc2 = [ loc2, d2 ];
       X0 = [ X0, str(i) ];

@@ -128,13 +128,27 @@ load 'params'
 
 clm.usrdata.emitance = params.emitance;
 clm.usrdata.perveance = params.perveance;
-clm.usrdata.ic = [];
-clm.usrdata.ic.x0 = params.x0;
-clm.usrdata.ic.y0 = params.y0;
-clm.usrdata.ic.xp0 = params.xp0;
-clm.usrdata.ic.yp0 = params.yp0;
-clm.usrdata.ic.D0 = params.D0;
-clm.usrdata.ic.Dp0 = params.Dp0;
+if isfield(params,'ic')
+    clm.usrdata.ic = params.ic;
+    if not(isfield(clm.usrdata.ic,'D0'))
+        clm.usrdata.ic.D0 = 0;
+        clm.usrdata.ic.Dp0 = 0;
+        warning('Dispersion not specified, setting D=D''=0')
+    end
+else
+    clm.usrdata.ic = struct();
+    clm.usrdata.ic.x0 = params.x0;
+    clm.usrdata.ic.y0 = params.y0;
+    clm.usrdata.ic.xp0 = params.xp0;
+    clm.usrdata.ic.yp0 = params.yp0;
+    try
+        clm.usrdata.ic.D0 = params.D0;
+        clm.usrdata.ic.Dp0 = params.Dp0;
+    catch
+        clm.usrdata.ic.D0 = 0;
+        clm.usrdata.ic.Dp0 = 0;
+    end
+end
 clm.usrdata.stepsize = params.stepsize;
 clm.usrdata.distance = params.distance;
 try clm.usrdata.s0 = params.s0;
@@ -295,7 +309,7 @@ optiset.tolFun = tolerance;
 save 'optiset' optiset 
 end
 
-function makeparams(emit,perv,x0,y0,xp0,yp0,D0,Dp0,stepsize,startend)
+function makeparams(emit,perv,ic,stepsize,startend)
 % Make a params file from params arguments
 
 params.emitance = emit; % I know this is misspelled, but if I change it here I have to change it everywhere
@@ -303,13 +317,6 @@ params.perveance = perv;
 params.stepsize = stepsize;
 
 % -- initial conditions
-ic = [];
-ic.x0 = x0;
-ic.y0 = y0;
-ic.xp0 = xp0;
-ic.yp0 = yp0;
-ic.D0 = D0;
-ic.Dp0 = Dp0;
 params.ic = ic;
 
 
@@ -367,15 +374,25 @@ if length(varargin)==1
     clm.usrdata.str = lat.str;
     clm.usrdata.opt = lat.opt;
     clm.usrdata.did = lat.did;
-    clm.usrdata.irho = lat.irho;
+    try
+        clm.usrdata.irho = lat.irho;
+    catch
+        clm.usrdata.irho = 0*lat.str;
+        warning('Bending radius not defined for elements')
+    end
 elseif length(varargin)==6
-    clm.usrdata.ele = varargin(1);
-    clm.usrdata.loc = varargin(2);
-    clm.usrdata.len = varargin(3);
-    clm.usrdata.str = varargin(4);
-    clm.usrdata.opt = varargin(5);
-    clm.usrdata.did = varargin(6);
-    clm.usrdata.irho = varargin(7);
+    clm.usrdata.ele = varargin{1};
+    clm.usrdata.loc = varargin{2};
+    clm.usrdata.len = varargin{3};
+    clm.usrdata.str = varargin{4};
+    clm.usrdata.opt = varargin{5};
+    clm.usrdata.did = varargin{6};
+    try
+        clm.usrdata.irho = varargin{7};
+    catch
+        clm.usrdata.irho = 0*varargin{4};
+        warning('Bending radius not defined for elements')
+    end
 end
 
 end
@@ -390,11 +407,11 @@ if length(varargin)==1
     str = lat.str;
     opt = lat.opt;
 elseif length(varargin)==5
-    ele = varargin(1);
-    loc = varargin(2);
-    len = varargin(3);
-    str = varargin(4);
-    opt = varargin(5);
+    ele = varargin{1};
+    loc = varargin{2};
+    len = varargin{3};
+    str = varargin{4};
+    opt = varargin{5};
 end
 
 
