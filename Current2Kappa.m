@@ -8,11 +8,11 @@ T = q*E;
 gamma = 1+T/(M*c^2);
 beta = sqrt(1-gamma^-2);
 
-% -- quad model
+% -- quad model parameters
 g0 = 3.608e-2; % quad peak grad per amp
 q_sbfact = 0.8354; % SB HE factor
 
-% -- solenoid model
+% -- solenoid model parameters
 B0 = 17.597; % peak field per amp
 B_off = 1.35; % offset
 B_sbfact = sqrt(0.695); % SB HE factor

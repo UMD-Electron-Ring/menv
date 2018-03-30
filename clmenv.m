@@ -437,6 +437,7 @@ function [lat] = buildFODO(ncells)
 
 % -- to-do: make input parser for optional FODO parameters
 
+Iquad = 1.826;
 nD = ncells;
 nQ = 2*ncells;
 nele = nD+nQ;
@@ -444,7 +445,7 @@ lcell = 32;
 L = lcell*ncells;
 
 % -- dipo params
-dlen = 3.8500;
+dlen = 3.819;
 dang = 8*pi/180;
 rho = dlen/dang;
 
@@ -465,8 +466,8 @@ end
 % -- define quads
 for i=1:nQ
     loc(i) = 8 + 16*(i-1);
-    len(i) = 3.7384;
-    str(i) = 140 * (-2*mod(i,2)+1);
+    len(i) = 4.475;
+    str(i) = Current2Kappa(Iquad,'Q') * (-2*mod(i,2)+1);
     did(i) = 0;
     opt(i) = 0;
 end
