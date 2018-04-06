@@ -464,8 +464,12 @@ L = lcell*ncells;
 
 % -- dipo params
 dlen = 3.819;
-dang = 8*pi/180;
+dang = 7.8*pi/180;
 rho = dlen/dang;
+dint = 19.917;
+ridg = 338.859;
+Idipo = dang*ridg /dint;
+dstr = Current2Kappa(Idipo,'D');
 
 % -- quad params
 qlen = 5.164; % based on Santiago 2006 Tech. Note
@@ -498,8 +502,8 @@ end
 for i=1:nD
     loc(i+nQ) = 16 + 32*(i-1);
     len(i+nQ) = dlen;
-    str(i+nQ) = 15.7;
-    did(i+nQ) = 0.72;
+    str(i+nQ) = dstr;
+    did(i+nQ) = 0.0; % deprecated
     opt(i+nQ) = 0;  
     irho(i+nQ) = 1/rho;
 end
