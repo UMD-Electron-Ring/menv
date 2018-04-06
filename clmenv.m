@@ -288,6 +288,10 @@ elseif nargin ==4 % some combination of env + tune target/ weights
             target.nuyw = optweightlist(2);
             target.betaw = 0;
             target.refw = 0;
+        elseif length(optweightlist)==3
+            target.nuxw = optweightlist(1);
+            target.nuyw = optweightlist(2);
+            target.betaw = optweightlist(3);
         elseif length(optweightlist)==4
             target.nuxw = optweightlist(1);
             target.nuyw = optweightlist(2);
@@ -439,7 +443,7 @@ for i=1:length(ele)
     if strcmp(ele(i),'D') col = [0,1,0];
     elseif strcmp(ele(i),'Q') && opt(i)==0 col = [.9,.9,.9]; 
     elseif strcmp(ele(i),'Q') && opt(i)==1 col = [.3,.3,.3]; 
-    elseif strcmp(ele(i),'S') col = [0,0,0];
+    elseif strcmp(ele(i),'S') col = [255,140,0]/255;
     end
     % -- draw a patch for each element
     hpatch = patch([sele,eele,eele,sele],[0,0,hele,hele],col);
@@ -462,6 +466,10 @@ dlen = 3.8500;
 dang = 8*pi/180;
 rho = dlen/dang;
 
+% -- quad params
+qlen = 5.164; % based on Santiago 2006 Tech. Note
+Iquad = 2.194; % Amps, nom. operating pt.
+qstr = Current2Kappa(Iquad,'Q');
 
 ele ='';
 loc = zeros(1,nele);
@@ -479,8 +487,8 @@ end
 % -- define quads
 for i=1:nQ
     loc(i) = 8 + 16*(i-1);
-    len(i) = 3.7384;
-    str(i) = 140 * (-2*mod(i,2)+1);
+    len(i) = qlen;
+    str(i) = qstr * (-2*mod(i,2)+1);
     did(i) = 0;
     opt(i) = 0;
 end
@@ -853,11 +861,11 @@ end
 usrdata.loc = data.loc*1.e2;             % m->cm
 usrdata.len = data.len*1.e2;             % m->cm
 %usrdata.str
-if exist('data.target.x1')
-    usrdata.target.x1 = data.x1*1.e2;               % m->cm
-    usrdata.target.y1 = data.y1*1.e2;               % m->cm
+if isfield(data,'target')
+    usrdata.target.x1 = data.target.x1*1.e2;               % m->cm
+    usrdata.target.y1 = data.target.y1*1.e2;               % m->cm
 end
-if exist('data.xref')
+if isfield(data,'xref')
     usrdata.xref = data.xref*1.e2;               % m->cm
     usrdata.yref = data.yref*1.e2;               % m->cm
 end
@@ -881,11 +889,11 @@ usrdata.s0 = data.s0*1.e-2;   % cm->m
 usrdata.loc = data.loc*1.e-2;             % cm->m
 usrdata.len = data.len*1.e-2;             % cm->m   
 %usrdata.str
-if exist('data.target.x1')
-usrdata.target.x1 = data.x1*1.e-2;               % cm->m
-usrdata.target.y1 = data.y1*1.e-2;               % cm->m
+if isfield(data,'target')
+usrdata.target.x1 = data.target.x1*1.e-2;               % cm->m
+usrdata.target.y1 = data.target.y1*1.e-2;               % cm->m
 end
-if exist('data.xref')
+if isfield(data,'xref')
 usrdata.xref = data.xref*1.e-2;               % m->cm
 usrdata.yref = data.yref*1.e-2;               % m->cm
 end

@@ -10,12 +10,13 @@ beta = sqrt(1-gamma^-2);
 
 % -- quad model
 g0 = 3.608e-2; % quad peak grad per amp
-q_sbfact = 0.8354; % SB HE factor
+%q_sbfact = 0.8354; % SB HE factor
+q_sbfact = 0.7208; % SB HE factor updated (2006)
 
 % -- solenoid model
 B0 = 17.597; % peak field per amp
 B_off = 1.35; % offset
-B_sbfact = sqrt(0.695); % SB HE factor
+B_sbfact = sqrt(0.6945); % SB HE factor
 
 N = length(I);
 kappa = zeros(1,N);

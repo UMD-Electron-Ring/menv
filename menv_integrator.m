@@ -37,7 +37,7 @@ end
         % -- init arrays
         [X,Y,XP,YP,D,DP] = deal(zeros(1,nsteps));
         
-        % Leap frog half step
+        % Leap frog half step forward in momentum
         kx = KX(1); ky = KY(1); irho = IRHO(1);
         [xpp,ypp,dpp] = calc_prim2(x0,y0,D0);
         xp = xp0+xpp*ds/2;
@@ -65,7 +65,7 @@ end
             DP(i+1) = dp;
         end
         
-        % Leap frog back half step
+        % Leap frog back half step in momentum
         [xpp,ypp,dpp] = calc_prim2(x,y,d);
         xp = xp - xpp*ds/2;
         yp = yp - ypp*ds/2;
@@ -121,6 +121,7 @@ end
 
     function [xpp1,ypp1,dpp1] = calc_prim2(x1,y1,d1)
         % function to calculate velocity impulse
+        % Reiser eq. 4.191, 4.192
         xpp1 = -( kx*x1-2*K/(x1+y1)-Ex^2/(x1^3) );
         ypp1 = -( ky*y1-2*K/(x1+y1)-Ey^2/(y1^3) );
         dpp1 = irho - kx*d1;
