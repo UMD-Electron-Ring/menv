@@ -26,10 +26,16 @@ opt = runtmp.opt;      % flag to use element in optimization
 d = [0:nsteps-1]*ds + min_d;
 
 % fudge factors (base don bench-marking with WARP bgrd elements
-Qffx = 0.955;
-Qffy = 0.935;
-Dffx = 1.9687;
+% Qffx = 0.955;
+% Qffy = 0.935;
+% Dffx = 1.9687;
+% Dffy = 1;
+
+Qffx = 1;
+Qffy = 1;
+Dffx = 1;
 Dffy = 1;
+
 
 % Kappa-array 
 % includes fudge-factors, which should be moved to a different place
