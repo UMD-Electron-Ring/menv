@@ -11,7 +11,7 @@ loc1 = lattmp.loc1;
 loc2 = lattmp.loc2; 
 OPT_ELE = lattmp.OPT_ELE;
 
-% fudge factors (base don bench-marking with WARP bgrd elements
+% fudge factors (based on bench-marking with WARP bgrd elements)
 % Qffx = 0.955;
 % Qffy = 0.935;
 % Dffx = 1.9687;
@@ -19,21 +19,29 @@ OPT_ELE = lattmp.OPT_ELE;
 
 Qffx = 1;
 Qffy = 1;
-Dffx = 1;
+Dffx = .146/.556; % -- horz focusing is weaker than vert. focusing. From RK dipole note + 2010 online table
 Dffy = 1;
+PDffx = 0.00/0.0410; % -- horz focusing is weaker than vert. focusing. From RK dipole note + 2010 online table
+PDffy = 1;
 
 
 % Update kappa
 for i=1:length( X )
-    if OPT_ELE(i)=='S'
-        KX( loc1(i):loc2(i) ) = X(i); %0.96891*X(i);
-        KY( loc1(i):loc2(i) ) = X(i); %-X(i);
-    elseif OPT_ELE(i)=='Q'
+    if OPT_ELE(i)=='S' % -- solenoid
+        KX( loc1(i):loc2(i) ) = X(i); 
+        KY( loc1(i):loc2(i) ) = X(i);
+    elseif OPT_ELE(i)=='Q'  % -- ring quad
         KX( loc1(i):loc2(i) ) = Qffx*X(i);
         KY( loc1(i):loc2(i) ) = -Qffy*X(i);
-    elseif ele(i)=='D'
-        KX( loc1(i):loc2(i) ) = Dffx*X(i)*(1-dipl_n(i));
-        KY( loc1(i):loc2(i) ) = X(i)*dipl_n(i);
+    elseif ele(i)=='D' % -- ring dipole
+        KX( loc1(i):loc2(i) ) = Dffx*X(i);
+        KY( loc1(i):loc2(i) ) = Dffy*X(i);
+    elseif OPT_ELE(i)=='Y' % -- enlarged Y-section quad
+        KX( loc1(i):loc2(i) ) = X(i);
+        KY( loc1(i):loc2(i) ) = -X(i);
+    elseif ele(i)=='P' % -- enlarged Y-section dipole
+        KX( loc1(i):loc2(i) ) = PDffx*X(i);
+        KY( loc1(i):loc2(i) ) = PDffy*X(i);
     end
 end
 

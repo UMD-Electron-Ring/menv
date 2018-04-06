@@ -33,8 +33,10 @@ d = [0:nsteps-1]*ds + min_d;
 
 Qffx = 1;
 Qffy = 1;
-Dffx = 1;
+Dffx = .146/.556; % -- horz focusing is weaker than vert. focusing. From RK dipole note + 2010 online table
 Dffy = 1;
+PDffx = 0.00/0.0410; % -- horz focusing is weaker than vert. focusing. From RK dipole note + 2010 online table
+PDffy = 1;
 
 
 % Kappa-array 
@@ -48,18 +50,26 @@ for i=1:length(loc)
    if( d2>nsteps )
       d2 = nsteps ;
    end
-      if ele(i)=='S'
+      if ele(i)=='S' % -- solenoid
          KX( d1:d2 ) = str(i);
          KY( d1:d2 ) = str(i);
          IRHO( d1:d2 ) = irho(i);
-      elseif ele(i)=='Q'
+      elseif ele(i)=='Q' % -- ring quad
          KX( d1:d2 ) = Qffx*str(i);
          KY( d1:d2 ) = -Qffy*str(i);
          IRHO( d1:d2 ) = irho(i);
-      elseif ele(i)=='D'
-         KX( d1:d2 ) = Dffx*str(i)*(1-dipl_n(i));
-         KY( d1:d2 ) = Dffy*str(i)*dipl_n(i);
+      elseif ele(i)=='D' % -- ring dipole
+         KX( d1:d2 ) = Dffx*str(i);
+         KY( d1:d2 ) = Dffy*str(i);
          IRHO( d1:d2 ) = irho(i);
+      elseif ele(i)=='Y' % -- enlarged Y-section quad
+          KX( d1:d2 ) = str(i);
+          KY( d1:d2 ) = -str(i);
+          IRHO( d1:d2 ) = irho(i);
+      elseif ele(i)=='P' % -- enlarged Y-section dipole
+          KX( d1:d2 ) = PDffx*str(i);
+          KY( d1:d2 ) = PDffy*str(i);
+          IRHO( d1:d2 ) = irho(i);
       end
    if( opt(i)==1 )
       loc1 = [ loc1, d1 ];
