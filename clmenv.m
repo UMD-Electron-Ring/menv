@@ -455,6 +455,7 @@ function [lat] = buildFODO(ncells)
 
 % -- to-do: make input parser for optional FODO parameters
 
+Iquad = 1.826;
 nD = ncells;
 nQ = 2*ncells;
 nele = nD+nQ;
@@ -462,7 +463,7 @@ lcell = 32;
 L = lcell*ncells;
 
 % -- dipo params
-dlen = 3.8500;
+dlen = 3.819;
 dang = 8*pi/180;
 rho = dlen/dang;
 
