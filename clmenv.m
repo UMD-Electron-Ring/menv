@@ -339,13 +339,15 @@ clm.usrdata.target.xref = xref;
 clm.usrdata.target.yref = yref;
 
 % -- plot trajectory
-if exist('clm.usrdata.handle')
-    if ishandle(clm.usrdata.handle) delete(clm.usrdata.handle); end
+if isfield(clm.usrdata,'handle')
+if not(isempty(clm.usrdata.handle(1)))
+    if ishandle(clm.usrdata.handle(1)) delete(clm.usrdata.handle(1)); end
+end
 end
 hold on
 href = plot(xref,yref,':k');
 hold off
-clm.usrdata.handle = href;
+clm.usrdata.handle(1) = href;
 
 end
 
@@ -357,8 +359,10 @@ global clm
 clm.usrdata = rmfield(clm.usrdata,{'xref','yref'});
 
 % -- deleted plotted trajectory
-if exist('clm.usrdata.handle')
-    if ishandle(clm.usrdata.handle) delete(clm.usrdata.handle); end
+if isfield(clm.usrdata,'handle')
+if not(isempty(clm.usrdata.handle(1)))
+    if ishandle(clm.usrdata.handle(1)) delete(clm.usrdata.handle(1)); end
+end
 end
 
 end
@@ -398,6 +402,7 @@ end
 end
 
 function drawlattice(varargin)
+global clm
 
 if length(varargin)==1
     lat = varargin{1};
@@ -414,12 +419,20 @@ elseif length(varargin)==5
     opt = varargin{5};
 end
 
+% -- clear figure handle
+if isfield(clm.usrdata,'handle')
+    if not(isempty(clm.usrdata.handle(2)))
+        for i=2:length(clm.usrdata.handle)
+            if ishandle(clm.usrdata.handle(i)) delete(clm.usrdata.handle(i)); end
+        end
+    end
+end
 
-
+% -- plot lattice elements
 for i=1:length(ele)
     hele = .25;
-    if str(i)==0; continue % -- if str==0, don't draw a patch
-    end
+    %if str(i)==0; continue % -- if str==0, don't draw a patch
+    %end
     sele = loc(i)-len(i)*0.5;
     eele = loc(i)+len(i)*0.5;
     % -- choose color based on element, optimization
@@ -429,7 +442,8 @@ for i=1:length(ele)
     elseif strcmp(ele(i),'S') col = [0,0,0];
     end
     % -- draw a patch for each element
-    patch([sele,eele,eele,sele],[0,0,hele,hele],col)
+    hpatch = patch([sele,eele,eele,sele],[0,0,hele,hele],col);
+    clm.usrdata.handle(i+1) = hpatch;
 end
 end
 
