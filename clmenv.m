@@ -151,8 +151,8 @@ else
 end
 clm.usrdata.stepsize = params.stepsize;
 clm.usrdata.distance = params.distance;
-try clm.usrdata.s0 = params.s0;
-catch clm.usrdata.s0 = 0;
+try clm.usrdata.d0 = params.d0;
+catch clm.usrdata.d0 = 0;
 end
 end
 
@@ -325,10 +325,10 @@ params.ic = ic;
 
 
 if length(startend)==1
-   params.s0 = 0;
+   params.d0 = 0;
    params.distance = startend;
 elseif length(startend)==2
-   params.s0 = startend(1);
+   params.d0 = startend(1);
    params.distance = startend(2);
 end
 
@@ -408,7 +408,13 @@ end
 function drawlattice(varargin)
 global clm
 
-if length(varargin)==1
+if isempty(varargin)
+    ele = clm.usrdata.ele;
+    loc = clm.usrdata.loc;
+    len = clm.usrdata.len;
+    str = clm.usrdata.str;
+    opt = clm.usrdata.opt;
+elseif length(varargin)==1
     lat = varargin{1};
     ele = lat.ele;
     loc = lat.loc;
@@ -434,7 +440,7 @@ end
 
 % -- plot lattice elements
 for i=1:length(ele)
-    hele = .25;
+    hele = .25 * str(i)/200;
     %if str(i)==0; continue % -- if str==0, don't draw a patch
     %end
     sele = loc(i)-len(i)*0.5;
@@ -856,10 +862,10 @@ usrdata.emitance = data.emitance*1.e6;   % mrad->mm.mrad
 usrdata.stepsize = data.stepsize*1.e2;   % m->cm
 usrdata.distance = data.distance*1.e2;   % m->cm
 try
-usrdata.s0 = data.s0*1.e2;   % m->cm
+usrdata.d0 = data.d0*1.e2;   % m->cm
 catch
     warning('Start-point s0 not defined, setting s0 = 0')
-    usrdata.s0 = 0;
+    usrdata.d0 = 0;
 end
 
 %usrdata.ele
@@ -889,7 +895,7 @@ usrdata.emitance = data.emitance*1.e-6;   % mm.mrad->mrad
 %usrdata.perveance
 usrdata.stepsize = data.stepsize*1.e-2;   % cm->m
 usrdata.distance = data.distance*1.e-2;   % cm->m
-usrdata.s0 = data.s0*1.e-2;   % cm->m
+usrdata.d0 = data.d0*1.e-2;   % cm->m
 %usrdata.ele
 usrdata.loc = data.loc*1.e-2;             % cm->m
 usrdata.len = data.len*1.e-2;             % cm->m   

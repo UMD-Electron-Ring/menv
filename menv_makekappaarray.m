@@ -6,7 +6,9 @@ function [X0] = menv_makekappaarray()
 % Load numerical parameters
 load( 'runtmp' );
 max_d = runtmp.distance;
-min_d = 0.0;
+try min_d = runtmp.d0;
+catch min_d = 0.0;
+end
 ds = runtmp.stepsize;          % Step-size
 nsteps = round((max_d-min_d)/ds)+1;  % steps
 % Load Lattice parameters
@@ -33,7 +35,7 @@ d = [0:nsteps-1]*ds + min_d;
 
 Qffx = 1;
 Qffy = 1;
-Dffx = .146/.556; % -- horz focusing is weaker than vert. focusing. From RK dipole note + 2010 online table
+Dffx = .5*.146/.556; % -- horz focusing is weaker than vert. focusing. From RK dipole note + 2010 online table
 Dffy = 1;
 PDffx = 0.00/0.0410; % -- horz focusing is weaker than vert. focusing. From RK dipole note + 2010 online table
 PDffy = 1;

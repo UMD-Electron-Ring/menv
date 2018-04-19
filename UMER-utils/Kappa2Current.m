@@ -1,6 +1,6 @@
 function I = Kappa2Current( kappa, ele )
 
-N = length(kappa);
+N = length(kappa(:));
 I = zeros(1,N);
 
 % -- some constants
@@ -42,6 +42,7 @@ g0_pdy = 0.041e-4/leff_pd; % HE quad grad in PD (due to sext.component) [T/A]
 pd_sbfact  = 1; % Has not yet been calculated for dipoles.
 % ------------------------------------------------------------------------
 
+I = kappa*0;
 % -- loop over all inputs
 for i=1:N
   

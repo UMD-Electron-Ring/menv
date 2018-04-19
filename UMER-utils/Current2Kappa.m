@@ -1,5 +1,5 @@
 function kappa = Current2Kappa( I, ele )
-N = length(I);
+N = length(I(:));
 kappa = zeros(1,N);
 
 % -- some constants
@@ -22,7 +22,7 @@ q_sbfact = 0.7208; % SB HE factor (2006 note), to be used w/ eff length 5.164 cm
 % -- solenoid model
 B0 = 17.597; % peak field per amp [Gauss]
 B_off = 1.35; % offset [Gauss]
-B_sbfact = sqrt(0.6945); % SB HE factor
+B_sbfact = sqrt(0.6945); % SB HEfactor
 
 % -- dipole model
 leff_dipo = 3.819e-2; % HE dipole length [m]
@@ -42,6 +42,7 @@ g0_pdy = 0.041e-4/leff_pd; % HE quad grad in PD (due to sext.component) [T/A]
 pd_sbfact  = 1; % Has not yet been calculated for dipoles.
 % ------------------------------------------------------------------------
 
+kappa = 0*I;
 for i=1:N
 
 if( nargin==1 || (nargin==2 && ele(i)=='Q') )

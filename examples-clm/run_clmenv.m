@@ -2,7 +2,8 @@ global clm
 clm = clmenv();
 
 % -- load .spt file
-clm.open('FODO_0_7mA_dipl.spt')
+sptfilename = which('FODO_0_7mA_dipl.spt');
+clm.open(sptfilename)
 
 % % -- optional: makes files that may already exist
 % clm.makeoptiset(20,1e-6)  % Makes file optiset
