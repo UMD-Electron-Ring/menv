@@ -32,7 +32,8 @@ g0_dipoy = 0.565e-4/leff_dipo; % quad grad Bx in dipo (due to edge-focusing comp
 d_sbfact  = 1; % Has not yet been calculated for dipoles.
 
 % -- YQ/QR1 model
-g0_panofsky = 1.01e-2; % quad peak grad per amp [T/m/A]
+g0_panofsky_Y = 1.01e-2; % quad peak grad per amp [T/m/A]
+g0_panofsky_QR1 = 1.01e-2; % quad peak grad per amp [T/m/A]
 panofsky_sbfact = 0.7224; 
 
 % -- PD model

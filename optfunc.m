@@ -79,3 +79,8 @@ catch % -- backwards compatibility; unspecified weights set to 0
     0,0,0,0,0,0,0];
     warning('Missing some weight factors, only matching to x,y,x'',y'' target')
 end
+
+% -- save some vars in runtmp
+runtmp.f = f;
+runtmp.Xstr = X;
+save 'runtmp' runtmp;
