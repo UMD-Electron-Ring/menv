@@ -2,6 +2,7 @@ function menvEvent( event )
 switch( get(gcbf,'Tag') )
 case 'MainFig'
    MainFigWndProc( gcbf, event );
+   clm = clmenv;
 case 'DefElementFig'
    DefElementWndProc( gcbf, event );
 case 'DefParamFig'
@@ -22,31 +23,32 @@ case 'Axes1Create'
 case 'Exit'
    close( thisFig );
 case 'About'
-   msgbox('MENV-(Matlab Envelope Solver), Author: Hui Li', 'ABOUT MENV', 'none', 'modal' );
+   msgbox('MENV-(Matlab Envelope Solver), Author: Hui Li + Kiersten Ruisard', 'ABOUT MENV', 'none', 'modal' );
 case 'New'
    menvEvent( 'Close' );
 case 'Open'
-   [filename, pathname] = uigetfile('*.spt', 'Open File');
-   if( filename==0 ) return; end;
-   len = length( filename );
-   if( len<5 | ~strcmpi(filename(len-3:len),'.spt') )
-      errordlg( 'The filename must have an extension .spt!', 'Error', 'modal');
-      return;
-   end;
-   filename = [pathname filename];
-   fcopyfile( filename, 'savetmp.mat' );
-   load 'savetmp';
-   usrdata.filename = filename;  % important to rename its filename
-   % To be compatible with previous version file with no usrdata.did
-   if( isfield(usrdata,'did')==0 )
-      usrdata.did = zeros( size(usrdata.opt) );
-   end;
-   % Transfer from SI
-   usrdata = TransferFromSI( usrdata );
-   set( thisFig, 'UserData', usrdata );
+    [filename, pathname] = uigetfile('*.spt', 'Open File');
+%    if( filename==0 ) return; end
+%    len = length( filename );
+%    if( len<5 || ~strcmpi(filename(len-3:len),'.spt') )
+%       errordlg( 'The filename must have an extension .spt!', 'Error', 'modal');
+%       return;
+%    end
+%    filename = [pathname filename];
+%    fcopyfile( filename, 'savetmp.mat' );
+%    load 'savetmp';
+%    usrdata.filename = filename;  % important to rename its filename
+%    % To be compatible with previous version file with no usrdata.did
+%    if( isfield(usrdata,'did')==0 )
+%       usrdata.did = zeros( size(usrdata.opt) );
+%    end
+%    % Transfer from SI
+%    usrdata = TransferFromSI( usrdata );
+   clm.open(filename,pathname)
+   set( thisFig, 'UserData', clm.usrdata );
    listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
    updateListboxString( listboxHandle, usrdata, 1 );
-   [tmp,n] = size( usrdata.loc );
+   [~,n] = size( usrdata.loc );
    changeButtonState( thisFig, n );
 case 'Close'
    % Clear current axis
@@ -67,20 +69,20 @@ case 'Save'
       % Transfer to SI
       usrdata = Transfer2SI( usrdata );
       savefile( usrdata, usrdata.filename );
-   end;
+   end
 case 'SaveAs'
    [filename, pathname] = uiputfile('*.spt', 'Save As');
-   if( filename==0 ) return; end;
+   if( filename==0 ) return; end
    dot = length( find(filename=='.') );
    if( dot==0 )
       filename=[filename '.spt'];
    else
       len = length( filename );
-      if( len<5 | ~strcmpi(filename(len-3:len),'.spt') )
+      if( len<5 || ~strcmpi(filename(len-3:len),'.spt') )
          errordlg( 'The filename must have an extension .spt!', 'Error', 'modal');
          return;
-      end;
-   end;
+      end
+   end
    usrdata = get( thisFig, 'UserData' );
    filename = [pathname filename];
    usrdata.filename = filename;
@@ -106,7 +108,7 @@ case 'Edit'
       set( elePopupmenuHandle, 'Value', 2 );
    else
       set( elePopupmenuHandle, 'Value', 3 );
-   end;
+   end
    locEditHandle = findobj( fig, 'Tag', 'LocationEditText' );
    lenEditHandle = findobj( fig, 'Tag', 'LengthEditText' );
    strEditHandle = findobj( fig, 'Tag', 'StrengthEditText' );
@@ -135,13 +137,13 @@ case 'Delete'
    usrdata = get( thisFig, 'UserData' );
    listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
    item = get( listboxHandle, 'Value' );
-   [tmp,n] = size( usrdata.loc );
+   [~,n] = size( usrdata.loc );
    if( n==1 )
       ind = [];
    else
-      tmp = 1:n; tmp(item) = n+1; [tmp,ind] = sort(tmp);
+      tmp = 1:n; tmp(item) = n+1; [~,ind] = sort(tmp);
       ind = ind(1:n-1);
-   end;
+   end
    usrdata.ele = usrdata.ele(ind);
    usrdata.loc = usrdata.loc(ind);
    usrdata.len = usrdata.len(ind);
@@ -166,32 +168,32 @@ case 'Param'
       set( y0EditHandle, 'String', num2str(usrdata.y0) );
       set( xp0EditHandle, 'String', num2str(usrdata.xp0) );
       set( yp0EditHandle, 'String', num2str(usrdata.yp0) );
-   end;
+   end
    % Global beam parameters
    if( ~isempty(usrdata.emitance) )
       emitEditHandle = findobj( fig, 'Tag', 'EmitEditText' );
       set( emitEditHandle, 'String', num2str(usrdata.emitance) );
-   end;
+   end
    if( ~isempty(usrdata.perveance) )
       pvnEditHandle = findobj( fig, 'Tag', 'PvnEditText' );
       set( pvnEditHandle, 'String', num2str(usrdata.perveance) );
-   end;
+   end
    % Numerical parameters
    if( ~isempty(usrdata.stepsize) )
       stepEditHandle = findobj( fig, 'Tag', 'StepEditText' );
       set( stepEditHandle, 'String', num2str(usrdata.stepsize) );
-   end;
+   end
    if( ~isempty(usrdata.distance) )
       distEditHandle = findobj( fig, 'Tag', 'DistEditText' );
       set( distEditHandle, 'String', num2str(usrdata.distance) );
-   end;   
+   end
 case 'Solution'
    runtmp = get( thisFig, 'UserData' );
    % only check one parameter is enough
    if( isempty(runtmp.x0) )
       warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
       return;
-   end;
+   end
    % Transfer to SI
    runtmp = Transfer2SI( runtmp );
    % Save to tempary file
@@ -207,17 +209,17 @@ case 'Solution'
    axes( axesHandle(1) );
    axdata = get( axesHandle(1), 'UserData' );
    % Plot
-   if( axdata.handle(1)~=0 ) delete(axdata.handle(1)); end;
-   if( axdata.handle(2)~=0 ) delete(axdata.handle(2)); end;
+   if( axdata.handle(1)~=0 ) delete(axdata.handle(1)); end
+   if( axdata.handle(2)~=0 ) delete(axdata.handle(2)); end
    hold on; h1 = plot(d,x,'b'); h2 = plot(d,y,'r'); hold off;
    xlabel('z (cm)'); ylabel('X:blue, Y:red (cm)');
    axis([ min(d) max(d) 0.0 max([x,y])*1.2 ]);
    
     % Save data
    if( usrdata.stepsize<0.005 ) interval = round(0.005/usrdata.stepsize);
-   else interval = 1; end;
+   else interval = 1; end
    n = length(d); ind = 1:interval:n;
-   if( ind(length(ind))~=n ) ind(length(ind)+1) = n; end;   
+   if( ind(length(ind))~=n ) ind(length(ind)+1) = n; end   
    axdata.handle(1)=h1; axdata.handle(2)=h2; 
    axdata.d=d(ind); axdata.x=x(ind); axdata.y=y(ind);
    axdata.xp=xp(ind); axdata.yp=yp(ind);
@@ -237,7 +239,7 @@ case 'MatcherParam'
       set( y1EditHandle, 'String', num2str(usrdata.y1) );
       set( xp1EditHandle, 'String', num2str(usrdata.xp1) );
       set( yp1EditHandle, 'String', num2str(usrdata.yp1) );
-   end;
+   end
    % Weights
    if( ~isempty(usrdata.xw) )
       xwEditHandle = findobj( fig, 'Tag', 'XWEditText' );
@@ -248,25 +250,25 @@ case 'MatcherParam'
       set( ywEditHandle, 'String', num2str(usrdata.yw) );
       set( xpwEditHandle, 'String', num2str(usrdata.xpw) );
       set( ypwEditHandle, 'String', num2str(usrdata.ypw) );
-   end;
+   end
    % iterations
    if( ~isempty(usrdata.maxIter) )
       maxIterEditHandle = findobj( fig, 'Tag', 'MaxIterEditText' );
       tolFunEditHandle = findobj( fig, 'Tag', 'TolFunEditText' );
       set( maxIterEditHandle, 'String', num2str(usrdata.maxIter) );
       set( tolFunEditHandle, 'String', num2str(usrdata.tolFun) );
-   end;
+   end
 case 'Run Periodic Matcher'
    usrdata = get( thisFig, 'UserData' );
    % only check one parameter is enough
    if( isempty(usrdata.x0) )
       warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
       return;
-   end;
+   end
    if( isempty(usrdata.x1) )
       warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
       return;
-   end;
+   end
    % Transfer to SI
    usrdata = Transfer2SI( usrdata );
    % Save to tempary file
@@ -291,15 +293,15 @@ case 'Matcher'
    if( isempty(usrdata.x0) )
       warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
       return;
-   end;
+   end
    if( isempty(usrdata.x1) )
       warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
       return;
-   end;
+   end
    if( sum(usrdata.opt)==0 )
       warndlg( 'The optimized elements are not defined!', 'ERROR', 'modal' );
       return;
-   end;
+   end
    % Transfer to SI
    usrdata = Transfer2SI( usrdata );
    % Save to tempary file
@@ -310,12 +312,12 @@ case 'Matcher'
    set( thisFig, oldptr{:} );
    % Save the new result
    usrdata = get( thisFig, 'UserData' );
-   [tmp,n] = size( usrdata.loc ); k = 1;
+   [~,n] = size( usrdata.loc ); k = 1;
    for i=1:n
       if( usrdata.opt(i) )
          usrdata.str(i) = newKappa(k); k = k+1;
-      end;
-   end;
+      end
+   end
    set( thisFig, 'UserData', usrdata );
    % Update the listbox
    listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
@@ -332,40 +334,40 @@ case 'Coordinate'
       [x,y] = ginput(1);
       str = sprintf('(%f, %f)',x,y);
       set( coordTextHandle, 'String', str );
-      if( x<xlim(1) | x>xlim(2) | y<ylim(1) | y>ylim(2) ) break; end;
-   end;
+      if( x<xlim(1) || x>xlim(2) || y<ylim(1) || y>ylim(2) ) break; end
+   end
    set( coordTextHandle, 'String', '' );
    set( coordTextHandle, 'Visible', 'off' );
 case 'Import'
    [filename, pathname] = uigetfile('*.txt', 'Open File');
-   if( filename==0 ) return; end;
+   if( filename==0 ) return; end
    filename = [pathname filename];
    fid = fopen( filename );
    A = [];
    while( ~feof(fid) )
       str = fgets( fid ); data = sscanf( str, '%f' );
       try
-         if( ~isempty(data) & (length(data)==2 | length(data)==3) )
+         if( ~isempty(data) && (length(data)==2 || length(data)==3) )
             A = [A data];
-         end;
+         end
       catch
          errordlg( 'File format error while reading!', 'ERROR', 'modal' );
          fclose(fid); return;
-      end;
-   end;
+      end
+   end
    fclose( fid );
    if( isempty(A) )
       errordlg( 'No data to be read!', 'ERROR', 'modal' );
-   end;
+   end
    % Preview data and set options
    fig = ImportOpt;
    listboxHandle = findobj( fig, 'Tag', 'PreviewListbox' );
-   [tmp,n] = size(A);
+   [~,n] = size(A);
    listboxString = cell(n,1);
    for i=1:n
       itemString = sprintf('%f  ',A(:,i) );
       listboxString(i) = { itemString };
-   end;
+   end
    set( listboxHandle, 'String', listboxString );
    uiwait( fig );
    if( ishandle(fig) )
@@ -376,25 +378,25 @@ case 'Import'
       case 'mRadiobutton'
          A = A*1.e2;
       case 'cmRadiobutton'
-      end;
+      end
       delete(fig);
    else
       % == cm   
-   end;   
+   end
    % Plot
    axesHandle = findAxes( thisFig );
    axdata = get( axesHandle(1), 'UserData' );
    axes( axesHandle(1) ); hold on;
    %style = { 'k*', 'mo' };
    style = { 'k.', 'm.' };
-   [n,tmp] = size( A );
+   [n,~] = size( A );
    x = A(1,:);
    for i=2:n
       y = A(i,:);
-      if( axdata.handle(i+1)~=0 ) delete(axdata.handle(i+1)); end;
+      if( axdata.handle(i+1)~=0 ) delete(axdata.handle(i+1)); end
       h = plot( x, y, style{i-1} );
       axdata.handle(i+1) = h;
-   end;
+   end
    hold off;
    % Save
    set( axesHandle, 'UserData', axdata );
@@ -405,20 +407,20 @@ case 'ClearImport'
       if( axdata.handle(i)~=0 )
          delete( axdata.handle(i) );
          axdata.handle(i) = 0;
-      end;   
-   end;
+      end
+   end
    set( axesHandle, 'UserData', axdata );   
 case 'Export'
    axesHandle = findAxes( thisFig );
    axdata = get( axesHandle(1), 'UserData' );
-   if( ~isempty(axdata) & axdata.handle(1)~=0 & axdata.handle(2)~=0 )
+   if( ~isempty(axdata) && axdata.handle(1)~=0 && axdata.handle(2)~=0 )
       A = [axdata.d; axdata.x; axdata.y];
    else
       warndlg( 'No figure to be exported!', 'WARNING', 'modal' );
       return;
-   end;
+   end
    [filename, pathname] = uiputfile('*.*', 'Save As');
-   if( filename==0 ) return; end;
+   if( filename==0 ) return; end
    filename = [pathname filename];
    fid = fopen( filename, 'w' );
    fprintf( fid, 'Dist\tX\tY\r\n' );
@@ -430,13 +432,13 @@ case 'Kappa to Current'
    if( isempty(usrdata.x0) )
       warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
       return;
-   end;
+   end
    % Transfer to SI
    usrdata = Transfer2SI( usrdata );
-   [tmp,n] = size( usrdata.loc );
+   [~,n] = size( usrdata.loc );
    if( n==0 )
       return;
-   end;
+   end
    title = 'Kappa to Current';
    for i=1:n
       if( usrdata.ele(i)=='Q' )
@@ -448,8 +450,8 @@ case 'Kappa to Current'
       else
          I = 0.0;
          msg{i} = ['Dipl:  ' 'Unknown' 'A'];
-      end;
-   end;
+      end
+   end
    listdlg( 'PromptString','Element Current:', ...
             'SelectionMode','single',...
             'ListSize', [160 160], ...
@@ -476,7 +478,7 @@ case 'Load Reference Trajectory'
     usrdata = get( thisFig, 'UserData' );    
     % load .txt file
     [filename, pathname] = uigetfile('*.txt', 'Open File');
-    if( filename==0 ) return; end;
+    if( filename==0 ) return; end
     len = length( filename );
     filename = [pathname filename];
     temp =  importdata(filename);
@@ -513,10 +515,10 @@ case 'OK'
    length = str2double( lenString );
    strength = str2double( strString );
    diplindex = str2double( didString );
-   if( isnan(location) | isnan(length) | isnan(strength) | (element==3 & isnan(diplindex)) )
+   if( isnan(location) || isnan(length) || isnan(strength) || (element==3 && isnan(diplindex)) )
       errordlg( 'Some input parameters are not numbers!', 'ERROR', 'modal' );
       return;
-   end;
+   end
    optCheckboxHandle = findobj( thisFig, 'Tag', 'OptimCheckbox' );
    optim = get( optCheckboxHandle, 'Value' );
    % Find the shared userdata
@@ -533,7 +535,7 @@ case 'OK'
    else
       element = 'D';
       optim = 0; % disable optim for Dipl
-   end;
+   end
    % 0:Insert; 1:Edit
    if( usrdata.flag==0 )
       usrdata.ele = [usrdata.ele element];
@@ -550,15 +552,15 @@ case 'OK'
       usrdata.str(item) = strength;
       usrdata.did(item) = diplindex;
       usrdata.opt(item) = optim;
-   end;
+   end
    % Find who is the item that we are editing or inserting
-   [tmp,n] = size( usrdata.loc ); 
+   [~,n] = size( usrdata.loc ); 
    [tmp,ind] = sort( usrdata.loc );
    if( usrdata.flag==0 )
       focus = find( ind==n );
    else
       focus = find( ind==item );
-   end;
+   end
    % Sort
    usrdata.loc = tmp; 
    usrdata.ele = usrdata.ele(ind);
@@ -587,8 +589,8 @@ case 'ElementChange'
       set( optCheckboxHandle, 'Enable', 'on' );
       set( didEditHandle, 'Enable', 'off' );
       set( didEditHandle, 'BackgroundColor', [0.7529 0.7529 0.7529] ); % gray      
-   end;
-end;
+   end
+end
 
 
 function DefParamWndProc( thisFig, event )
@@ -603,28 +605,28 @@ case 'OK'
    y0 = str2double( get( y0EditHandle, 'String' ) );
    xp0 = str2double( get( xp0EditHandle, 'String' ) );
    yp0 = str2double( get( yp0EditHandle, 'String' ) );   
-   if( isnan(x0) | isnan(y0) | isnan(xp0) | isnan(yp0) | x0<=0 | y0<=0 )
+   if( isnan(x0) || isnan(y0) || isnan(xp0) || isnan(yp0) || x0<=0 || y0<=0 )
       errordlg( 'Initial condition input error!', 'ERROR', 'modal' );
       return;   
-   end;
+   end
    % Global beam parameters
    emitEditHandle = findobj( thisFig, 'Tag', 'EmitEditText' );
    pvnEditHandle = findobj( thisFig, 'Tag', 'PvnEditText' );
    emitance = str2double( get( emitEditHandle, 'String' ) );
    perveance = str2double( get( pvnEditHandle, 'String' ) );
-   if( isnan(emitance) | isnan(perveance ) | emitance<=0 )
+   if( isnan(emitance) || isnan(perveance ) || emitance<=0 )
       errordlg( 'Global beam parameters input error!', 'ERROR', 'modal' );
       return;
-   end;
+   end
    % Numerical parameters
    stepEditHandle = findobj( thisFig, 'Tag', 'StepEditText' );
    distEditHandle = findobj( thisFig, 'Tag', 'DistEditText' );
    stepsize = str2double( get( stepEditHandle, 'String' ) );
    distance = str2double( get( distEditHandle, 'String' ) );   
-   if( isnan(stepsize) | isnan(distance) | stepsize<=0 | distance<=0 )
+   if( isnan(stepsize) || isnan(distance) || stepsize<=0 || distance<=0 )
       errordlg( 'Numerical parameters input error!', 'ERROR', 'modal' );
       return;
-   end;
+   end
    % Find the shared userdata
    mainFigHandle = get( thisFig, 'UserData' );
    usrdata = get( mainFigHandle, 'UserData' );
@@ -638,7 +640,7 @@ case 'OK'
    usrdata.distance = distance;
    set( mainFigHandle, 'UserData', usrdata );
 case 'Cancel'
-end;
+end
 close( thisFig );
 
 function DefMatcherWndProc( thisFig, event )
@@ -653,10 +655,10 @@ case 'OK'
    y1 = str2double( get( y1EditHandle, 'String' ) );
    xp1 = str2double( get( xp1EditHandle, 'String' ) );
    yp1 = str2double( get( yp1EditHandle, 'String' ) );   
-   if( isnan(x1) | isnan(y1) | isnan(xp1) | isnan(yp1) | x1<=0 | y1<=0 )
+   if( isnan(x1) || isnan(y1) || isnan(xp1) || isnan(yp1) || x1<=0 || y1<=0 )
       errordlg( 'Target condition input error!', 'ERROR', 'modal' );
       return;   
-   end;
+   end
    % Weights
    xwEditHandle = findobj( thisFig, 'Tag', 'XWEditText' );
    ywEditHandle = findobj( thisFig, 'Tag', 'YWEditText' );
@@ -666,19 +668,19 @@ case 'OK'
    yw = str2double( get( ywEditHandle, 'String' ) );
    xpw = str2double( get( xpwEditHandle, 'String' ) );
    ypw = str2double( get( ypwEditHandle, 'String' ) );   
-   if( isnan(xw) | isnan(yw) | isnan(xpw) | isnan(ypw) | xw<=0 | yw<=0 | xpw<=0 | ypw<=0 )
+   if( isnan(xw) || isnan(yw) || isnan(xpw) || isnan(ypw) || xw<=0 || yw<=0 || xpw<=0 || ypw<=0 )
       errordlg( 'Weights input error', 'ERROR', 'modal' );
       return;   
-   end;
+   end
    % Iterations
    maxIterEditHandle = findobj( thisFig, 'Tag', 'MaxIterEditText' );
    tolFunEditHandle = findobj( thisFig, 'Tag', 'TolFunEditText' );
    maxIter = str2double( get( maxIterEditHandle, 'String' ) );
    tolFun = str2double( get( tolFunEditHandle, 'String' ) );
-   if( isnan(maxIter) | isnan(tolFun) | maxIter<=0 | tolFun<=0 )
+   if( isnan(maxIter) || isnan(tolFun) || maxIter<=0 || tolFun<=0 )
       errordlg( 'Iterations input error', 'ERROR', 'modal' );
       return;   
-   end;
+   end
    % Find the shared userdata
    mainFigHandle = get( thisFig, 'UserData' );
    usrdata = get( mainFigHandle, 'UserData' );
@@ -694,26 +696,26 @@ case 'OK'
    usrdata.tolFun = tolFun;   
    set( mainFigHandle, 'UserData', usrdata );
 case 'Cancel'
-end;
+end
 close( thisFig );
 
 
 function updateListboxString( listboxHandle, usrdata, focus )
 % Add formated string to the caller listbox
-[tmp,n] = size( usrdata.loc );
+[~,n] = size( usrdata.loc );
 if( n==0 )
    listboxString = [];
 else
    listboxString = cell(n,1);
-end;
+end
 for i=1:n
    if( usrdata.ele(i)=='Q' ) ele='Quad';
    elseif( usrdata.ele(i)=='S' ) ele='Sol';
-   else ele='Dipl'; end;
-   if( usrdata.opt(i) ) ele=[ele '*']; end;
+   else ele='Dipl'; end
+   if( usrdata.opt(i) ) ele=[ele '*']; end
    itemString = sprintf('%-7s%-8.3f  %-8.3f  %-12.6f',ele,usrdata.loc(i),usrdata.len(i),usrdata.str(i) );
    listboxString(i) = { itemString };
-end;
+end
 set( listboxHandle, 'String', listboxString );
 set( listboxHandle, 'Value', focus );
 
@@ -727,14 +729,14 @@ if( nListboxItems )
 else
    set( edtButtonHandle, 'Enable', 'off' );
    set( delButtonHandle, 'Enable', 'off' );
-end;
+end
 
 function axesHandle = findAxes( fig )
 axesHandle = findobj( fig, 'Type', 'axes' );
 for i=1:length(axesHandle)
    pos = get( axesHandle(i), 'Position' );
    x(i) = pos(1);
-end;
+end
 [x,ind] = sort(x);
 % Sort axes handle according to their x position
 axesHandle = axesHandle( ind );
@@ -745,8 +747,8 @@ for i=1:4
    if( axdata.handle(i)~=0 )
       delete( axdata.handle(i) );
       axdata.handle(i) = 0;
-   end;   
-end;
+   end
+end
 set( axesHandle, 'UserData', axdata );
 
 function usrdata = zeroMainUserData
@@ -840,7 +842,7 @@ fid = fopen( dst );
 if( fid~=-1 )
    fclose( fid );
    delete( dst );
-end;
+end
 % After delete dst, src can safely overwrite dst.
 % Otherwise in UNIX, copyfile(src,dst) will stop until Enter key is pressed in the Command Window.
 copyfile( src, dst );
