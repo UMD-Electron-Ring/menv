@@ -1,8 +1,8 @@
 function menvEvent( event )
 switch( get(gcbf,'Tag') )
 case 'MainFig'
+   global clm; clm = clmenv('nofig'); 
    MainFigWndProc( gcbf, event );
-   clm = clmenv;
 case 'DefElementFig'
    DefElementWndProc( gcbf, event );
 case 'DefParamFig'
@@ -12,6 +12,7 @@ case 'DefMatcherFig'
 end
 
 function MainFigWndProc( thisFig, event )
+global clm
 switch( event )
 case 'Create'
    usrdata = zeroMainUserData;
@@ -27,28 +28,11 @@ case 'About'
 case 'New'
    menvEvent( 'Close' );
 case 'Open'
-    [filename, pathname] = uigetfile('*.spt', 'Open File');
-%    if( filename==0 ) return; end
-%    len = length( filename );
-%    if( len<5 || ~strcmpi(filename(len-3:len),'.spt') )
-%       errordlg( 'The filename must have an extension .spt!', 'Error', 'modal');
-%       return;
-%    end
-%    filename = [pathname filename];
-%    fcopyfile( filename, 'savetmp.mat' );
-%    load 'savetmp';
-%    usrdata.filename = filename;  % important to rename its filename
-%    % To be compatible with previous version file with no usrdata.did
-%    if( isfield(usrdata,'did')==0 )
-%       usrdata.did = zeros( size(usrdata.opt) );
-%    end
-%    % Transfer from SI
-%    usrdata = TransferFromSI( usrdata );
-   clm.open(filename,pathname)
+   clm.open()
    set( thisFig, 'UserData', clm.usrdata );
    listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
-   updateListboxString( listboxHandle, usrdata, 1 );
-   [~,n] = size( usrdata.loc );
+   updateListboxString( listboxHandle, clm.usrdata, 1 );
+   [~,n] = size( clm.usrdata.loc );
    changeButtonState( thisFig, n );
 case 'Close'
    % Clear current axis
@@ -159,15 +143,15 @@ case 'Param'
    set( fig, 'UserData', thisFig );
    usrdata = get( thisFig, 'UserData' );
    % Initial conditions
-   if( ~isempty(usrdata.x0) )
+   if( ~isempty(usrdata.ic.x0) )
       x0EditHandle = findobj( fig, 'Tag', 'X0EditText' );
       y0EditHandle = findobj( fig, 'Tag', 'Y0EditText' );
       xp0EditHandle = findobj( fig, 'Tag', 'XP0EditText' );
       yp0EditHandle = findobj( fig, 'Tag', 'YP0EditText' );
-      set( x0EditHandle, 'String', num2str(usrdata.x0) );
-      set( y0EditHandle, 'String', num2str(usrdata.y0) );
-      set( xp0EditHandle, 'String', num2str(usrdata.xp0) );
-      set( yp0EditHandle, 'String', num2str(usrdata.yp0) );
+      set( x0EditHandle, 'String', num2str(usrdata.ic.x0) );
+      set( y0EditHandle, 'String', num2str(usrdata.ic.y0) );
+      set( xp0EditHandle, 'String', num2str(usrdata.ic.xp0) );
+      set( yp0EditHandle, 'String', num2str(usrdata.ic.yp0) );
    end
    % Global beam parameters
    if( ~isempty(usrdata.emitance) )

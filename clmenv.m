@@ -12,7 +12,7 @@
 %
 
 % -- main, initializing function
-function clm = clmenv()
+function clm = clmenv(nofig)
 
 clm.open = @openspt;
 clm.saveas = @savefile;
@@ -39,7 +39,10 @@ clm.makeoptiset = @makeoptiset;
 clm.maketraj = @maketraj; % load ref-trajectory data, plot on figure
 clm.makeparams = @makeparams;
 
-clm.thisFig = figure(); axes();
+% -- create new fig unless told not to
+if not(exist('nofig'))
+    clm.thisFig = figure(); axes();
+end
 end
 
 % -- functions to be used from command line
