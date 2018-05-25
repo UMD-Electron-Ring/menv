@@ -1,0 +1,30 @@
+\documentclass[../menv_main.tex]{subfiles}
+ 
+\newcommand\tab[1][1.5cm]{\hspace*{#1}}
+
+\begin{document}
+
+\section{Overview}
+
+MENV can be run from the command line (``clmenv.m") or GUI (``menv.m"). The GUI and original MENV functions were written by Hui Li. Kiersten added the command line functionality, and copied over much of Hui Li's original code into \verb|clmenv|. 
+
+\subsection{GUI MENV}
+
+To access the GUI, call \verb|menv| from the Matlab command line. The dependencies of \verb|menv| are listed below:
+
+\begin{itemized}
+\item menv.m :: Contains code for creating main GUI window
+\item menv.mat
+\item menvEvent.m :: Contains code for interpreting commands sent by the GUI window
+\item clmenv.m :: Contains many of the upper level routines, called by some of the commands in menvEvent.m
+\end{itemized}
+
+The parameters and settings for the current run are stored in the global object \verb|clm|.
+
+
+\subsection{Command-Line MENV}
+
+\end{document}
+
+
+

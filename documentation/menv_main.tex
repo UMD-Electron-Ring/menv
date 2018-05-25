@@ -1,0 +1,99 @@
+\documentclass[letter,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{subfiles}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage[english]{babel}
+\usepackage[version=3]{mhchem} % Package for chemical equation typesetting
+\usepackage{siunitx} % Provides the \SI{}{} and \si{} command for typesetting SI units
+\usepackage{amsmath} % Required for some math elements 
+\usepackage{tikz,pgfplots}
+\usepackage[letterpaper, margin=1in]{geometry}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{fixltx2e}
+\usepackage{gensymb}
+\usepackage{subfigure}
+\usepackage{tabularx}
+
+% some custom column widths, with line wrapping
+\usepackage{array}
+\newcolumntype{A}{>{}m{2cm}}
+\newcolumntype{B}{>{}m{3.5cm}}
+\newcolumntype{C}{>{}m{6.5cm}}
+
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{soul}
+
+% Code color matlab definitions
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+ 
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+% title and subtitle
+\title{\Huge \textbf{Matlab-Envelope (MENV) Documentation}}
+% Author
+\author{\textsc{Kiersten Ruisard}}
+
+
+\begin{document}
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Auto-generated table of contents %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\tableofcontents
+
+\clearpage
+
+\subfile{sections/easy_start_guide}
+\clearpage
+
+\subfile{sections/overview}
+\clearpage 
+
+\subfile{sections/magnet_control}
+\clearpage
+
+\subfile{sections/bpm_control}
+\clearpage 
+
+\subfile{sections/cathode_control}
+\clearpage 
+
+\subfile{sections/camera_control}
+\clearpage 
+
+\subfile{sections/useful_miscellanea}
+\clearpage
+
+\subfile{sections/server_setup}
+
+\end{document}

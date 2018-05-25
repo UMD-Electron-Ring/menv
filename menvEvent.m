@@ -1,7 +1,6 @@
 function menvEvent( event )
 switch( get(gcbf,'Tag') )
 case 'MainFig'
-   global clm; clm = clmenv('nofig'); 
    MainFigWndProc( gcbf, event );
 case 'DefElementFig'
    DefElementWndProc( gcbf, event );
@@ -12,11 +11,12 @@ case 'DefMatcherFig'
 end
 
 function MainFigWndProc( thisFig, event )
-global clm
+global guim
 switch( event )
 case 'Create'
    usrdata = zeroMainUserData;
-   set( thisFig, 'UserData', usrdata );
+   guim = clmenv('nofig'); 
+%   set( thisFig, 'UserData', usrdata );
    prepareMenu( thisFig );
 case 'Axes1Create'
    axdata = zeroAxesUserData;
@@ -28,31 +28,32 @@ case 'About'
 case 'New'
    menvEvent( 'Close' );
 case 'Open'
-   clm.open()
-   set( thisFig, 'UserData', clm.usrdata );
+   guim.open()
    listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
-   updateListboxString( listboxHandle, clm.usrdata, 1 );
-   [~,n] = size( clm.usrdata.loc );
+   updateListboxString( listboxHandle, guim.usrdata, 1 );
+   [~,n] = size( guim.usrdata.loc );
    changeButtonState( thisFig, n );
 case 'Close'
    % Clear current axis
    axesHandle = findAxes( thisFig );
    clearAxes( axesHandle(1) );
    % Clear userData
-   usrdata = zeroMainUserData;
+   guim.usrdata = zeroMainUserData;
    set( thisFig, 'UserData', usrdata );
    % Clear listbox
    listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
    set( listboxHandle , 'String', '' );
    changeButtonState( thisFig, 0 );
 case 'Save'
-   usrdata = get( thisFig, 'UserData' );
-   if( isempty(usrdata.filename) )
-      menvEvent( 'SaveAs' );
+   %usrdata = get( thisFig, 'UserData' );
+   if( exist('guim.userdata.filename') )
+      if ( isempty('guim.usrdata.filename') )
+          menvEvent( 'SaveAs' );
+      end
    else
       % Transfer to SI
-      usrdata = Transfer2SI( usrdata );
-      savefile( usrdata, usrdata.filename );
+      usrdata = Transfer2SI( guim.usrdata );
+      savefile( usrdata, guim.usrdata.filename );
    end
 case 'SaveAs'
    [filename, pathname] = uiputfile('*.spt', 'Save As');
@@ -69,26 +70,26 @@ case 'SaveAs'
    end
    usrdata = get( thisFig, 'UserData' );
    filename = [pathname filename];
-   usrdata.filename = filename;
+   guim.usrdata.filename = filename;
    set( thisFig, 'UserData', usrdata );
    % Transfer to SI
-   usrdata = Transfer2SI( usrdata );   
-   savefile( usrdata, filename );
+   usrdata = Transfer2SI( guim.usrdata );   
+   savefile( guim.usrdata, filename );
 case 'Edit'
    usrdata = get( thisFig, 'UserData' );
    % Pass the calling instruction   
    listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
    item = get( listboxHandle, 'Value' );
-   usrdata.flag = item;
+   guim.usrdata.flag = item;
    set( thisFig, 'UserData', usrdata );
    % Call the input dialogbox
    fig = defElement;
    set( fig, 'UserData', thisFig );
    % Fill out the input dialogbox
    elePopupmenuHandle = findobj( fig, 'Tag', 'ElementPopupMenu' );
-   if( usrdata.ele(item)=='Q' )
+   if( guim.usrdata.ele(item)=='Q' )
       set( elePopupmenuHandle, 'Value', 1 );
-   elseif( usrdata.ele(item)=='S' )
+   elseif( guim.usrdata.ele(item)=='S' )
       set( elePopupmenuHandle, 'Value', 2 );
    else
       set( elePopupmenuHandle, 'Value', 3 );
@@ -97,21 +98,21 @@ case 'Edit'
    lenEditHandle = findobj( fig, 'Tag', 'LengthEditText' );
    strEditHandle = findobj( fig, 'Tag', 'StrengthEditText' );
    didEditHandle = findobj( fig, 'Tag', 'DiplIndexEditText' );
-   locString = num2str( usrdata.loc(item) );
-   lenString = num2str( usrdata.len(item) );
-   strString = num2str( usrdata.str(item) );
-   didString = num2str( usrdata.did(item) );
+   locString = num2str( guim.usrdata.loc(item) );
+   lenString = num2str( guim.usrdata.len(item) );
+   strString = num2str( guim.usrdata.str(item) );
+   didString = num2str( guim.usrdata.did(item) );
    set( locEditHandle, 'String', locString );
    set( lenEditHandle, 'String', lenString ); 
    set( strEditHandle, 'String', strString );
    set( didEditHandle, 'String', didString );
    optCheckboxHandle = findobj( fig, 'Tag', 'OptimCheckbox' );
-   set( optCheckboxHandle, 'Value', usrdata.opt(item) );
+   set( optCheckboxHandle, 'Value', guim.usrdata.opt(item) );
    % important in here to disable/enable some controls
    DefElementWndProc( fig, 'ElementChange' ); 
 case 'Insert'
    usrdata = get( thisFig, 'UserData' );
-   usrdata.flag = 0;
+   guim.usrdata.flag = 0;
    set( thisFig, 'UserData', usrdata );
    fig = defElement;
    set( fig, 'UserData', thisFig );
@@ -136,125 +137,126 @@ case 'Delete'
    usrdata.opt = usrdata.opt(ind);
    set( thisFig, 'UserData', usrdata );
    % Update the listbox
-   updateListboxString( listboxHandle, usrdata, 1 );
+   updateListboxString( listboxHandle, guim.usrdata, 1 );
    changeButtonState( thisFig, n-1 );
 case 'Param'
    fig = defParam;
-   set( fig, 'UserData', thisFig );
-   usrdata = get( thisFig, 'UserData' );
+   %set( fig, 'UserData', thisFig );
+   %usrdata = get( thisFig, 'UserData' );
    % Initial conditions
-   if( ~isempty(usrdata.ic.x0) )
+   if( ~isempty(guim.usrdata.ic.x0) )
       x0EditHandle = findobj( fig, 'Tag', 'X0EditText' );
       y0EditHandle = findobj( fig, 'Tag', 'Y0EditText' );
       xp0EditHandle = findobj( fig, 'Tag', 'XP0EditText' );
       yp0EditHandle = findobj( fig, 'Tag', 'YP0EditText' );
-      set( x0EditHandle, 'String', num2str(usrdata.ic.x0) );
-      set( y0EditHandle, 'String', num2str(usrdata.ic.y0) );
-      set( xp0EditHandle, 'String', num2str(usrdata.ic.xp0) );
-      set( yp0EditHandle, 'String', num2str(usrdata.ic.yp0) );
+      set( x0EditHandle, 'String', num2str(guim.usrdata.ic.x0) );
+      set( y0EditHandle, 'String', num2str(guim.usrdata.ic.y0) );
+      set( xp0EditHandle, 'String', num2str(guim.usrdata.ic.xp0) );
+      set( yp0EditHandle, 'String', num2str(guim.usrdata.ic.yp0) );
    end
    % Global beam parameters
-   if( ~isempty(usrdata.emitance) )
+   if( ~isempty(guim.usrdata.emitance) )
       emitEditHandle = findobj( fig, 'Tag', 'EmitEditText' );
-      set( emitEditHandle, 'String', num2str(usrdata.emitance) );
+      set( emitEditHandle, 'String', num2str(guim.usrdata.emitance) );
    end
-   if( ~isempty(usrdata.perveance) )
+   if( ~isempty(guim.usrdata.perveance) )
       pvnEditHandle = findobj( fig, 'Tag', 'PvnEditText' );
-      set( pvnEditHandle, 'String', num2str(usrdata.perveance) );
+      set( pvnEditHandle, 'String', num2str(guim.usrdata.perveance) );
    end
    % Numerical parameters
-   if( ~isempty(usrdata.stepsize) )
+   if( ~isempty(guim.usrdata.stepsize) )
       stepEditHandle = findobj( fig, 'Tag', 'StepEditText' );
-      set( stepEditHandle, 'String', num2str(usrdata.stepsize) );
+      set( stepEditHandle, 'String', num2str(guim.usrdata.stepsize) );
    end
-   if( ~isempty(usrdata.distance) )
+   if( ~isempty(guim.usrdata.distance) )
       distEditHandle = findobj( fig, 'Tag', 'DistEditText' );
-      set( distEditHandle, 'String', num2str(usrdata.distance) );
+      set( distEditHandle, 'String', num2str(guim.usrdata.distance) );
    end
 case 'Solution'
-   runtmp = get( thisFig, 'UserData' );
-   % only check one parameter is enough
-   if( isempty(runtmp.x0) )
-      warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
-      return;
-   end
-   % Transfer to SI
-   runtmp = Transfer2SI( runtmp );
-   % Save to tempary file
-   save 'runtmp' runtmp;
-   % Run ......
-   oldptr = getptr(thisFig);  setptr( thisFig, 'watch' );
-   [x,y,xp,yp,D,Dp,d,nux,nuy,Cx,Cy] = runmenv( 'runtmp' );
-   x=x*1.e2; y=y*1.e2; d=d*1.e2;  % m-cm
-   D=D*1.e2;
-   set( thisFig, oldptr{:} );
-   % Axes
-   axesHandle = findAxes( thisFig );
-   axes( axesHandle(1) );
-   axdata = get( axesHandle(1), 'UserData' );
-   % Plot
-   if( axdata.handle(1)~=0 ) delete(axdata.handle(1)); end
-   if( axdata.handle(2)~=0 ) delete(axdata.handle(2)); end
-   hold on; h1 = plot(d,x,'b'); h2 = plot(d,y,'r'); hold off;
-   xlabel('z (cm)'); ylabel('X:blue, Y:red (cm)');
-   axis([ min(d) max(d) 0.0 max([x,y])*1.2 ]);
-   
-    % Save data
-   if( usrdata.stepsize<0.005 ) interval = round(0.005/usrdata.stepsize);
-   else interval = 1; end
-   n = length(d); ind = 1:interval:n;
-   if( ind(length(ind))~=n ) ind(length(ind)+1) = n; end   
-   axdata.handle(1)=h1; axdata.handle(2)=h2; 
-   axdata.d=d(ind); axdata.x=x(ind); axdata.y=y(ind);
-   axdata.xp=xp(ind); axdata.yp=yp(ind);
-   axdata.nux = nux; axdata.nuy = nuy;
-   set( axesHandle, 'UserData', axdata );   
+    guim.solve()
+%    runtmp = guim.usrdata; %get( thisFig, 'UserData' );
+%    % only check one parameter is enough
+%    if( isempty(runtmp.ic.x0) )
+%       warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
+%       return;
+%    end
+%    % Transfer to SI
+%    runtmp = Transfer2SI( runtmp );
+%    % Save to tempary file
+%    save 'runtmp' runtmp;
+%    % Run ......
+%    oldptr = getptr(thisFig);  setptr( thisFig, 'watch' );
+%    [x,y,xp,yp,D,Dp,d,nux,nuy,Cx,Cy] = runmenv( 'runtmp' );
+%    x=x*1.e2; y=y*1.e2; d=d*1.e2;  % m-cm
+%    D=D*1.e2;
+%    set( thisFig, oldptr{:} );
+%    % Axes
+%    axesHandle = findAxes( thisFig );
+%    axes( axesHandle(1) );
+%    axdata = get( axesHandle(1), 'UserData' );
+%    % Plot
+%    if( axdata.handle(1)~=0 ) delete(axdata.handle(1)); end
+%    if( axdata.handle(2)~=0 ) delete(axdata.handle(2)); end
+%    hold on; h1 = plot(d,x,'b'); h2 = plot(d,y,'r'); hold off;
+%    xlabel('z (cm)'); ylabel('X:blue, Y:red (cm)');
+%    axis([ min(d) max(d) 0.0 max([x,y])*1.2 ]);
+%    
+%     % Save data
+%    if( usrdata.stepsize<0.005 ) interval = round(0.005/usrdata.stepsize);
+%    else interval = 1; end
+%    n = length(d); ind = 1:interval:n;
+%    if( ind(length(ind))~=n ) ind(length(ind)+1) = n; end   
+%    axdata.handle(1)=h1; axdata.handle(2)=h2; 
+%    axdata.d=d(ind); axdata.x=x(ind); axdata.y=y(ind);
+%    axdata.xp=xp(ind); axdata.yp=yp(ind);
+%    axdata.nux = nux; axdata.nuy = nuy;
+%    set( axesHandle, 'UserData', axdata );   
 case 'MatcherParam'
    fig = defMatcher;
-   set( fig, 'UserData', thisFig );
-   usrdata = get( thisFig, 'UserData' );
+%   set( fig, 'UserData', thisFig );
+%   usrdata = get( thisFig, 'UserData' );
    % Target conditions
-   if( ~isempty(usrdata.x1) )
+   if( ~isempty(guim.guim.usrdata.x1) )
       x1EditHandle = findobj( fig, 'Tag', 'X1EditText' );
       y1EditHandle = findobj( fig, 'Tag', 'Y1EditText' );
       xp1EditHandle = findobj( fig, 'Tag', 'XP1EditText' );
       yp1EditHandle = findobj( fig, 'Tag', 'YP1EditText' );
-      set( x1EditHandle, 'String', num2str(usrdata.x1) );
-      set( y1EditHandle, 'String', num2str(usrdata.y1) );
-      set( xp1EditHandle, 'String', num2str(usrdata.xp1) );
-      set( yp1EditHandle, 'String', num2str(usrdata.yp1) );
+      set( x1EditHandle, 'String', num2str(guim.usrdata.x1) );
+      set( y1EditHandle, 'String', num2str(guim.usrdata.y1) );
+      set( xp1EditHandle, 'String', num2str(guim.usrdata.xp1) );
+      set( yp1EditHandle, 'String', num2str(guim.usrdata.yp1) );
    end
    % Weights
-   if( ~isempty(usrdata.xw) )
+   if( ~isempty(guim.usrdata.xw) )
       xwEditHandle = findobj( fig, 'Tag', 'XWEditText' );
       ywEditHandle = findobj( fig, 'Tag', 'YWEditText' );
       xpwEditHandle = findobj( fig, 'Tag', 'XPWEditText' );
       ypwEditHandle = findobj( fig, 'Tag', 'YPWEditText' );
-      set( xwEditHandle, 'String', num2str(usrdata.xw) );
-      set( ywEditHandle, 'String', num2str(usrdata.yw) );
-      set( xpwEditHandle, 'String', num2str(usrdata.xpw) );
-      set( ypwEditHandle, 'String', num2str(usrdata.ypw) );
+      set( xwEditHandle, 'String', num2str(guim.usrdata.xw) );
+      set( ywEditHandle, 'String', num2str(guim.usrdata.yw) );
+      set( xpwEditHandle, 'String', num2str(guim.usrdata.xpw) );
+      set( ypwEditHandle, 'String', num2str(guim.usrdata.ypw) );
    end
    % iterations
-   if( ~isempty(usrdata.maxIter) )
+   if( ~isempty(guim.usrdata.maxIter) )
       maxIterEditHandle = findobj( fig, 'Tag', 'MaxIterEditText' );
       tolFunEditHandle = findobj( fig, 'Tag', 'TolFunEditText' );
-      set( maxIterEditHandle, 'String', num2str(usrdata.maxIter) );
-      set( tolFunEditHandle, 'String', num2str(usrdata.tolFun) );
+      set( maxIterEditHandle, 'String', num2str(guim.usrdata.maxIter) );
+      set( tolFunEditHandle, 'String', num2str(guim.usrdata.tolFun) );
    end
 case 'Run Periodic Matcher'
-   usrdata = get( thisFig, 'UserData' );
+%   usrdata = get( thisFig, 'UserData' );
    % only check one parameter is enough
-   if( isempty(usrdata.x0) )
+   if( isempty(guim.usrdata.ic.x0) )
       warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
       return;
    end
-   if( isempty(usrdata.x1) )
+   if( isempty(guim.usrdata.target.x1) )
       warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
       return;
    end
    % Transfer to SI
-   usrdata = Transfer2SI( usrdata );
+   usrdata = Transfer2SI( guim.usrdata );
    % Save to tempary file
    save 'runtmp' usrdata;
    % Run ......
@@ -263,31 +265,31 @@ case 'Run Periodic Matcher'
    newX0 = match2period( 'runtmp' );
    set( thisFig, 'pointer', oldptr );
    % Save the new result
-   usrdata.x0 = newX0(1);
-   usrdata.y0 = newX0(2);
-   usrdata.xp0= newX0(3);
-   usrdata.yp0= newX0(4);
-   usrdata = TransferFromSI( usrdata );
-   set( thisFig, 'UserData', usrdata );
+   guim.usrdata.ic.x0 = newX0(1);
+   guim.usrdata.ic.y0 = newX0(2);
+   guim.usrdata.ic.xp0= newX0(3);
+   guim.usrdata.ic.yp0= newX0(4);
+   guim.usrdata = TransferFromSI( guim.usrdata );
+   %   set( thisFig, 'UserData', usrdata );
    % Update figure
    menvEvent( 'Solution' );
 case 'Matcher'
    usrdata = get( thisFig, 'UserData' );
    % only check one parameter is enough
-   if( isempty(usrdata.x0) )
+   if( isempty(guim.usrdata.ic.x0) )
       warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
       return;
    end
-   if( isempty(usrdata.x1) )
+   if( isempty(guim.usrdata.target.x1) )
       warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
       return;
    end
-   if( sum(usrdata.opt)==0 )
+   if( sum(guim.usrdata.opt)==0 )
       warndlg( 'The optimized elements are not defined!', 'ERROR', 'modal' );
       return;
    end
    % Transfer to SI
-   usrdata = Transfer2SI( usrdata );
+   usrdata = Transfer2SI( guim.usrdata );
    % Save to tempary file
    save 'runtmp' usrdata;
    % Run ......
@@ -295,14 +297,14 @@ case 'Matcher'
    newKappa = match2target( 'runtmp' );
    set( thisFig, oldptr{:} );
    % Save the new result
-   usrdata = get( thisFig, 'UserData' );
+   %usrdata = get( thisFig, 'UserData' );
    [~,n] = size( usrdata.loc ); k = 1;
    for i=1:n
-      if( usrdata.opt(i) )
-         usrdata.str(i) = newKappa(k); k = k+1;
+      if( guim.usrdata.opt(i) )
+         guim.usrdata.str(i) = newKappa(k); k = k+1;
       end
    end
-   set( thisFig, 'UserData', usrdata );
+   %set( thisFig, 'UserData', usrdata );
    % Update the listbox
    listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
    updateListboxString( listboxHandle, usrdata, 1 );   
@@ -411,14 +413,14 @@ case 'Export'
    fprintf( fid, '%12.8e\t%12.8e\t%12.8e\r\n',A );
    fclose( fid );
 case 'Kappa to Current'
-   usrdata = get( thisFig, 'UserData' );
+%   usrdata = get( thisFig, 'UserData' );
    % only check one parameter is enough
-   if( isempty(usrdata.x0) )
+   if( isempty(guim.usrdata.ic.x0) )
       warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
       return;
    end
    % Transfer to SI
-   usrdata = Transfer2SI( usrdata );
+   usrdata = Transfer2SI( guim.usrdata );
    [~,n] = size( usrdata.loc );
    if( n==0 )
       return;
@@ -578,6 +580,7 @@ end
 
 
 function DefParamWndProc( thisFig, event )
+global guim
 switch( event )
 case 'OK'
    % Initial conditions
@@ -612,22 +615,23 @@ case 'OK'
       return;
    end
    % Find the shared userdata
-   mainFigHandle = get( thisFig, 'UserData' );
-   usrdata = get( mainFigHandle, 'UserData' );
-   usrdata.emitance = emitance;
-   usrdata.perveance = perveance;
-   usrdata.x0 = x0;
-   usrdata.y0 = y0;
-   usrdata.xp0 = xp0;
-   usrdata.yp0 = yp0;
-   usrdata.stepsize = stepsize;
-   usrdata.distance = distance;
-   set( mainFigHandle, 'UserData', usrdata );
+%   mainFigHandle = get( thisFig, 'UserData' );
+%   usrdata = get( mainFigHandle, 'UserData' );
+   guim.usrdata.emitance = emitance;
+   guim.usrdata.perveance = perveance;
+   guim.usrdata.ic.x0 = x0;
+   guim.usrdata.ic.y0 = y0;
+   guim.usrdata.ic.xp0 = xp0;
+   guim.usrdata.ic.yp0 = yp0;
+   guim.usrdata.stepsize = stepsize;
+   guim.usrdata.distance = distance;
+%   set( mainFigHandle, 'UserData', usrdata );
 case 'Cancel'
 end
 close( thisFig );
 
 function DefMatcherWndProc( thisFig, event )
+global guim
 switch( event )
 case 'OK'
    % Target conditions
@@ -666,19 +670,19 @@ case 'OK'
       return;   
    end
    % Find the shared userdata
-   mainFigHandle = get( thisFig, 'UserData' );
-   usrdata = get( mainFigHandle, 'UserData' );
-   usrdata.x1 = x1;
-   usrdata.y1 = y1;
-   usrdata.xp1 = xp1;
-   usrdata.yp1 = yp1;
-   usrdata.xw = xw;
-   usrdata.yw = yw;
-   usrdata.xpw = xpw;
-   usrdata.ypw = ypw;
-   usrdata.maxIter = maxIter;
-   usrdata.tolFun = tolFun;   
-   set( mainFigHandle, 'UserData', usrdata );
+%   mainFigHandle = get( thisFig, 'UserData' );
+%   usrdata = get( mainFigHandle, 'UserData' );
+   guim.usrdata.target.x1 = x1;
+   guim.usrdata.target.y1 = y1;
+   guim.usrdata.target.xp1 = xp1;
+   guim.usrdata.target.yp1 = yp1;
+   guim.usrdata.weights.xw = xw;
+   guim.usrdata.weights.yw = yw;
+   guim.usrdata.weights.xpw = xpw;
+   guim.usrdata.weights.ypw = ypw;
+   guim.usrdata.maxIter = maxIter;
+   guim.usrdata.tolFun = tolFun;   
+%   set( mainFigHandle, 'UserData', usrdata );
 case 'Cancel'
 end
 close( thisFig );
@@ -773,47 +777,75 @@ usrdata = struct( ...
    'x',[], ...
    'y',[] );
 
-function usrdata = Transfer2SI( data )
-usrdata = data;
-usrdata.x0 = data.x0*1.e-2;               % cm->m
-usrdata.y0 = data.y0*1.e-2;               % cm->m
-%usrdata.xp0,usrdata.yp0   
-usrdata.emitance = data.emitance*1.e-6;   % mm.mrad->mrad
-%usrdata.perveance
-usrdata.stepsize = data.stepsize*1.e-2;   % cm->m
-usrdata.distance = data.distance*1.e-2;   % cm->m
-%usrdata.ele
-usrdata.loc = data.loc*1.e-2;             % cm->m
-usrdata.len = data.len*1.e-2;             % cm->m   
-%usrdata.str
-usrdata.x1 = data.x1*1.e-2;               % cm->m
-usrdata.y1 = data.y1*1.e-2;               % cm->m
-if exist('data.xref')
-usrdata.xref = data.xref*1.e-2;               % m->cm
-usrdata.yref = data.yref*1.e-2;               % m->cm
-end
-%usrdata.xp1,usrdata.yp1,usrdata.xw,usrdata.yw,usrdata.xpw,usrdata.ypw,usrdata.maxIter,usrdata.tolFun
-
 function usrdata = TransferFromSI( data )
 usrdata = data;
-usrdata.x0 = data.x0*1.e2;               % m->cm
-usrdata.y0 = data.y0*1.e2;               % m->cm
-%usrdata.xp0,usrdata.yp0   
+usrdata.ic.x0 = data.ic.x0*1.e2;               % m->cm
+usrdata.ic.y0 = data.ic.y0*1.e2;               % m->cm
+try
+    usrdata.ic.D0 = data.ic.D0*1.e2;
+catch
+    warning('Dispersion D0 not defined, setting D0 = Dp0 = 0')
+    usrdata.ic.D0 = 0;
+    usrdata.ic.Dp0 = 0;
+end
+%usrdata.xp0,usrdata.yp0
 usrdata.emitance = data.emitance*1.e6;   % mrad->mm.mrad
 %usrdata.perveance
 usrdata.stepsize = data.stepsize*1.e2;   % m->cm
 usrdata.distance = data.distance*1.e2;   % m->cm
+try
+    usrdata.d0 = data.d0*1.e2;   % m->cm
+catch
+    warning('Start-point s0 not defined, setting s0 = 0')
+    usrdata.d0 = 0;
+end
+
 %usrdata.ele
 usrdata.loc = data.loc*1.e2;             % m->cm
-usrdata.len = data.len*1.e2;             % m->cm   
+usrdata.len = data.len*1.e2;             % m->cm
 %usrdata.str
-usrdata.x1 = data.x1*1.e2;               % m->cm
-usrdata.y1 = data.y1*1.e2;               % m->cm
-if exist('data.xref')
-usrdata.xref = data.xref*1.e2;               % m->cm
-usrdata.yref = data.yref*1.e2;               % m->cm
+if isfield(data,'target')
+    usrdata.target.x1 = data.target.x1*1.e2;               % m->cm
+    usrdata.target.y1 = data.target.y1*1.e2;               % m->cm
+end
+if isfield(data,'xref')
+    usrdata.xref = data.xref*1.e2;               % m->cm
+    usrdata.yref = data.yref*1.e2;               % m->cm
 end
 %usrdata.xp1,usrdata.yp1,usrdata.xw,usrdata.yw,usrdata.xpw,usrdata.ypw,usrdata.maxIter,usrdata.tolFun
+
+
+function usrdata = Transfer2SI( data )
+usrdata = data;
+usrdata.ic.x0 = data.ic.x0*1.e-2;               % cm->m
+usrdata.ic.y0 = data.ic.y0*1.e-2;               % cm->m
+try
+    usrdata.ic.D0 = data.ic.D0*1e-2;
+catch end
+%usrdata.xp0,usrdata.yp0,usrdata.D0
+usrdata.emitance = data.emitance*1.e-6;   % mm.mrad->mrad
+%usrdata.perveance
+usrdata.stepsize = data.stepsize*1.e-2;   % cm->m
+usrdata.distance = data.distance*1.e-2;   % cm->m
+try
+    usrdata.d0 = data.d0*1.e-2;   % cm->m
+catch
+    usrdata.d0 = 0;
+end
+%usrdata.ele
+usrdata.loc = data.loc*1.e-2;             % cm->m
+usrdata.len = data.len*1.e-2;             % cm->m
+%usrdata.str
+if isfield(data,'target')
+    usrdata.target.x1 = data.target.x1*1.e-2;               % cm->m
+    usrdata.target.y1 = data.target.y1*1.e-2;               % cm->m
+end
+if isfield(data,'xref')
+    usrdata.xref = data.xref*1.e-2;               % m->cm
+    usrdata.yref = data.yref*1.e-2;               % m->cm
+end
+%usrdata.xp1,usrdata.yp1,usrdata.xw,usrdata.yw,usrdata.xpw,usrdata.ypw,usrdata.maxIter,usrdata.tolFun
+
 
 function savefile( usrdata, filename )
 save 'savetmp' usrdata;

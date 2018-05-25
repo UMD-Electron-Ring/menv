@@ -1,5 +1,5 @@
-global clm
-clm = clmenv();
+%global clm
+clm = clmenv2();
 
 % -- load .spt file
 sptfilename = which('FODO_0_7mA_dipl.spt');
