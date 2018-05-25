@@ -216,26 +216,26 @@ case 'MatcherParam'
 %   set( fig, 'UserData', thisFig );
 %   usrdata = get( thisFig, 'UserData' );
    % Target conditions
-   if( ~isempty(guim.guim.usrdata.x1) )
+   if( ~isempty(guim.usrdata.target.x1) )
       x1EditHandle = findobj( fig, 'Tag', 'X1EditText' );
       y1EditHandle = findobj( fig, 'Tag', 'Y1EditText' );
       xp1EditHandle = findobj( fig, 'Tag', 'XP1EditText' );
       yp1EditHandle = findobj( fig, 'Tag', 'YP1EditText' );
-      set( x1EditHandle, 'String', num2str(guim.usrdata.x1) );
-      set( y1EditHandle, 'String', num2str(guim.usrdata.y1) );
-      set( xp1EditHandle, 'String', num2str(guim.usrdata.xp1) );
-      set( yp1EditHandle, 'String', num2str(guim.usrdata.yp1) );
+      set( x1EditHandle, 'String', num2str(guim.usrdata.target.x1) );
+      set( y1EditHandle, 'String', num2str(guim.usrdata.target.y1) );
+      set( xp1EditHandle, 'String', num2str(guim.usrdata.target.xp1) );
+      set( yp1EditHandle, 'String', num2str(guim.usrdata.target.yp1) );
    end
    % Weights
-   if( ~isempty(guim.usrdata.xw) )
+   if( ~isempty(guim.usrdata.weights.xw) )
       xwEditHandle = findobj( fig, 'Tag', 'XWEditText' );
       ywEditHandle = findobj( fig, 'Tag', 'YWEditText' );
       xpwEditHandle = findobj( fig, 'Tag', 'XPWEditText' );
       ypwEditHandle = findobj( fig, 'Tag', 'YPWEditText' );
-      set( xwEditHandle, 'String', num2str(guim.usrdata.xw) );
-      set( ywEditHandle, 'String', num2str(guim.usrdata.yw) );
-      set( xpwEditHandle, 'String', num2str(guim.usrdata.xpw) );
-      set( ypwEditHandle, 'String', num2str(guim.usrdata.ypw) );
+      set( xwEditHandle, 'String', num2str(guim.usrdata.weights.xw) );
+      set( ywEditHandle, 'String', num2str(guim.usrdata.weights.yw) );
+      set( xpwEditHandle, 'String', num2str(guim.usrdata.weights.xpw) );
+      set( ypwEditHandle, 'String', num2str(guim.usrdata.weights.ypw) );
    end
    % iterations
    if( ~isempty(guim.usrdata.maxIter) )
@@ -245,71 +245,72 @@ case 'MatcherParam'
       set( tolFunEditHandle, 'String', num2str(guim.usrdata.tolFun) );
    end
 case 'Run Periodic Matcher'
-%   usrdata = get( thisFig, 'UserData' );
-   % only check one parameter is enough
-   if( isempty(guim.usrdata.ic.x0) )
-      warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
-      return;
-   end
-   if( isempty(guim.usrdata.target.x1) )
-      warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
-      return;
-   end
-   % Transfer to SI
-   usrdata = Transfer2SI( guim.usrdata );
-   % Save to tempary file
-   save 'runtmp' usrdata;
-   % Run ......
-   %oldptr = getptr(thisFig);  setptr( thisFig, 'watch' );
-   oldptr = get(thisFig,'pointer');  set( thisFig, 'pointer', 'watch' );
-   newX0 = match2period( 'runtmp' );
-   set( thisFig, 'pointer', oldptr );
-   % Save the new result
-   guim.usrdata.ic.x0 = newX0(1);
-   guim.usrdata.ic.y0 = newX0(2);
-   guim.usrdata.ic.xp0= newX0(3);
-   guim.usrdata.ic.yp0= newX0(4);
-   guim.usrdata = TransferFromSI( guim.usrdata );
-   %   set( thisFig, 'UserData', usrdata );
-   % Update figure
-   menvEvent( 'Solution' );
+    guim.periodicmatcher()
+% %   usrdata = get( thisFig, 'UserData' );
+%    % only check one parameter is enough
+%    if( isempty(guim.usrdata.ic.x0) )
+%       warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
+%       return;
+%    end
+%    if( isempty(guim.usrdata.target.x1) )
+%       warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
+%       return;
+%    end
+%    % Transfer to SI
+%    usrdata = Transfer2SI( guim.usrdata );
+%    % Save to tempary file
+%    save 'runtmp' usrdata;
+%    % Run ......
+%    %oldptr = getptr(thisFig);  setptr( thisFig, 'watch' );
+%    oldptr = get(thisFig,'pointer');  set( thisFig, 'pointer', 'watch' );
+%    newX0 = match2period();
+%    set( thisFig, 'pointer', oldptr );
+%    % Save the new result
+%    guim.usrdata.ic.x0 = newX0(1);
+%    guim.usrdata.ic.y0 = newX0(2);
+%    guim.usrdata.ic.xp0= newX0(3);
+%    guim.usrdata.ic.yp0= newX0(4);
+%    guim.usrdata = TransferFromSI( guim.usrdata );
+%    %   set( thisFig, 'UserData', usrdata );
+%    % Update figure
+%    menvEvent( 'Solution' );
 case 'Matcher'
-   usrdata = get( thisFig, 'UserData' );
-   % only check one parameter is enough
-   if( isempty(guim.usrdata.ic.x0) )
-      warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
-      return;
-   end
-   if( isempty(guim.usrdata.target.x1) )
-      warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
-      return;
-   end
-   if( sum(guim.usrdata.opt)==0 )
-      warndlg( 'The optimized elements are not defined!', 'ERROR', 'modal' );
-      return;
-   end
-   % Transfer to SI
-   usrdata = Transfer2SI( guim.usrdata );
-   % Save to tempary file
-   save 'runtmp' usrdata;
-   % Run ......
-   oldptr = getptr(thisFig);  setptr( thisFig, 'watch' );
-   newKappa = match2target( 'runtmp' );
-   set( thisFig, oldptr{:} );
-   % Save the new result
-   %usrdata = get( thisFig, 'UserData' );
-   [~,n] = size( usrdata.loc ); k = 1;
-   for i=1:n
-      if( guim.usrdata.opt(i) )
-         guim.usrdata.str(i) = newKappa(k); k = k+1;
-      end
-   end
-   %set( thisFig, 'UserData', usrdata );
+    guim.targetmatcher()
+%    usrdata = get( thisFig, 'UserData' );
+%    % only check one parameter is enough
+%    if( isempty(guim.usrdata.ic.x0) )
+%       warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
+%       return;
+%    end
+%    if( isempty(guim.usrdata.target.x1) )
+%       warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
+%       return;
+%    end
+%    if( sum(guim.usrdata.opt)==0 )
+%       warndlg( 'The optimized elements are not defined!', 'ERROR', 'modal' );
+%       return;
+%    end
+%    % Transfer to SI
+%    usrdata = Transfer2SI( guim.usrdata );
+%    % Save to tempary file
+%    save 'runtmp' usrdata;
+%    % Run ......
+%    oldptr = getptr(thisFig);  setptr( thisFig, 'watch' );
+%    newKappa = match2target( 'runtmp' );
+%    set( thisFig, oldptr{:} );
+%    % Save the new result
+%    %usrdata = get( thisFig, 'UserData' );
+%    [~,n] = size( usrdata.loc ); k = 1;
+%    for i=1:n
+%       if( guim.usrdata.opt(i) )
+%          guim.usrdata.str(i) = newKappa(k); k = k+1;
+%       end
+%    end
+%    %set( thisFig, 'UserData', usrdata );
    % Update the listbox
    listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
-   updateListboxString( listboxHandle, usrdata, 1 );   
-   % Update figure
-   menvEvent( 'Solution' );
+   updateListboxString( listboxHandle, guim.usrdata, 1 );   
+
 case 'Coordinate'
    coordTextHandle = findobj( thisFig, 'Tag', 'CoordStaticText' );
    axesHandle = findAxes( thisFig );
@@ -484,6 +485,7 @@ end
 
 
 function DefElementWndProc( thisFig, event )
+global guim
 switch( event )
 case 'OK'
    % Judge if all the inputs valid
@@ -510,7 +512,7 @@ case 'OK'
    % Find the shared userdata
    mainFigHandle = get( thisFig, 'UserData' );
    listboxHandle = findobj( mainFigHandle, 'Tag', 'ElementListbox' );
-   usrdata = get( mainFigHandle, 'UserData' );
+%   usrdata = get( mainFigHandle, 'UserData' );
    % 1:Quad; 2:Sol; 3:Dipl
    if( element==1 )
       element = 'Q';
@@ -523,41 +525,41 @@ case 'OK'
       optim = 0; % disable optim for Dipl
    end
    % 0:Insert; 1:Edit
-   if( usrdata.flag==0 )
-      usrdata.ele = [usrdata.ele element];
-      usrdata.loc = [usrdata.loc location];
-      usrdata.len = [usrdata.len length];
-      usrdata.str = [usrdata.str strength];
-      usrdata.did = [usrdata.did diplindex];
-      usrdata.opt = [usrdata.opt optim];
+   if( guim.usrdata.flag==0 )
+      guim.usrdata.ele = [guim.usrdata.ele element];
+      guim.usrdata.loc = [guim.usrdata.loc location];
+      guim.usrdata.len = [guim.usrdata.len length];
+      guim.usrdata.str = [guim.usrdata.str strength];
+      guim.usrdata.did = [guim.usrdata.did diplindex];
+      guim.usrdata.opt = [guim.usrdata.opt optim];
    else
-      item = usrdata.flag;
-      usrdata.ele(item) = element;
-      usrdata.loc(item) = location;
-      usrdata.len(item) = length;
-      usrdata.str(item) = strength;
-      usrdata.did(item) = diplindex;
-      usrdata.opt(item) = optim;
+      item = guim.usrdata.flag;
+      guim.usrdata.ele(item) = element;
+      guim.usrdata.loc(item) = location;
+      guim.usrdata.len(item) = length;
+      guim.usrdata.str(item) = strength;
+      guim.usrdata.did(item) = diplindex;
+      guim.usrdata.opt(item) = optim;
    end
    % Find who is the item that we are editing or inserting
-   [~,n] = size( usrdata.loc ); 
-   [tmp,ind] = sort( usrdata.loc );
-   if( usrdata.flag==0 )
+   [~,n] = size( guim.usrdata.loc ); 
+   [tmp,ind] = sort( guim.usrdata.loc );
+   if( guim.usrdata.flag==0 )
       focus = find( ind==n );
    else
       focus = find( ind==item );
    end
    % Sort
-   usrdata.loc = tmp; 
-   usrdata.ele = usrdata.ele(ind);
-   usrdata.len = usrdata.len(ind);
-   usrdata.str = usrdata.str(ind);
-   usrdata.did = usrdata.did(ind);
-   usrdata.opt = usrdata.opt(ind);
+   guim.usrdata.loc = tmp; 
+   guim.usrdata.ele = guim.usrdata.ele(ind);
+   guim.usrdata.len = guim.usrdata.len(ind);
+   guim.usrdata.str = guim.usrdata.str(ind);
+   guim.usrdata.did = guim.usrdata.did(ind);
+   guim.usrdata.opt = guim.usrdata.opt(ind);
    % Save
-   set( mainFigHandle, 'UserData', usrdata );
+%   set( mainFigHandle, 'UserData', usrdata );
    % Add formated string to the caller listbox
-   updateListboxString( listboxHandle, usrdata, focus );
+   updateListboxString( listboxHandle, guim.usrdata, focus );
    changeButtonState( mainFigHandle, n );
    close( thisFig );
 case 'Cancel'
