@@ -63,7 +63,7 @@ catch % -- backwards compatibility; Dispersion target set to 0
     xp(end)-runtmp.target.xp1,...
     yp(end)-runtmp.target.yp1,...
     0,0,0,0,env_diff,refx,refy];
-    warning('No dispersion or tune targets set')
+    %warning('No dispersion or tune targets set')
 end
 
 % -- apply weight factors to min. function vector
@@ -77,7 +77,7 @@ catch % -- backwards compatibility; unspecified weights set to 0
     f = f.*[runtmp.weights.xw, runtmp.weights.yw,...
     runtmp.weights.xpw runtmp.weights.ypw,...
     0,0,0,0,0,0,0];
-    warning('Missing some weight factors, only matching to x,y,x'',y'' target')
+    %warning('Missing some weight factors, only matching to x,y,x'',y'' target')
 end
 
 % -- save some vars in runtmp

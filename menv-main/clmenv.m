@@ -50,6 +50,7 @@ classdef clmenv < handle
             % -- create new fig unless told not to
             if not(exist('nofig'))
                 clm.thisFig = figure(); axes();
+            else clm.thisFig = gcbf;
             end
         end
         
@@ -564,12 +565,10 @@ classdef clmenv < handle
             
             % -- Plotting
             % -- clear plots if they exist
-            if isfield(clm,'soldata')
-                if isfield(clm.soldata,'handle')
-                    if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end
-                    if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end
-                    if ishandle(clm.soldata.handle(3)) delete(clm.soldata.handle(3)); end
-                end
+            if isfield(clm.soldata,'handle')
+                if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end
+                if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end
+                if ishandle(clm.soldata.handle(3)) delete(clm.soldata.handle(3)); end
             end
             
             hold on; h1 = plot(d,x,'b'); h2 = plot(d,y,'r'); h3 = plot(d,D,'k'); hold off;
@@ -660,7 +659,7 @@ classdef clmenv < handle
             end
             
             % clear plot if necessary
-            if exist('clm.soldata')
+            if isfield(clm.soldata,'handle')
                 if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end
                 if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end
                 if ishandle(clm.soldata.handle(3)) delete(clm.soldata.handle(3)); end
@@ -715,7 +714,7 @@ classdef clmenv < handle
             end
             
             % clear plot if necessary
-            if exist('clm.soldata')
+            if isfield(clm.soldata,'handle')
                 if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end
                 if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end
             end
@@ -765,7 +764,7 @@ classdef clmenv < handle
             end
             
             % clear plot if necessary
-            if exist('clm.soldata')
+            if isfield(clm.soldata,'handle')
                 if ishandle(clm.soldata.handle(1)) delete(clm.soldata.handle(1)); end
                 if ishandle(clm.soldata.handle(2)) delete(clm.soldata.handle(2)); end
             end
