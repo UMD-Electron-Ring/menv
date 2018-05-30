@@ -1,2 +1,2 @@
-menvlocation = 'C:\Users\Kiersten\Documents\UMER\code_development\menv\';
+menvlocation = '.';
 menvpath = genpath(menvlocation); addpath(menvpath);
