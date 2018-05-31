@@ -97,8 +97,14 @@ classdef clmenv < handle
             % -- the rest is ensuring backwards compatibility with old .spt files from
             % Hui Li / MENV examples folder.
             % -- Dipole index:
-            if( isfield(usrdata,'did')==0 )
-                clm.usrdata.did = zeros( size(usrdata.opt) );
+            if( isfield(usrdata,'did')==1 )
+                clm.usrdata = rmfield(clm.usrdata,'did');
+                %clm.usrdata.did = zeros( size(usrdata.opt) );
+            end
+            
+            % -- Invrho:
+            if( isfield(usrdata,'irho')==0 )
+                clm.usrdata.irho = zeros( size(usrdata.opt) );
             end
             
             % -- need to move ic, targets, weights to sub-structures (new format)

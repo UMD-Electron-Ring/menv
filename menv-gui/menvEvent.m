@@ -2,7 +2,7 @@ function menvEvent( event )
 switch( get(gcbf,'Tag') )
 case 'MainFig'
    MainFigWndProc( gcbf, event );
-case 'DefElementFmaig'
+case 'DefElementFig'
    DefElementWndProc( gcbf, event );
 case 'DefParamFig'
    DefParamWndProc( gcbf, event );
