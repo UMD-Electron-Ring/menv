@@ -1,0 +1,12 @@
+\select@language {english}
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}
+\contentsline {section}{\numberline {2}Envelope integrator}{2}{section.2}
+\contentsline {section}{\numberline {3}Running MENV from the GUI}{2}{section.3}
+\contentsline {subsubsection}{\numberline {3.0.1}Defining and solving a lattice}{2}{subsubsection.3.0.1}
+\contentsline {subsubsection}{\numberline {3.0.2}Optimization in the GUI}{6}{subsubsection.3.0.2}
+\contentsline {subsubsection}{\numberline {3.0.3}Side note on parallel instances}{7}{subsubsection.3.0.3}
+\contentsline {section}{\numberline {4}Organization of MENV}{8}{section.4}
+\contentsline {subsection}{\numberline {4.1}Main MENV routines}{8}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}GUI code}{8}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Additional (untested) routines}{9}{subsection.4.3}
+\contentsline {section}{\numberline {5}MENV from the command line}{10}{section.5}

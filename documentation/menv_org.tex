@@ -1,0 +1,101 @@
+\documentclass[../menv_main.tex]{subfiles}
+ 
+\newcommand\tab[1][1.5cm]{\hspace*{#1}}
+
+\begin{document}
+
+
+\section{Organization of MENV}
+
+\subsection{Main MENV routines}
+The two MENV interfaces (GUI or command-line) draw on the same set of functions to perform envelope integration and optimization. Table \ref{tab:menv-func} describes the functions which make up the heart of the MENV code. All of these are found in the folder ``menv-main/."
+
+
+% -- table for main menv routines
+\begin{table}[htb]
+\centering
+\caption{MENV functions}
+\label{tab:menv-func}
+\vspace{10pt}
+\begin{tabularx}{\textwidth}{l X}
+\hline
+ Name & Purpose \\
+\hline
+clmenv 		& Class used to run command-line and GUI menv. \\
+			& Contains many useful routines to load, organize and store simulation data and parameters.  \\
+			&\\
+runmenv 	& Function which runs MENV integrator and returns solution data as a function of s. \\
+			& Sub-routine for ``Solve" method in clmenv and GUI. \\
+			&\\
+menv\_makekappaarray 	& Translates lattice definition into $\kappa$-array used in integrator\\
+						& Returns strength vector for optimizable elements 					  \\
+						& Sub-routine for \verb|runmenv| function \\
+						&\\
+menv\_updatekappaarray 	& Updates $\kappa$-array based on changes to optimizable elements	\\
+						& Returns new strength vector for optimizable elements 					  \\
+						& Sub-routine for \verb|optfunc| function \\
+						&\\
+menv\_integrator 		& Lower-level function to perform integration through defined beamline \\
+						&\\
+match2period& Function to optimize initial beam conditions for periodic matched solution \\
+			& Sub-routine for ``Periodic Matcher" method in clmenv and GUI. \\
+			&\\
+match2target& Function to optimize focusing elements to meet specified target \\
+			& Sub-routine for ``Target Matcher" method in clmenv and GUI. \\
+			&\\
+optfunc 	& Function used in each optimization step in ``match2target" \\
+			& Input: strength of optimizable focusing elements \\
+			& Output: weighted cost-function vector \\
+			&\\
+periodfunc 	& Function used in each optimization step in ``match2period" \\
+			& Input: initial conditions X,X',Y,Y',D,D' \\
+			& Output: weighted cost-function vector \\
+\hline
+\end{tabularx}
+\end{table}
+
+
+\subsection{GUI code}
+The dependencies of the GUI \verb|menv| are listed below. All GUI-specific files are stored in the folder ``menv-gui/".
+
+\begin{itemize}
+\item menv.m :: Code for creating main GUI window
+\item defElement.m :: Code for creating element insert/edit GUI window
+\item defParam.m :: Code for creating beam parameter GUI window
+\item defMatcher.m :: Code for creating matcher parameter GUI window
+\item ImportOpt.m :: 
+\item prepareMenu.m :: Code for creating menus on main GUI window
+\item menvEvent.m :: Contains code for interpreting commands sent by the GUI window
+\item clmenv.m :: Contains many of the upper level routines, called by some of the commands in menvEvent.m
+\end{itemize}
+
+It should be noted that GUI MENV was written following (presumably) older Matlab guidelines in which GUI data is stored in a .mat file as opposed to a .fig file.
+
+\subsection{Additional (untested) routines}
+I wrote additional optimization routines to try to solve more sophisticated problems. These have not been vetted as thoroughly and should be closely scrutinized before use. To indicate this, they are stored in the folder ``beta/" in the MENV directory. There may be some bugs due to changes to the main MENV routines/structure that were not filtered through to these functions. Matlab has a huge library of optimization algorithms, these can be added modularly to expand MENV capabilities in a similar fashion as seen here.
+
+% -- table for beta menv routines
+\begin{table}[htb]
+\centering
+\caption{``beta" MENV functions}
+\label{tab:menv-beta}
+\vspace{10pt}
+\begin{tabularx}{\textwidth}{l X}
+\hline
+ Name & Purpose \\
+\hline
+GSmatch2target& Function to optimize focusing elements to meet specified target using Matlab ``Global Search" algorithm. \\
+			& Sub-routine for ``Global Search" method in clmenv and GUI. \\ &\\
+MOmatching	& Function to optimize focusing elements to meet specified target using a Multi-Objective algorithm.\\
+			& Sub-routine for ``Multi-Objective" method in clmenv and GUI. \\&\\
+svoptfunc 	& Function used in each optimization step in ``GSmatch2target" \\
+			& Calls ``optfunc" but returns cost function as single-vector rms quantity \\&\\
+stepfuncMO 	& Function used in each optimization step in ``MOmatcher" \\
+\hline
+\end{tabularx}
+\end{table}
+
+Also in the ``beta/" folder, I include routines ``skewstep.m" and ``skew\_test.m." Apparently at some point there was an attempt to include skew-coupling terms in the envelope integration. I cannot speak to the accuracy or robustness of this code, but I preserve it in case it is ever pursued again. 
+
+
+\end{document}
