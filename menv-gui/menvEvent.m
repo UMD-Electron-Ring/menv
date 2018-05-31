@@ -29,7 +29,7 @@ case 'About'
 case 'New'
    menvEvent( 'Close' );
 case 'Open'
-   guim.open()
+   guim.open();
    listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
    updateListboxString( listboxHandle, guim.usrdata, 1 );
    [~,n] = size( guim.usrdata.loc );
@@ -234,9 +234,9 @@ case 'MatcherParam'
             set( xp1EditHandle, 'String', num2str(guim.usrdata.target.xp1) );
             set( yp1EditHandle, 'String', num2str(guim.usrdata.target.yp1) );
             try set( nux1EditHandle, 'String', num2str(guim.usrdata.target.nux1) );
-            catch set( nux1EditHandle, 'String', ''); end
+            catch set( nux1EditHandle, 'String', '0'); end
             try set( nuy1EditHandle, 'String', num2str(guim.usrdata.target.nuy1) );
-            catch set( nuy1EditHandle, 'String', ''); end
+            catch set( nuy1EditHandle, 'String', '0'); end
         end
     end
     % Weights
@@ -344,7 +344,18 @@ case 'Matcher'
    % Update the listbox
    listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
    updateListboxString( listboxHandle, guim.usrdata, 1 );   
-
+   
+case 'Global Search'
+   guim.GStargetmatcher();   
+   listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
+   updateListboxString( listboxHandle, guim.usrdata, 1 );  
+   
+case 'Multi-Objective'
+   guim.MOtargetmatcher();
+   listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
+   updateListboxString( listboxHandle, guim.usrdata, 1 );  
+   
+    
 case 'Coordinate'
    coordTextHandle = findobj( thisFig, 'Tag', 'CoordStaticText' );
    axesHandle = findAxes( thisFig );
@@ -477,26 +488,27 @@ case 'Kappa to Current'
             'SelectionMode','single',...
             'ListSize', [160 160], ...
             'ListString',msg);
+        
 case 'Draw Reference Trajectory'
-    usrdata = get( thisFig, 'UserData' );
+    %usrdata = get( thisFig, 'UserData' );
     % Draw on figure
     axesHandle = findAxes( thisFig );
     [xref,yref] = DrawReferenceTrajectory(axesHandle);
     % save in UserData
-    usrdata.xref = xref;
-    usrdata.yref = yref;
-    set( thisFig, 'UserData', usrdata );
+    guim.usrdata.target.xref = xref;
+    guim.usrdata.target.yref = yref;
+    % set( thisFig, 'UserData', usrdata );
     % Save new reference trajectory to file
     [filename, pathname] = uiputfile('*.txt', 'Save As');
     dlmwrite([pathname,filename],[xref,yref]);
     % Plot on axes
     hold on
-    if exist('href'), delete(href); end
-    href = plot(xref,yref,':k');
+    if isfield(guim.usrdata,'href'), delete(guim.usrdata.href); end
+    guim.usrdata.href = plot(xref,yref,':k');
     hold off
     
 case 'Load Reference Trajectory'
-    usrdata = get( thisFig, 'UserData' );    
+    %usrdata = get( thisFig, 'UserData' );    
     % load .txt file
     [filename, pathname] = uigetfile('*.txt', 'Open File');
     if( filename==0 ) return; end
@@ -505,13 +517,13 @@ case 'Load Reference Trajectory'
     temp =  importdata(filename);
     xref = temp(:,1); yref = temp(:,2);    
     % save in UserData
-    usrdata.xref = xref;
-    usrdata.yref = yref;
-    set( thisFig, 'UserData', usrdata );
+    guim.usrdata.target.xref = xref;
+    guim.usrdata.target.yref = yref;
+    %set( thisFig, 'UserData', usrdata );
     % Plot on axes
     hold on
-    if exist('href'), delete(href); end
-    href = plot(xref,yref,':k');
+    if isfield(guim.usrdata,'href'), delete(guim.usrdata.href); end
+    guim.usrdata.href = plot(xref,yref,':k');
     hold off
     
 otherwise
@@ -688,8 +700,8 @@ case 'OK'
    y1 = str2double( get( y1EditHandle, 'String' ) );
    xp1 = str2double( get( xp1EditHandle, 'String' ) );
    yp1 = str2double( get( yp1EditHandle, 'String' ) ); 
-   nux1 = str2double( get( nux1EditHandle, 'String' ) ); if isnan(nux1) nux1=[];end
-   nuy1 = str2double( get( nuy1EditHandle, 'String' ) ); if isnan(nuy1) nuy1=[];end
+   nux1 = str2double( get( nux1EditHandle, 'String' ) ); if isnan(nux1) nux1=0; end
+   nuy1 = str2double( get( nuy1EditHandle, 'String' ) ); if isnan(nuy1) nuy1=0; end
    if( isnan(x1) || isnan(y1) || isnan(xp1) || isnan(yp1) || x1<=0 || y1<=0 )
       errordlg( 'Target condition input error!', 'ERROR', 'modal' );
       return;   
@@ -890,9 +902,9 @@ if isfield(data,'target')
     end
 end
 % -- reference trajectory
-if isfield(data,'xref')
-    usrdata.xref = data.xref*1.e2;               % m->cm
-    usrdata.yref = data.yref*1.e2;               % m->cm
+if isfield(data.target,'xref')
+    usrdata.target.xref = data.target.xref*1.e2;               % m->cm
+    usrdata.target.yref = data.target.yref*1.e2;               % m->cm
 end
 %usrdata.xp1,usrdata.yp1,usrdata.xw,usrdata.yw,usrdata.xpw,usrdata.ypw,usrdata.maxIter,usrdata.tolFun
 
@@ -925,9 +937,9 @@ if isfield(data,'target')
         usrdata.target.D1 = data.target.D1*1.e-2;           % m->cm
     end
 end
-if isfield(data,'xref')
-    usrdata.xref = data.xref*1.e-2;               % m->cm
-    usrdata.yref = data.yref*1.e-2;               % m->cm
+if isfield(data.target,'xref')
+    usrdata.target.xref = data.target.xref*1.e-2;               % m->cm
+    usrdata.target.yref = data.target.yref*1.e-2;               % m->cm
 end
 %usrdata.xp1,usrdata.yp1,usrdata.xw,usrdata.yw,usrdata.xpw,usrdata.ypw,usrdata.maxIter,usrdata.tolFun
 
