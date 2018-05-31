@@ -22,9 +22,10 @@ kx=[]; ky=[]; % need to be initialized so they are available to all function wor
 irho = [];
 
 if allflag
-    % -- integrate
+    % -- integrate + save history
     [X,Y,XP,YP,D,DP] = integrate();
 else
+    % -- integrate but only save last step
     [X,Y,XP,YP,D,DP] = integrate_end();
 end
 
@@ -93,7 +94,7 @@ end
         
         % Steps
         for i=1:nsteps-1
-            kx = KX(i+1); ky = KY(i+1); irho = IRHO(1+1);
+            kx = KX(i+1); ky = KY(i+1); irho = IRHO(i+1);
             [x,y,xp,yp,d,dp] = step(x,y,xp,yp,d,dp);
         end
         

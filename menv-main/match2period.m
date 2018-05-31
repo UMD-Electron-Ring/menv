@@ -22,7 +22,7 @@ X = lsqnonlin( 'periodfunc', X,[],[],options );
 
 % -- another iterative optimization step to fine-tune
 % -- first set all weights equal
-[runtmp.weight.xw,runtmp.weight.yw,runtmp.weight.xpw,runtmp.weight.ypw] = deal(1);
+[runtmp.weight.xw,runtmp.weight.yw,runtmp.weight.xpw,runtmp.weight.ypw,runtmp.weight.Dw,runtmp.weight.Dpw] = deal(1);
 save 'runtmp' runtmp
 
 disp(' ');

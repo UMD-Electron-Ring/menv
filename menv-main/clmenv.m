@@ -52,6 +52,14 @@ classdef clmenv < handle
                 clm.thisFig = figure(); axes();
             else clm.thisFig = gcbf;
             end
+            
+            % -- initiate lattice array
+            clm.usrdata.ele = '';
+            clm.usrdata.loc = [];
+            clm.usrdata.len = [];
+            clm.usrdata.str = [];
+            clm.usrdata.irho = [];
+            clm.usrdata.opt = [];
         end
         
         
@@ -128,8 +136,7 @@ classdef clmenv < handle
         
         function clm = save( clm, filename )
             % Save clmenv memory to named file
-            usrdata = clm.usrdata;
-            save 'savetmp' usrdata
+            save 'savetmp' clm.usrdata
             fcopyfile( 'savetmp.mat', filename );
             delete( 'savetmp.mat' );
         end

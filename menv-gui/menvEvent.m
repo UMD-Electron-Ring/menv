@@ -14,6 +14,7 @@ function MainFigWndProc( thisFig, event )
 global guim
 switch( event )
 case 'Create'
+   set(gcbf,'DefaultFigureWindowStyle' , 'normal')
    usrdata = zeroMainUserData;
    guim = clmenv('nofig'); 
 %   set( thisFig, 'UserData', usrdata );
@@ -97,15 +98,15 @@ case 'Edit'
    locEditHandle = findobj( fig, 'Tag', 'LocationEditText' );
    lenEditHandle = findobj( fig, 'Tag', 'LengthEditText' );
    strEditHandle = findobj( fig, 'Tag', 'StrengthEditText' );
-   didEditHandle = findobj( fig, 'Tag', 'DiplIndexEditText' );
+   irhoEditHandle = findobj( fig, 'Tag', 'IrhoEditText' );
    locString = num2str( guim.usrdata.loc(item) );
    lenString = num2str( guim.usrdata.len(item) );
    strString = num2str( guim.usrdata.str(item) );
-   didString = num2str( guim.usrdata.did(item) );
+   try irhoString = num2str( guim.usrdata.irho(item) ); catch irhoString='0'; end
    set( locEditHandle, 'String', locString );
    set( lenEditHandle, 'String', lenString ); 
    set( strEditHandle, 'String', strString );
-   set( didEditHandle, 'String', didString );
+   set( irhoEditHandle, 'String', irhoString );
    optCheckboxHandle = findobj( fig, 'Tag', 'OptimCheckbox' );
    set( optCheckboxHandle, 'Value', guim.usrdata.opt(item) );
    % important in here to disable/enable some controls
@@ -133,7 +134,7 @@ case 'Delete'
    usrdata.loc = usrdata.loc(ind);
    usrdata.len = usrdata.len(ind);
    usrdata.str = usrdata.str(ind);
-   usrdata.did = usrdata.did(ind);
+   usrdata.irho = usrdata.irho(ind);
    usrdata.opt = usrdata.opt(ind);
    set( thisFig, 'UserData', usrdata );
    % Update the listbox
@@ -144,31 +145,35 @@ case 'Param'
    %set( fig, 'UserData', thisFig );
    %usrdata = get( thisFig, 'UserData' );
    % Initial conditions
-   if( ~isempty(guim.usrdata.ic.x0) )
+   if( isfield(guim.usrdata,'ic') )
       x0EditHandle = findobj( fig, 'Tag', 'X0EditText' );
       y0EditHandle = findobj( fig, 'Tag', 'Y0EditText' );
       xp0EditHandle = findobj( fig, 'Tag', 'XP0EditText' );
       yp0EditHandle = findobj( fig, 'Tag', 'YP0EditText' );
+      D0EditHandle = findobj( fig, 'Tag', 'D0EditText' );
+      Dp0EditHandle = findobj( fig, 'Tag', 'DP0EditText' );
       set( x0EditHandle, 'String', num2str(guim.usrdata.ic.x0) );
       set( y0EditHandle, 'String', num2str(guim.usrdata.ic.y0) );
       set( xp0EditHandle, 'String', num2str(guim.usrdata.ic.xp0) );
       set( yp0EditHandle, 'String', num2str(guim.usrdata.ic.yp0) );
+      set( D0EditHandle, 'String', num2str(guim.usrdata.ic.D0) );
+      set( Dp0EditHandle, 'String', num2str(guim.usrdata.ic.Dp0) );
    end
    % Global beam parameters
-   if( ~isempty(guim.usrdata.emitance) )
+   if( isfield(guim.usrdata,'emitance') )
       emitEditHandle = findobj( fig, 'Tag', 'EmitEditText' );
       set( emitEditHandle, 'String', num2str(guim.usrdata.emitance) );
    end
-   if( ~isempty(guim.usrdata.perveance) )
+   if( isfield(guim.usrdata,'perveance') )
       pvnEditHandle = findobj( fig, 'Tag', 'PvnEditText' );
       set( pvnEditHandle, 'String', num2str(guim.usrdata.perveance) );
    end
    % Numerical parameters
-   if( ~isempty(guim.usrdata.stepsize) )
+   if( isfield(guim.usrdata,'stepsize') )
       stepEditHandle = findobj( fig, 'Tag', 'StepEditText' );
       set( stepEditHandle, 'String', num2str(guim.usrdata.stepsize) );
    end
-   if( ~isempty(guim.usrdata.distance) )
+   if( isfield(guim.usrdata,'distance') )
       distEditHandle = findobj( fig, 'Tag', 'DistEditText' );
       set( distEditHandle, 'String', num2str(guim.usrdata.distance) );
    end
@@ -212,33 +217,62 @@ case 'Solution'
 %    axdata.nux = nux; axdata.nuy = nuy;
 %    set( axesHandle, 'UserData', axdata );   
 case 'MatcherParam'
-   fig = defMatcher;
-%   set( fig, 'UserData', thisFig );
-%   usrdata = get( thisFig, 'UserData' );
-   % Target conditions
-   if( ~isempty(guim.usrdata.target.x1) )
-      x1EditHandle = findobj( fig, 'Tag', 'X1EditText' );
-      y1EditHandle = findobj( fig, 'Tag', 'Y1EditText' );
-      xp1EditHandle = findobj( fig, 'Tag', 'XP1EditText' );
-      yp1EditHandle = findobj( fig, 'Tag', 'YP1EditText' );
-      set( x1EditHandle, 'String', num2str(guim.usrdata.target.x1) );
-      set( y1EditHandle, 'String', num2str(guim.usrdata.target.y1) );
-      set( xp1EditHandle, 'String', num2str(guim.usrdata.target.xp1) );
-      set( yp1EditHandle, 'String', num2str(guim.usrdata.target.yp1) );
-   end
-   % Weights
-   if( ~isempty(guim.usrdata.weights.xw) )
-      xwEditHandle = findobj( fig, 'Tag', 'XWEditText' );
-      ywEditHandle = findobj( fig, 'Tag', 'YWEditText' );
-      xpwEditHandle = findobj( fig, 'Tag', 'XPWEditText' );
-      ypwEditHandle = findobj( fig, 'Tag', 'YPWEditText' );
-      set( xwEditHandle, 'String', num2str(guim.usrdata.weights.xw) );
-      set( ywEditHandle, 'String', num2str(guim.usrdata.weights.yw) );
-      set( xpwEditHandle, 'String', num2str(guim.usrdata.weights.xpw) );
-      set( ypwEditHandle, 'String', num2str(guim.usrdata.weights.ypw) );
-   end
+    fig = defMatcher;
+    %   set( fig, 'UserData', thisFig );
+    %   usrdata = get( thisFig, 'UserData' );
+    % Target conditions
+    if( isfield(guim.usrdata,'target') )
+        if( isfield(guim.usrdata.target,'x1') )
+            x1EditHandle = findobj( fig, 'Tag', 'X1EditText' );
+            y1EditHandle = findobj( fig, 'Tag', 'Y1EditText' );
+            xp1EditHandle = findobj( fig, 'Tag', 'XP1EditText' );
+            yp1EditHandle = findobj( fig, 'Tag', 'YP1EditText' );
+            nux1EditHandle = findobj( fig, 'Tag', 'nux1EditText' );
+            nuy1EditHandle = findobj( fig, 'Tag', 'nuy1EditText' );
+            set( x1EditHandle, 'String', num2str(guim.usrdata.target.x1) );
+            set( y1EditHandle, 'String', num2str(guim.usrdata.target.y1) );
+            set( xp1EditHandle, 'String', num2str(guim.usrdata.target.xp1) );
+            set( yp1EditHandle, 'String', num2str(guim.usrdata.target.yp1) );
+            try set( nux1EditHandle, 'String', num2str(guim.usrdata.target.nux1) );
+            catch set( nux1EditHandle, 'String', ''); end
+            try set( nuy1EditHandle, 'String', num2str(guim.usrdata.target.nuy1) );
+            catch set( nuy1EditHandle, 'String', ''); end
+        end
+    end
+    % Weights
+    if( isfield(guim.usrdata,'weights') )
+        if( isfield(guim.usrdata.weights,'xw') )
+            xwEditHandle = findobj( fig, 'Tag', 'XWEditText' );
+            ywEditHandle = findobj( fig, 'Tag', 'YWEditText' );
+            xpwEditHandle = findobj( fig, 'Tag', 'XPWEditText' );
+            ypwEditHandle = findobj( fig, 'Tag', 'YPWEditText' );
+            DwEditHandle = findobj( fig, 'Tag', 'DwEditText' );
+            DpwEditHandle = findobj( fig, 'Tag', 'DpwEditText' );
+            nuxwEditHandle = findobj( fig, 'Tag', 'nuxwEditText' );
+            nuywEditHandle = findobj( fig, 'Tag', 'nuywEditText' );
+            betawEditHandle = findobj( fig, 'Tag', 'betawEditText' );
+            refwEditHandle = findobj( fig, 'Tag', 'refwEditText' );
+            set( xwEditHandle, 'String', num2str(guim.usrdata.weights.xw) );
+            set( ywEditHandle, 'String', num2str(guim.usrdata.weights.yw) );
+            set( xpwEditHandle, 'String', num2str(guim.usrdata.weights.xpw) );
+            set( ypwEditHandle, 'String', num2str(guim.usrdata.weights.ypw) );
+            % -- optional weights set to 0 if un-used
+            try set( DwEditHandle, 'String', num2str(guim.usrdata.weights.Dw) );
+            catch set( DwEditHandle, 'String', 0); end
+            try set( DpwEditHandle, 'String', num2str(guim.usrdata.weights.Dpw) );
+            catch set( DpwEditHandle, 'String', 0); end
+            try set( nuxwEditHandle, 'String', num2str(guim.usrdata.weights.nuxw) );
+            catch set( nuxwEditHandle, 'String', 0); end
+            try set( nuywEditHandle, 'String', num2str(guim.usrdata.weights.nuyw) );
+            catch set( nuywEditHandle, 'String', 0); end
+            try set( betawEditHandle, 'String', num2str(guim.usrdata.weights.betaw) );
+            catch set( betawEditHandle, 'String', 0); end
+            try set( refwEditHandle, 'String', num2str(guim.usrdata.weights.refw) );
+            catch set( refwEditHandle, 'String', 0); end
+        end
+    end
    % iterations
-   if( ~isempty(guim.usrdata.maxIter) )
+   if( isfield(guim.usrdata,'maxIter') )
       maxIterEditHandle = findobj( fig, 'Tag', 'MaxIterEditText' );
       tolFunEditHandle = findobj( fig, 'Tag', 'TolFunEditText' );
       set( maxIterEditHandle, 'String', num2str(guim.usrdata.maxIter) );
@@ -493,17 +527,17 @@ case 'OK'
    locEditHandle = findobj( thisFig, 'Tag', 'LocationEditText' );
    lenEditHandle = findobj( thisFig, 'Tag', 'LengthEditText' );
    strEditHandle = findobj( thisFig, 'Tag', 'StrengthEditText' );
-   didEditHandle = findobj( thisFig, 'Tag', 'DiplIndexEditText' );
+   irhoEditHandle = findobj( thisFig, 'Tag', 'IrhoEditText' );
    element = get( elePopupmenuHandle, 'Value' );
    locString = get( locEditHandle, 'String' );
    lenString = get( lenEditHandle, 'String' );
    strString = get( strEditHandle, 'String' );
-   didString = get( didEditHandle, 'String' );
+   irhoString = get( irhoEditHandle, 'String' );
    location = str2double( locString );
    length = str2double( lenString );
    strength = str2double( strString );
-   diplindex = str2double( didString );
-   if( isnan(location) || isnan(length) || isnan(strength) || (element==3 && isnan(diplindex)) )
+   invrho = str2double( irhoString );
+   if( isnan(location) || isnan(length) || isnan(strength) || (element==3 && isnan(invrho)) )
       errordlg( 'Some input parameters are not numbers!', 'ERROR', 'modal' );
       return;
    end
@@ -516,10 +550,10 @@ case 'OK'
    % 1:Quad; 2:Sol; 3:Dipl
    if( element==1 )
       element = 'Q';
-      diplindex = 0;
+      invrho = 0;
    elseif( element==2 )
       element = 'S';
-      diplindex = 0;
+      invrho = 0;
    else
       element = 'D';
       optim = 0; % disable optim for Dipl
@@ -530,7 +564,7 @@ case 'OK'
       guim.usrdata.loc = [guim.usrdata.loc location];
       guim.usrdata.len = [guim.usrdata.len length];
       guim.usrdata.str = [guim.usrdata.str strength];
-      guim.usrdata.did = [guim.usrdata.did diplindex];
+      guim.usrdata.irho = [guim.usrdata.irho invrho];
       guim.usrdata.opt = [guim.usrdata.opt optim];
    else
       item = guim.usrdata.flag;
@@ -538,7 +572,7 @@ case 'OK'
       guim.usrdata.loc(item) = location;
       guim.usrdata.len(item) = length;
       guim.usrdata.str(item) = strength;
-      guim.usrdata.did(item) = diplindex;
+      guim.usrdata.irho(item) = invrho;
       guim.usrdata.opt(item) = optim;
    end
    % Find who is the item that we are editing or inserting
@@ -554,7 +588,7 @@ case 'OK'
    guim.usrdata.ele = guim.usrdata.ele(ind);
    guim.usrdata.len = guim.usrdata.len(ind);
    guim.usrdata.str = guim.usrdata.str(ind);
-   guim.usrdata.did = guim.usrdata.did(ind);
+   guim.usrdata.irho = guim.usrdata.irho(ind);
    guim.usrdata.opt = guim.usrdata.opt(ind);
    % Save
 %   set( mainFigHandle, 'UserData', usrdata );
@@ -566,17 +600,17 @@ case 'Cancel'
    close( thisFig );
 case 'ElementChange'
    elePopupmenuHandle = findobj( thisFig, 'Tag', 'ElementPopupMenu' );
-   didEditHandle = findobj( thisFig, 'Tag', 'DiplIndexEditText' );
+   irhoEditHandle = findobj( thisFig, 'Tag', 'IrhoEditText' );
    optCheckboxHandle = findobj( thisFig, 'Tag', 'OptimCheckbox' );
    element = get( elePopupmenuHandle, 'Value' );
    if( element==3 ) % Dipl
       set( optCheckboxHandle, 'Enable', 'off' );
-      set( didEditHandle, 'Enable', 'on' );
-      set( didEditHandle, 'BackgroundColor', [1 1 1] ); % white
+      set( irhoEditHandle, 'Enable', 'on' );
+      set( irhoEditHandle, 'BackgroundColor', [1 1 1] ); % white
    else
       set( optCheckboxHandle, 'Enable', 'on' );
-      set( didEditHandle, 'Enable', 'off' );
-      set( didEditHandle, 'BackgroundColor', [0.7529 0.7529 0.7529] ); % gray      
+      set( irhoEditHandle, 'Enable', 'off' );
+      set( irhoEditHandle, 'BackgroundColor', [0.7529 0.7529 0.7529] ); % gray      
    end
 end
 
@@ -589,15 +623,20 @@ case 'OK'
    x0EditHandle = findobj( thisFig, 'Tag', 'X0EditText' );
    y0EditHandle = findobj( thisFig, 'Tag', 'Y0EditText' );
    xp0EditHandle = findobj( thisFig, 'Tag', 'XP0EditText' );
-   yp0EditHandle = findobj( thisFig, 'Tag', 'YP0EditText' );   
+   yp0EditHandle = findobj( thisFig, 'Tag', 'YP0EditText' ); 
+   D0EditHandle = findobj( thisFig, 'Tag', 'D0EditText' );
+   Dp0EditHandle = findobj( thisFig, 'Tag', 'DP0EditText' ); 
    x0 = str2double( get( x0EditHandle, 'String' ) );
    y0 = str2double( get( y0EditHandle, 'String' ) );
    xp0 = str2double( get( xp0EditHandle, 'String' ) );
    yp0 = str2double( get( yp0EditHandle, 'String' ) );   
-   if( isnan(x0) || isnan(y0) || isnan(xp0) || isnan(yp0) || x0<=0 || y0<=0 )
+   D0 = str2double( get( D0EditHandle, 'String' ) );
+   Dp0 = str2double( get( Dp0EditHandle, 'String' ) );   
+   if( isnan(x0) || isnan(y0) || isnan(xp0) || isnan(yp0) || isnan(D0) || isnan(Dp0) ||x0<=0 || y0<=0 )
       errordlg( 'Initial condition input error!', 'ERROR', 'modal' );
       return;   
    end
+   
    % Global beam parameters
    emitEditHandle = findobj( thisFig, 'Tag', 'EmitEditText' );
    pvnEditHandle = findobj( thisFig, 'Tag', 'PvnEditText' );
@@ -625,6 +664,8 @@ case 'OK'
    guim.usrdata.ic.y0 = y0;
    guim.usrdata.ic.xp0 = xp0;
    guim.usrdata.ic.yp0 = yp0;
+   guim.usrdata.ic.D0 = D0;
+   guim.usrdata.ic.Dp0 = Dp0;
    guim.usrdata.stepsize = stepsize;
    guim.usrdata.distance = distance;
 %   set( mainFigHandle, 'UserData', usrdata );
@@ -641,10 +682,14 @@ case 'OK'
    y1EditHandle = findobj( thisFig, 'Tag', 'Y1EditText' );
    xp1EditHandle = findobj( thisFig, 'Tag', 'XP1EditText' );
    yp1EditHandle = findobj( thisFig, 'Tag', 'YP1EditText' );   
+   nux1EditHandle = findobj( thisFig, 'Tag', 'nux1EditText' );
+   nuy1EditHandle = findobj( thisFig, 'Tag', 'nuy1EditText' ); 
    x1 = str2double( get( x1EditHandle, 'String' ) );
    y1 = str2double( get( y1EditHandle, 'String' ) );
    xp1 = str2double( get( xp1EditHandle, 'String' ) );
-   yp1 = str2double( get( yp1EditHandle, 'String' ) );   
+   yp1 = str2double( get( yp1EditHandle, 'String' ) ); 
+   nux1 = str2double( get( nux1EditHandle, 'String' ) );
+   nuy1 = str2double( get( nuy1EditHandle, 'String' ) );
    if( isnan(x1) || isnan(y1) || isnan(xp1) || isnan(yp1) || x1<=0 || y1<=0 )
       errordlg( 'Target condition input error!', 'ERROR', 'modal' );
       return;   
@@ -653,12 +698,24 @@ case 'OK'
    xwEditHandle = findobj( thisFig, 'Tag', 'XWEditText' );
    ywEditHandle = findobj( thisFig, 'Tag', 'YWEditText' );
    xpwEditHandle = findobj( thisFig, 'Tag', 'XPWEditText' );
-   ypwEditHandle = findobj( thisFig, 'Tag', 'YPWEditText' );   
+   ypwEditHandle = findobj( thisFig, 'Tag', 'YPWEditText' );
+   DwEditHandle = findobj( thisFig, 'Tag', 'DwEditText' );
+   DpwEditHandle = findobj( thisFig, 'Tag', 'DpwEditText' );  
+   nuxwEditHandle = findobj( thisFig, 'Tag', 'nuxwEditText' );
+   nuywEditHandle = findobj( thisFig, 'Tag', 'nuywEditText' );  
+   betawEditHandle = findobj( thisFig, 'Tag', 'betawEditText' );
+   refwEditHandle = findobj( thisFig, 'Tag', 'refwEditText' ); 
    xw = str2double( get( xwEditHandle, 'String' ) );
    yw = str2double( get( ywEditHandle, 'String' ) );
    xpw = str2double( get( xpwEditHandle, 'String' ) );
-   ypw = str2double( get( ypwEditHandle, 'String' ) );   
-   if( isnan(xw) || isnan(yw) || isnan(xpw) || isnan(ypw) || xw<=0 || yw<=0 || xpw<=0 || ypw<=0 )
+   ypw = str2double( get( ypwEditHandle, 'String' ) );
+   Dw = str2double( get( DwEditHandle, 'String' ) ); if isnan(Dw) Dw=0; end
+   Dpw = str2double( get( DpwEditHandle, 'String' ) ); if isnan(Dpw) Dpw=0; end
+   nuxw = str2double( get( nuxwEditHandle, 'String' ) );if isnan(nuxw) nuxw=0; end
+   nuyw = str2double( get( nuywEditHandle, 'String' ) );  if isnan(nuyw) nuyw=0; end
+   betaw = str2double( get( betawEditHandle, 'String' ) );if isnan(betaw) betaw=0; end
+   refw = str2double( get( refwEditHandle, 'String' ) ); if isnan(refw) refw=0; end
+   if( isnan(xw) || isnan(yw) || isnan(xpw) || isnan(ypw) || xw<0 || yw<0 || xpw<0 || ypw<0 )
       errordlg( 'Weights input error', 'ERROR', 'modal' );
       return;   
    end
@@ -682,6 +739,13 @@ case 'OK'
    guim.usrdata.weights.yw = yw;
    guim.usrdata.weights.xpw = xpw;
    guim.usrdata.weights.ypw = ypw;
+   % -- optional weights
+   guim.usrdata.weights.Dw = Dw; 
+   guim.usrdata.weights.Dpw = Dpw; 
+   guim.usrdata.weights.nuxw = nuxw; 
+   guim.usrdata.weights.nuyw = nuyw; 
+   guim.usrdata.weights.betaw = betaw;
+   guim.usrdata.weights.refw = refw;
    guim.usrdata.maxIter = maxIter;
    guim.usrdata.tolFun = tolFun;   
 %   set( mainFigHandle, 'UserData', usrdata );
@@ -703,7 +767,7 @@ for i=1:n
    elseif( usrdata.ele(i)=='S' ) ele='Sol';
    else ele='Dipl'; end
    if( usrdata.opt(i) ) ele=[ele '*']; end
-   itemString = sprintf('%-7s%-8.3f  %-8.3f  %-12.6f',ele,usrdata.loc(i),usrdata.len(i),usrdata.str(i) );
+   itemString = sprintf('%-7s%-8.3f  %-8.3f  %-12.6f %-8.3f',ele,usrdata.loc(i),usrdata.len(i),usrdata.str(i),usrdata.irho(i) );
    listboxString(i) = { itemString };
 end
 set( listboxHandle, 'String', listboxString );
@@ -757,7 +821,7 @@ usrdata = struct( ...
    'loc',[], ...
    'len',[], ...
    'str',[], ...
-   'did',[], ...
+   'irho',[], ...
    'opt',[], ...
    'x1',[], ...
    'y1',[], ...
@@ -767,6 +831,12 @@ usrdata = struct( ...
    'yw',1.0, ...
    'xpw',1.0, ...
    'ypw',1.0, ...
+   'Dw',0.0, ...
+   'Dpw',0.0, ...
+   'nuxw',0.0, ...
+   'nuyw',0.0, ...
+   'betaw',0.0, ...
+   'refw',0.0, ...
    'xref',[], ...
    'yref',[], ...
    'maxIter',20, ...
@@ -809,7 +879,11 @@ usrdata.len = data.len*1.e2;             % m->cm
 if isfield(data,'target')
     usrdata.target.x1 = data.target.x1*1.e2;               % m->cm
     usrdata.target.y1 = data.target.y1*1.e2;               % m->cm
+    if isfield(data.target,'D1')
+        usrdata.target.D1 = data.target.D1*1.e2;           % m->cm
+    end
 end
+% -- reference trajectory
 if isfield(data,'xref')
     usrdata.xref = data.xref*1.e2;               % m->cm
     usrdata.yref = data.yref*1.e2;               % m->cm
@@ -841,6 +915,9 @@ usrdata.len = data.len*1.e-2;             % cm->m
 if isfield(data,'target')
     usrdata.target.x1 = data.target.x1*1.e-2;               % cm->m
     usrdata.target.y1 = data.target.y1*1.e-2;               % cm->m
+    if isfield(data.target,'D1')
+        usrdata.target.D1 = data.target.D1*1.e-2;           % m->cm
+    end
 end
 if isfield(data,'xref')
     usrdata.xref = data.xref*1.e-2;               % m->cm

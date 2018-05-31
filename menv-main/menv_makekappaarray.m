@@ -16,7 +16,6 @@ ele = runtmp.ele;      % element: 'Q'/'S'
 loc = runtmp.loc;      % locations
 len = runtmp.len;      % effective length
 str = runtmp.str;      % strength (kappa)
-dipl_n = runtmp.did;   % diple field index
 try % -- irho is not defined for old .spt files, if undefined use 0-array 
     irho = runtmp.irho;    % inverse bend radius
 catch
