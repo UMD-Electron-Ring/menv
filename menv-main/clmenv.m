@@ -255,7 +255,7 @@ classdef clmenv < handle
             target.y1 = targetlist(2);
             target.xp1 = targetlist(3);
             target.yp1 = targetlist(4);
-            try
+            try % -- right now these won't get used for anything since we don't vary dipole strength
                 target.D1 = targetlist(5);
                 target.Dp1 = targetlist(6);
             catch
