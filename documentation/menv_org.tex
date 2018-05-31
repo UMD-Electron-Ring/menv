@@ -98,4 +98,34 @@ stepfuncMO 	& Function used in each optimization step in ``MOmatcher" \\
 Also in the ``beta/" folder, I include routines ``skewstep.m" and ``skew\_test.m." Apparently at some point there was an attempt to include skew-coupling terms in the envelope integration. I cannot speak to the accuracy or robustness of this code, but I preserve it in case it is ever pursued again. 
 
 
+\subsection{UMER utilities}
+
+Some routines specific to UMER have been added for convenience. These are stored in folder ``UMER-utils/". The Current2Kappa and converse function allow for the specification of elements 'Y' (enlarged Y-section quad) and 'P' (enlarged Y-section dipole) and will use appropriate conversion factors for the quadrupole focusing gradients in each. This is beyond the standard elements 'D', 'Q', and 'S' (dipole, quad, solenoid). For all elements, it is up to the user to specify the correct hard-edged model lengths. 
+
+% -- table for umer-utils
+\begin{table}[htb]
+\centering
+\caption{UMER utilities included in MENV}
+\label{tab:menv-umer}
+\vspace{10pt}
+\begin{tabularx}{\textwidth}{l X}
+\hline
+ Name & Purpose \\
+\hline
+Current2Kappa 	& Convert Current [A] to Kappa value [$m^{-2}$]. \\
+				& Uses Bernal 2006 numbers for HE magnets. \\ 
+				& \\
+Kappa2Current 	& Converse of above \\ 
+				& \\
+Gauss2Kappa 	& Convert field value [Gauss] to Kappa value [$m^{-2}$]. \\ 
+				& \\
+Kappa2Gauss 	& Converse of above \\ 
+				& \\
+getBeamMenvParam& Returns initial conditions for UMER beams\\
+				& based on python script Ubeams.py used in WARP decks. \\
+				& contributed by Ben Cannon \\
+\hline
+\end{tabularx}
+\end{table}
+
 \end{document}

@@ -41,6 +41,13 @@ function [xpp1,ypp1,dpp1] = calc_prim2(x1,y1,d1)
 end
 \end{lstlisting}
 
+\subsubsection{Edge Focusing}
+
+Special consideration of dipole edge-focusing has to be made to accurately model UMER dynamics. In MENV, the edge focusing term is included as a hard-edged quadrupole with the same length as the dipole. The strength is not set automatically (ie, by setting a bend-angle), but an appropriate number must be determined by the user. 
+ 
+MENV allows for an asymmetry to be built into the horizontal and vertical edge-focusing, as separate gradient arrays are stored for each plane (\verb|KX| and \verb|KY|). The vertical focusing strength is set to the value chosen by the user for the quadrupole gradient strength at the dipole, while the horizontal focusing is defined as a scalar times this value. By default, the multiplicative factor is set to 0. No net horizontal focusing will be applied, following the argument that geometric focusing perfectly cancels the edge-defocusing in a sector dipole. 
+
+If you want to include the additional horizontal focusing observed in UMER dipoles due to sextupole terms (Kishek, R., \& Cornacchia, M. (2010). Tech. Note, Modeling of UMER Dipoles.), you will need to change the scaling parameter \verb|Dffx| that appears around line 30 in ``menv\_makekappaarray.m".
 
 \section{Running MENV from the GUI}
 
