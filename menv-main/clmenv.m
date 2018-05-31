@@ -642,7 +642,7 @@ classdef clmenv < handle
             
             clm.usrdata = runtmp;
             % Update figure
-            clm.solve()
+            clm.solve();
         end
         
         function clm = targetmatcher(clm)
@@ -696,7 +696,7 @@ classdef clmenv < handle
             clm.usrdata = runtmp;
             
             % Update figure
-            clm.solve()
+            clm.solve();
         end
         
         
@@ -747,7 +747,7 @@ classdef clmenv < handle
             clm.usrdata = runtmp;
             
             % Update figure
-            clm.solve()
+            clm.solve();
         end
         
         function clm = MOmatcher(clm)
@@ -797,7 +797,7 @@ classdef clmenv < handle
             clm.usrdata = runtmp;
             
             % Update figure
-            clm.solve()
+            clm.solve();
         end
         
     end

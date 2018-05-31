@@ -2,7 +2,7 @@ function menvEvent( event )
 switch( get(gcbf,'Tag') )
 case 'MainFig'
    MainFigWndProc( gcbf, event );
-case 'DefElementFig'
+case 'DefElementFmaig'
    DefElementWndProc( gcbf, event );
 case 'DefParamFig'
    DefParamWndProc( gcbf, event );
@@ -178,7 +178,7 @@ case 'Param'
       set( distEditHandle, 'String', num2str(guim.usrdata.distance) );
    end
 case 'Solution'
-    guim.solve()
+    guim.solve();
 %    runtmp = guim.usrdata; %get( thisFig, 'UserData' );
 %    % only check one parameter is enough
 %    if( isempty(runtmp.ic.x0) )
@@ -279,7 +279,7 @@ case 'MatcherParam'
       set( tolFunEditHandle, 'String', num2str(guim.usrdata.tolFun) );
    end
 case 'Run Periodic Matcher'
-    guim.periodicmatcher()
+    guim.periodicmatcher();
 % %   usrdata = get( thisFig, 'UserData' );
 %    % only check one parameter is enough
 %    if( isempty(guim.usrdata.ic.x0) )
@@ -309,7 +309,7 @@ case 'Run Periodic Matcher'
 %    % Update figure
 %    menvEvent( 'Solution' );
 case 'Matcher'
-    guim.targetmatcher()
+    guim.targetmatcher();
 %    usrdata = get( thisFig, 'UserData' );
 %    % only check one parameter is enough
 %    if( isempty(guim.usrdata.ic.x0) )
@@ -688,8 +688,8 @@ case 'OK'
    y1 = str2double( get( y1EditHandle, 'String' ) );
    xp1 = str2double( get( xp1EditHandle, 'String' ) );
    yp1 = str2double( get( yp1EditHandle, 'String' ) ); 
-   nux1 = str2double( get( nux1EditHandle, 'String' ) );
-   nuy1 = str2double( get( nuy1EditHandle, 'String' ) );
+   nux1 = str2double( get( nux1EditHandle, 'String' ) ); if isnan(nux1) nux1=[];end
+   nuy1 = str2double( get( nuy1EditHandle, 'String' ) ); if isnan(nuy1) nuy1=[];end
    if( isnan(x1) || isnan(y1) || isnan(xp1) || isnan(yp1) || x1<=0 || y1<=0 )
       errordlg( 'Target condition input error!', 'ERROR', 'modal' );
       return;   
@@ -731,10 +731,15 @@ case 'OK'
    % Find the shared userdata
 %   mainFigHandle = get( thisFig, 'UserData' );
 %   usrdata = get( mainFigHandle, 'UserData' );
+   % -- targets
    guim.usrdata.target.x1 = x1;
    guim.usrdata.target.y1 = y1;
    guim.usrdata.target.xp1 = xp1;
    guim.usrdata.target.yp1 = yp1;
+   % -- optional targets
+   guim.usrdata.target.nux1 = nux1;
+   guim.usrdata.target.nuy1 = nuy1;
+   % -- weights
    guim.usrdata.weights.xw = xw;
    guim.usrdata.weights.yw = yw;
    guim.usrdata.weights.xpw = xpw;
@@ -746,6 +751,7 @@ case 'OK'
    guim.usrdata.weights.nuyw = nuyw; 
    guim.usrdata.weights.betaw = betaw;
    guim.usrdata.weights.refw = refw;
+   % -- matcher settings
    guim.usrdata.maxIter = maxIter;
    guim.usrdata.tolFun = tolFun;   
 %   set( mainFigHandle, 'UserData', usrdata );
