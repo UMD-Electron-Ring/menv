@@ -402,7 +402,9 @@ classdef clmenv < handle
                 clm.usrdata.len = lat.len;
                 clm.usrdata.str = lat.str;
                 clm.usrdata.opt = lat.opt;
+                try
                 clm.usrdata.did = lat.did;
+                end
                 try
                     clm.usrdata.irho = lat.irho;
                 catch
@@ -415,13 +417,7 @@ classdef clmenv < handle
                 clm.usrdata.len = varargin{3};
                 clm.usrdata.str = varargin{4};
                 clm.usrdata.opt = varargin{5};
-                clm.usrdata.did = varargin{6};
-                try
-                    clm.usrdata.irho = varargin{7};
-                catch
-                    clm.usrdata.irho = 0*varargin{4};
-                    warning('Bending radius not defined for elements')
-                end
+                clm.usrdata.irho = varargin{6};
             end
             
         end
@@ -506,7 +502,6 @@ classdef clmenv < handle
             loc = zeros(1,nele);
             len = zeros(1,nele);
             str = zeros(1,nele);
-            did = zeros(1,nele);
             opt = zeros(1,nele);
             irho = zeros(1,nele);
             
@@ -520,7 +515,6 @@ classdef clmenv < handle
                 loc(i) = 8 + 16*(i-1);
                 len(i) = qlen;
                 str(i) = qstr * (-2*mod(i,2)+1);
-                did(i) = 0;
                 opt(i) = 0;
             end
             
@@ -529,7 +523,6 @@ classdef clmenv < handle
                 loc(i+nQ) = 16 + 32*(i-1);
                 len(i+nQ) = dlen;
                 str(i+nQ) = dstr;
-                did(i+nQ) = 0.0; % deprecated
                 opt(i+nQ) = 0;
                 irho(i+nQ) = 1/rho;
             end
@@ -539,7 +532,6 @@ classdef clmenv < handle
             
             len = len(isort);
             str = str(isort);
-            did = did(isort);
             opt = opt(isort);
             irho = irho(isort);
             
@@ -547,7 +539,6 @@ classdef clmenv < handle
             lat.len = len;
             lat.loc = loc;
             lat.str = str;
-            lat.did = did;
             lat.opt = opt;
             lat.irho = irho;
             
@@ -739,7 +730,7 @@ classdef clmenv < handle
             save 'runtmp' runtmp;
             
             % Run ......
-            [newKappa] = GSmatch2target( 'runtmp' );
+            [newKappa] = GSmatch2target( );
             
             % Save the new result
             [~,n] = size( runtmp.loc ); k = 1;
@@ -789,7 +780,7 @@ classdef clmenv < handle
             save 'runtmp' runtmp;
             
             % Run ......
-            [newKappa] = MOmatch2target( 'runtmp' );
+            [newKappa] = MOmatch2target( );
             
             % Save the new result
             [~,n] = size( runtmp.loc ); k = 1;
@@ -835,7 +826,6 @@ usrdata = struct( ...
     'loc',[], ...
     'len',[], ...
     'str',[], ...
-    'did',[], ...
     'opt',[], ...
     'x1',[], ...
     'y1',[], ...

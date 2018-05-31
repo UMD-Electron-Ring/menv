@@ -26,17 +26,12 @@ opt = runtmp.opt;      % flag to use element in optimization
 % distance-array(d)
 d = [0:nsteps-1]*ds + min_d;
 
-% fudge factors (base don bench-marking with WARP bgrd elements
-% Qffx = 0.955;
-% Qffy = 0.935;
-% Dffx = 1.9687;
-% Dffy = 1;
-
 Qffx = 1;
 Qffy = 1;
-Dffx = .5*.146/.556; % -- horz focusing is weaker than vert. focusing. From RK dipole note + 2010 online table
+Dffx = 0; % -- horz defocusing canceled by geom. focusing
+%Dffx = .5*.146/.556; % -- horz defocusing is weaker than vert. focusing. From RK dipole note + 2010 online table
 Dffy = 1;
-PDffx = 0.00/0.0410; % -- horz focusing is weaker than vert. focusing. From RK dipole note + 2010 online table
+PDffx = 0.00/0.0410; % -- horz defocusing is weaker than vert. focusing. From RK dipole note + 2010 online table
 PDffy = 1;
 
 

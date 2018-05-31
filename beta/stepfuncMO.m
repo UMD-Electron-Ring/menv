@@ -1,29 +1,29 @@
 function f =  stepfuncMO( X )
 
-load 'runtmp';
+% Update kappa for this step
+menv_updatekappaarray(X)
 
-KX = runtmp.KX;
-KY = runtmp.KY;
-nsteps = round(runtmp.distance/runtmp.stepsize) +1;
+% -- load lattice model parameters
+load 'lattmp'
+IRHO = lattmp.IRHO;
+KX = lattmp.KX;
+KY = lattmp.KY;
+loc1 = lattmp.loc1;
+loc2 = lattmp.loc2;
+OPT_ELE = lattmp.OPT_ELE;
+nsteps = lattmp.nsteps;
 
-% Evaluate kappa
-for i=1:length( X )
-for i=1:length( X )
-    if OPT_ELE(i)=='S'
-        KX( loc1(i):loc2(i) ) = X(i); %0.96891*X(i);
-        KY( loc1(i):loc2(i) ) = X(i); %-X(i);
-    elseif OPT_ELE(i)=='Q'
-        KX( loc1(i):loc2(i) ) = 0.955*X(i);
-        KY( loc1(i):loc2(i) ) = -0.935*X(i);
-    elseif ele(i)=='D'
-        KX( loc1(i):loc2(i) ) = 1.9687*X(i)*(1-dipl_n(i));
-        KY( loc1(i):loc2(i) ) = X(i)*dipl_n(i);
-    end
-end;
+% -- load runtmp (just use emitance and stepsize, in SI units)
+load 'runtmp'
+K = runtmp.perveance; % Perveance
+Ex = runtmp.emitance; % Emmitance x
+Ey = Ex;
+ds = runtmp.stepsize;
 
-% -- integrate
-ic = [runtmp.x0,runtmp.y0,runtmp.xp0,runtmp.yp0]; % initial conditions
-[x,y,xp,yp] = envintegrator(KX,KY,ic,runtmp.stepsize,nsteps,1);
+% -- integrate envelope
+ic = runtmp.ic;
+[x,y,xp,yp,D,Dp] = menv_integrator(Ex,Ey,K,KX,KY,IRHO,ic,ds,1);
+
 
 % -- calculate tune values
 Lchan = 32;
