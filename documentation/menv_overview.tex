@@ -13,13 +13,23 @@ MENV can be run from the command line (``clmenv.m") or GUI (``menv.m"). The GUI 
 To access the GUI, call \verb|menv| from the Matlab command line. The dependencies of \verb|menv| are listed below:
 
 \begin{itemized}
-\item menv.m :: Contains code for creating main GUI window
-\item menv.mat
+\item menv.m :: Code for creating main GUI window
+\item defElement.m :: Code for creating element insert/edit GUI window
+\item defParam.m :: Code for creating beam parameter GUI window
+\item defMatcher.m :: Code for creating matcher parameter GUI window
+\item ImportOpt.m :: 
+\item prepareMenu.m :: Code for creating menus on main GUI window
 \item menvEvent.m :: Contains code for interpreting commands sent by the GUI window
 \item clmenv.m :: Contains many of the upper level routines, called by some of the commands in menvEvent.m
 \end{itemized}
 
-The parameters and settings for the current run are stored in the global object \verb|guim|.
+It should be noted that GUI MENV was written following (presumably) older Matlab guidelines in which GUI data is stored in a .mat file as opposed to a .fig file.
+
+\subsubsection{Running GUI}
+
+The GUI can be launched by executing the command \verb|menv| from the Matlab command line. Prior to running MENV, make sure that all files in the MENV directory are in the Matlab path (run \verb|setpath| from the command line). This will launch a GUI window.
+
+The parameters and settings for the current run are stored in the global object \verb|guim|. As this is a global variable that does not have a unique name for each instance of MENV, only one instance of MENV may be run at a time (you can launch two, but data from the most recent instance will overwrite data in the older instance). If you want to run parallel MENV instances, you need to run separate Matlab instances as well.
 
 
 \subsection{Command-Line MENV}

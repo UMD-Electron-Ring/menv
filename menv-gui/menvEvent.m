@@ -14,7 +14,6 @@ function MainFigWndProc( thisFig, event )
 global guim
 switch( event )
 case 'Create'
-   set(gcbf,'DefaultFigureWindowStyle' , 'normal')
    usrdata = zeroMainUserData;
    guim = clmenv('nofig'); 
 %   set( thisFig, 'UserData', usrdata );
