@@ -14,6 +14,7 @@ More information is in documentation/menvdoc.pdf
 # UPDATES
 
 An updated version has now been merged with the master branch. Updated features include: 
+* scriptable command-line version
 * now includes dispersion calculations based on bending radius in dipoles
 * A reference trajectory can be defined and used as a target for optimization routines
 * Global search and multi-objective optimization algorithms are now included in addition to the nonlinear-least-squares fitting routine previously used
