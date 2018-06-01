@@ -38,7 +38,7 @@ Cy = -1/(4*pi)*sum(KY.*betay)*ds;
 
 
 
-% add text to figure -- display tunes
+% -- add text to figure -- display tunes
 % axesHandle = findobj( gcf, 'Type', 'axes' );
 % axdata = get( axesHandle(1), 'UserData' );
 % if( axdata.handle(5)~=0 ) delete(axdata.handle(5)); end;

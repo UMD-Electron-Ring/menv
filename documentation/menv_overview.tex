@@ -8,12 +8,12 @@
 
 MENV can be run from the command line (``clmenv.m") or GUI (``menv.m"). The GUI and original MENV functions were written by Hui Li. Kiersten added the command line functionality, and copied over much of Hui Li's original code into \verb|clmenv|. 
 
-\section{Envelope integrator}
+\subsection{Envelope integrator}
 
 MENV integrates the KV envelope equations in X and Y:
 
 \begin{equation}
-X''=-K_X X - \frac{2\mathit{K}}{X+Y} + \frac{E_X^2}{X^3}
+X''=-K_X X + \frac{2\mathit{K}}{X+Y} + \frac{E_X^2}{X^3}
 \end{equation}
 
 The integration is handled in the Matlab function ``menv\_integrator," which integrates through a specified beam-line given focusing gradients. The integration uses the leap-frog method. The two sub-functions which form each integration step are given below:
@@ -41,7 +41,7 @@ function [xpp1,ypp1,dpp1] = calc_prim2(x1,y1,d1)
 end
 \end{lstlisting}
 
-\subsubsection{Edge Focusing}
+\subsection{Edge Focusing}
 
 Special consideration of dipole edge-focusing has to be made to accurately model UMER dynamics. In MENV, the edge focusing term is included as a hard-edged quadrupole with the same length as the dipole. The strength is not set automatically (ie, by setting a bend-angle), but an appropriate number must be determined by the user. 
  
@@ -60,7 +60,7 @@ The GUI can be launched by executing the command \verb|menv| from the Matlab com
 \label{fig:main}
 \end{figure}
 
-\subsubsection{Defining and solving a lattice}
+\subsection{Defining and solving a lattice}
 
 
 
@@ -92,7 +92,7 @@ Figure \ref{fig:fodo} shows the solution for a 0.7 mA beam in a FODO lattice def
 \end{figure}
 
 \clearpage
-\subsubsection{Optimization in the GUI}
+\subsection{Optimization in the GUI}
 
 MENV allows for two kinds of optimization: optimizing over initial beam conditions to find the periodic solution and optimizing quadrupole/solenoid strengths to meet a target condition. Before running a matching routine, you must define targets and weights by selecting ``Matcher Parameters" under ``Optimize." The GUI that is launched is shown in Fig. \ref{fig:defmatcher}. If you are optimizing for the periodic solution, only the weights need to be defined. 
 If you are optimizing to a target, targets must be defined as well. Targets and weights for X,Y,X',Y' at the end of the transport line must always be defined. 
@@ -106,7 +106,7 @@ There are additional targets and weights that \textit{may} be defined as desired
 \label{fig:defmatcher}
 \end{figure}
 
-\subsubsection{Side note on parallel instances}
+\subsection{Side note on parallel instances}
 The data (parameters, settings and solutions) for the active instance are stored in the global object \verb|guim|. As this is a global variable that does not have a unique name for each instance of MENV, only one instance of MENV may be run at a time (you can launch two, but data from the most recent instance will overwrite data in the older instance). If you want to run parallel MENV instances, you need to run separate Matlab instances as well. This could be resolved by attaching data to the GUI window rather than a global variable, and this was the case in the older (Hui Li) version of MENV. The choice was made to adopt a global variable to allow use of functions written in the ``command-line" MENV class \verb|clmenv| from within the GUI (instead of having separate functions for command-line and GUI versions).
 
 

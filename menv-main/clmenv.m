@@ -17,30 +17,6 @@ classdef clmenv < handle
         usrdata = [];
         soldata = [];
         thisFig = 0;
-        % open = @openspt;
-        % saveas = @savefile;
-        %
-        % defparam = @defparam; % define beam, sim. params
-        % defmatcher = @defmatcher; % load optimization settings
-        % deflattice = @deflattice; % load lattice definition
-        % draw = @drawlattice; % plot lattice structure on figure
-        % build = @buildFODO; % create a basic FODO lattice.
-        %
-        % % -- integrate env. for defined problem
-        % solve = @solvelattice;
-        %
-        % % -- optimization routines
-        % periodicmatcher = @periodicmatcher; % target is matched periodic solution
-        % targetmatcher = @targetmatcher; % target is x,y,x',y' [optional D,D',nux,nuy,ref-trajectory]
-        % GSmatcher = @GStargetmatcher; % GlobalSearch method, requires globalsearch optimization toolbox
-        % MOmatcher = @MOtargetmatcher; % multi-objective search method, still not functional
-        %
-        %
-        % % -- set-up for optimizations
-        % maketarget = @maketarget;
-        % makeoptiset = @makeoptiset;
-        % maketraj = @maketraj; % load ref-trajectory data, plot on figure
-        % makeparams = @makeparams;
     end
     
     methods

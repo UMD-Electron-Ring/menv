@@ -177,44 +177,9 @@ case 'Param'
       set( distEditHandle, 'String', num2str(guim.usrdata.distance) );
    end
 case 'Solution'
+    oldptr = get(guim.thisFig,'pointer');  set( guim.thisFig, 'pointer', 'watch' );
     guim.solve();
-%    runtmp = guim.usrdata; %get( thisFig, 'UserData' );
-%    % only check one parameter is enough
-%    if( isempty(runtmp.ic.x0) )
-%       warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
-%       return;
-%    end
-%    % Transfer to SI
-%    runtmp = Transfer2SI( runtmp );
-%    % Save to tempary file
-%    save 'runtmp' runtmp;
-%    % Run ......
-%    oldptr = getptr(thisFig);  setptr( thisFig, 'watch' );
-%    [x,y,xp,yp,D,Dp,d,nux,nuy,Cx,Cy] = runmenv( 'runtmp' );
-%    x=x*1.e2; y=y*1.e2; d=d*1.e2;  % m-cm
-%    D=D*1.e2;
-%    set( thisFig, oldptr{:} );
-%    % Axes
-%    axesHandle = findAxes( thisFig );
-%    axes( axesHandle(1) );
-%    axdata = get( axesHandle(1), 'UserData' );
-%    % Plot
-%    if( axdata.handle(1)~=0 ) delete(axdata.handle(1)); end
-%    if( axdata.handle(2)~=0 ) delete(axdata.handle(2)); end
-%    hold on; h1 = plot(d,x,'b'); h2 = plot(d,y,'r'); hold off;
-%    xlabel('z (cm)'); ylabel('X:blue, Y:red (cm)');
-%    axis([ min(d) max(d) 0.0 max([x,y])*1.2 ]);
-%    
-%     % Save data
-%    if( usrdata.stepsize<0.005 ) interval = round(0.005/usrdata.stepsize);
-%    else interval = 1; end
-%    n = length(d); ind = 1:interval:n;
-%    if( ind(length(ind))~=n ) ind(length(ind)+1) = n; end   
-%    axdata.handle(1)=h1; axdata.handle(2)=h2; 
-%    axdata.d=d(ind); axdata.x=x(ind); axdata.y=y(ind);
-%    axdata.xp=xp(ind); axdata.yp=yp(ind);
-%    axdata.nux = nux; axdata.nuy = nuy;
-%    set( axesHandle, 'UserData', axdata );   
+    set( guim.thisFig, 'pointer', oldptr );
 case 'Draw'
     guim.draw();
     yl = ylim();
@@ -282,81 +247,30 @@ case 'MatcherParam'
       set( tolFunEditHandle, 'String', num2str(guim.usrdata.tolFun) );
    end
 case 'Run Periodic Matcher'
+    oldptr = get(guim.thisFig,'pointer');  set( guim.thisFig, 'pointer', 'watch' );
     guim.periodicmatcher();
-% %   usrdata = get( thisFig, 'UserData' );
-%    % only check one parameter is enough
-%    if( isempty(guim.usrdata.ic.x0) )
-%       warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
-%       return;
-%    end
-%    if( isempty(guim.usrdata.target.x1) )
-%       warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
-%       return;
-%    end
-%    % Transfer to SI
-%    usrdata = Transfer2SI( guim.usrdata );
-%    % Save to tempary file
-%    save 'runtmp' usrdata;
-%    % Run ......
-%    %oldptr = getptr(thisFig);  setptr( thisFig, 'watch' );
-%    oldptr = get(thisFig,'pointer');  set( thisFig, 'pointer', 'watch' );
-%    newX0 = match2period();
-%    set( thisFig, 'pointer', oldptr );
-%    % Save the new result
-%    guim.usrdata.ic.x0 = newX0(1);
-%    guim.usrdata.ic.y0 = newX0(2);
-%    guim.usrdata.ic.xp0= newX0(3);
-%    guim.usrdata.ic.yp0= newX0(4);
-%    guim.usrdata = TransferFromSI( guim.usrdata );
-%    %   set( thisFig, 'UserData', usrdata );
-%    % Update figure
-%    menvEvent( 'Solution' );
+    set( guim.thisFig, 'pointer', oldptr );
 case 'Matcher'
+    oldptr = get(guim.thisFig,'pointer');  set( guim.thisFig, 'pointer', 'watch' );
     guim.targetmatcher();
-%    usrdata = get( thisFig, 'UserData' );
-%    % only check one parameter is enough
-%    if( isempty(guim.usrdata.ic.x0) )
-%       warndlg( 'Beam parameters are not defined!', 'ERROR', 'modal' );
-%       return;
-%    end
-%    if( isempty(guim.usrdata.target.x1) )
-%       warndlg( 'Matcher Parameters are not defined!', 'ERROR', 'modal' );
-%       return;
-%    end
-%    if( sum(guim.usrdata.opt)==0 )
-%       warndlg( 'The optimized elements are not defined!', 'ERROR', 'modal' );
-%       return;
-%    end
-%    % Transfer to SI
-%    usrdata = Transfer2SI( guim.usrdata );
-%    % Save to tempary file
-%    save 'runtmp' usrdata;
-%    % Run ......
-%    oldptr = getptr(thisFig);  setptr( thisFig, 'watch' );
-%    newKappa = match2target( 'runtmp' );
-%    set( thisFig, oldptr{:} );
-%    % Save the new result
-%    %usrdata = get( thisFig, 'UserData' );
-%    [~,n] = size( usrdata.loc ); k = 1;
-%    for i=1:n
-%       if( guim.usrdata.opt(i) )
-%          guim.usrdata.str(i) = newKappa(k); k = k+1;
-%       end
-%    end
-%    %set( thisFig, 'UserData', usrdata );
-   % Update the listbox
-   listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
-   updateListboxString( listboxHandle, guim.usrdata, 1 );   
+    set( guim.thisFig, 'pointer', oldptr );
+    % Update the listbox
+    listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
+    updateListboxString( listboxHandle, guim.usrdata, 1 );   
    
 case 'Global Search'
-   guim.GSmatcher();   
-   listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
-   updateListboxString( listboxHandle, guim.usrdata, 1 );  
+    oldptr = get(guim.thisFig,'pointer');  set( guim.thisFig, 'pointer', 'watch' );
+    guim.GSmatcher();   
+    set( guim.thisFig, 'pointer', oldptr );
+    listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
+    updateListboxString( listboxHandle, guim.usrdata, 1 );  
    
 case 'Multi-Objective'
-   guim.MOmatcher();
-   listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
-   updateListboxString( listboxHandle, guim.usrdata, 1 );  
+    oldptr = get(guim.thisFig,'pointer');  set( guim.thisFig, 'pointer', 'watch' );
+    guim.MOmatcher();
+    set( guim.thisFig, 'pointer', oldptr );
+    listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
+    updateListboxString( listboxHandle, guim.usrdata, 1 );  
    
     
 case 'Coordinate'
