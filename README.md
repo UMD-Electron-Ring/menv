@@ -1,77 +1,21 @@
 # menv
 
-Matching code written by Hui Li. Based off SPOT by Chris Allen 
-(does not make use of reference trajectory in optimization function)
+Envelope integration and matching code written by Hui Li. Based off SPOT by Chris Allen 
 
-~ User Guide ~
-To run, fig = menv launches GUI. Can open .spt file, or build lattice 
-inside GUI using add/edit elements.
+~ Quick-Start Guide ~
+Download MENV directories, add to Matlab path (run setpath from Matlab command line)
+To launch GUI: run "menv" from command line. Can assemble lattice elements from within GUI, or load .spt file.
+To run from command line: clmenv() creates a class object with all MENV methods. See example file run_clmenv.m 
 
-menv.m -- Initiates GUI
-menv.mat -- holds data needed to set up GUI figures.
+More information is in documentation/menvdoc.pdf
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-DEV-NOTES
+UPDATES
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Original MENV was a bit disorganized -- identical routines were repeated in
-multiple places, sub-function hierarchy was not consistent. Many desired
-features were not implemented (dispersion, chromaticity, matching to reference trajectory)
-
-Branch nlu-matching has been dedicated to updating MENV, starting with a command-line clone clmenv.
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-3/29/18
-
-command-line menv (clmenv) is almost fully re-organized ad de-bugged. 
-File hierarchy is below:
-clmenv
---match2period
---match2target
---GSmatch2target
---MOmatch2target
----runmenv
----periodfunc
----optfunc
----svoptfunc
-----menv_makekappaarray
-----menv_integrator
-----menv_updatekappaarray
-----Kappa2Current
-----Current2Kappa
-----Gauss2Kappa
-----DrawReferenceTrajectory
-
-example scripts: run_clmenv and run_clmenv_inj
-
-GUI files:
-menv.mat
-menv.m
-menvEvent.m
-prepareMenu.m
-defElement.m
-defMatcher.m
-defParam.m
-
-
-
-To-do:
-
---benchmark w/ old trace3D model.
-
---Multi-objective (MO) matching method is not yet operational. 
-Needs to be finished in 'new organization'
-Soon-to-be deprecated files:
-MOmatching.m,stepfuncMO.m
-
---Implement new organization and features in MENV GUI.
-
---Once GUI MENV is updated I'll be comfortable deleting some more of the old, deprecated files:
-step.m
-calc_prim2.m
-stepfunc.matching
-
---Incorporate skew terms: this was apparently started by a precessor but never finished?
-See skew_test.m, skewstep.m. The physics included here would need to be incorporated 
-into the updated organization
+An updated version has now been merged with the master branch. Updated features include: 
+~ now includes dispersion calculations based on bending radius in dipoles
+~ A reference trajectory can be defined and used as a target for optimization routines
+~ Global search and multi-objective optimization algorithms are now included in addition to the nonlinear-least-squares fitting routine previously used
+~ Tune is now included as a target condition during optimization
