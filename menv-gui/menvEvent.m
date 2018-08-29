@@ -14,7 +14,6 @@ function MainFigWndProc( thisFig, event )
 global guim
 switch( event )
 case 'Create'
-   set(gcbf,'DefaultFigureWindowStyle' , 'normal')
    usrdata = zeroMainUserData;
    guim = clmenv('nofig'); 
 %   set( thisFig, 'UserData', usrdata );
@@ -216,6 +215,10 @@ case 'Solution'
 %    axdata.xp=xp(ind); axdata.yp=yp(ind);
 %    axdata.nux = nux; axdata.nuy = nuy;
 %    set( axesHandle, 'UserData', axdata );   
+case 'Draw'
+    guim.draw();
+    yl = ylim();
+    ylim([-.3,yl(2)]);
 case 'MatcherParam'
     fig = defMatcher;
     %   set( fig, 'UserData', thisFig );
@@ -346,12 +349,12 @@ case 'Matcher'
    updateListboxString( listboxHandle, guim.usrdata, 1 );   
    
 case 'Global Search'
-   guim.GStargetmatcher();   
+   guim.GSmatcher();   
    listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
    updateListboxString( listboxHandle, guim.usrdata, 1 );  
    
 case 'Multi-Objective'
-   guim.MOtargetmatcher();
+   guim.MOmatcher();
    listboxHandle = findobj( thisFig, 'Tag', 'ElementListbox' );
    updateListboxString( listboxHandle, guim.usrdata, 1 );  
    
@@ -360,13 +363,13 @@ case 'Coordinate'
    coordTextHandle = findobj( thisFig, 'Tag', 'CoordStaticText' );
    axesHandle = findAxes( thisFig );
    xlim = get( axesHandle, 'XLim' );
-   ylim = get( axesHandle, 'YLim' );
+   yl = get( axesHandle, 'YLim' );
    set( coordTextHandle, 'Visible', 'on' );
    while( 1 )
       [x,y] = ginput(1);
       str = sprintf('(%f, %f)',x,y);
       set( coordTextHandle, 'String', str );
-      if( x<xlim(1) || x>xlim(2) || y<ylim(1) || y>ylim(2) ) break; end
+      if( x<xlim(1) || x>xlim(2) || y<yl(1) || y>yl(2) ) break; end
    end
    set( coordTextHandle, 'String', '' );
    set( coordTextHandle, 'Visible', 'off' );
@@ -505,7 +508,6 @@ case 'Draw Reference Trajectory'
     hold on
     if isfield(guim.usrdata,'href'), delete(guim.usrdata.href); end
     guim.usrdata.href = plot(xref,yref,':k');
-    hold off
     
 case 'Load Reference Trajectory'
     %usrdata = get( thisFig, 'UserData' );    
@@ -524,8 +526,7 @@ case 'Load Reference Trajectory'
     hold on
     if isfield(guim.usrdata,'href'), delete(guim.usrdata.href); end
     guim.usrdata.href = plot(xref,yref,':k');
-    hold off
-    
+
 otherwise
 end
 

@@ -1,0 +1,82 @@
+\documentclass[../menv_main.tex]{subfiles}
+ 
+\newcommand\tab[1][1.5cm]{\hspace*{#1}}
+
+\begin{document}
+
+\section{MENV from the command line}
+
+A simple example, in which a .spt file is loaded into MENV and run from the command line (modified from run\_clemnv.m):
+
+\begin{lstlisting}[language=Matlab]
+% -- initiate clmenv instance
+clm = clmenv();
+
+% -- load .spt file
+sptfilename = which('FODO_0_7mA_dipl.spt');
+clm.open(sptfilename)
+
+% -- solve
+clm.solve()
+
+% -- find periodic solution
+clm.periodicmatcher()
+\end{lstlisting}
+
+
+A slightly more complex example, in which a lattice is constructed in MENV from the command line (modified from run\_clemnv\_inj.m):
+
+
+\begin{lstlisting}[language=Matlab]
+clm = clmenv();
+
+% -- set params 
+
+% Beam parameters
+emittance = 30; % mm-mrad
+perveance = 0.0001045;
+x0        = .3; % cm
+y0        = .3; % cm
+xp0       = 0.0;
+yp0       = 0.0;
+
+% Simulation parameters
+stepsize = 0.005; % cm
+distance = 32; % cm
+
+% optimization parameters
+iterations = 20;
+tolerance  = 1e-6; 
+
+%-- Lattice description
+elements ='QDQ'; % element types
+location = [8,16,24]; % element location
+lengths = [3.6400,3.8500,3.6400]; % element length
+str = [220,15.7000,-220]; % quadrupole strength (kappa)
+bend_ang = [0 10 0]*pi/180; % bend angle
+invrho = bend_ang./lengths; % inverse rho
+opt = [0,0,0];
+
+% -- assign params to menv structures
+clm.maketarget([1,1,1,1],[1,1,1,1])
+clm.makeoptiset(iterations,tolerance)  % Makes file optiset
+clm.defmatcher() % loads matcher settings
+
+ic = struct();
+ic.x0 = x0; ic.y0=y0; ic.xp0=xp0; ic.yp0=yp0; ic.D0 =0 ; ic.Dp0 = 0;
+clm.makeparams(emittance,perveance,ic,stepsize,distance) % makes param file
+clm.defparam() % loads params
+
+clm.deflattice(elements,location,lengths,str,opt,invrho) % loads lattice
+
+% -- look at initial solution
+clm.solve()
+
+% -- solve for periodic solution
+clm.periodicmatcher()
+
+
+\end{lstlisting}
+
+
+\end{document}
