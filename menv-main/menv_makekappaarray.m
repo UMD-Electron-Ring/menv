@@ -4,7 +4,11 @@ function [X0] = menv_makekappaarray()
 % It returns a list of focusing strengths (X0) to be used for optimization
 
 % Load numerical parameters
-load( 'runtmp' );
+% -- this is a stop-gap measure until I figure out what better way to
+% manage passing structure variables without hard-disk writes
+% load( 'runtmp' );
+global lattmp runtmp
+
 max_d = runtmp.distance;
 try min_d = runtmp.d0;
 catch min_d = 0.0;
@@ -86,4 +90,4 @@ lattmp.nsteps = nsteps;
 lattmp.KX = KX;
 lattmp.KY = KY;
 lattmp.d = d;
-save 'lattmp' lattmp
+%save('lattmp.mat','lattmp')

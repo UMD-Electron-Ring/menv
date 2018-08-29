@@ -1,7 +1,13 @@
 function X = match2target( )
 
+% -- this is a stop-gap measure until I figure out what better way to
+% manage passing structure variables without hard-disk writes
+global runtmp clm
+runtmp = clm.tmp.runtmp;
+
+
 % -- Load otimization settings
-load 'runtmp';
+%load 'runtmp';
 maxIter = round(runtmp.maxIter);
 tolFun = runtmp.tolFun;
 

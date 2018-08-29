@@ -3,8 +3,11 @@ function menv_updatekappaarray(X)
 % to an optimization routine.
 %
 
-lattmp = [];
-load 'lattmp'
+% -- this is a stop-gap measure until I figure out what better way to
+% manage passing structure variables without hard-disk writes
+global lattmp 
+%lattmp = [];
+%load 'lattmp'
 KX = lattmp.KX;
 KY = lattmp.KY;
 loc1 = lattmp.loc1; 
@@ -19,7 +22,7 @@ OPT_ELE = lattmp.OPT_ELE;
 
 Qffx = 1;
 Qffy = 1;
-Dffx = .146/.556; % -- horz focusing is weaker than vert. focusing. From RK dipole note + 2010 online table
+Dffx = .5*.146/.556; % -- horz focusing is weaker than vert. focusing. From RK dipole note + 2010 online table
 Dffy = 1;
 PDffx = 0.00/0.0410; % -- horz focusing is weaker than vert. focusing. From RK dipole note + 2010 online table
 PDffy = 1;
@@ -47,7 +50,7 @@ end
 
 lattmp.KX = KX;
 lattmp.KY = KY;
-save 'lattmp' lattmp
+%save('lattmp.mat','lattmp')
 
 clear KX KY loc1 loc2 OPT_ELE
 

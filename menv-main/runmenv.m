@@ -1,10 +1,15 @@
 function [x,y,xp,yp,D,Dp,d,tunex,tuney,Cx,Cy] = runmenv()
 
+% -- this is a stop-gap measure until I figure out what better way to
+% manage passing structure variables without hard-disk writes
+global lattmp runtmp clm
+runtmp = clm.tmp.runtmp;
+
 % -- make lattmp variable w/ lattice arrays
 X0 = menv_makekappaarray(); clear X0;
 
 % -- load lattice model parameters
-load 'lattmp'
+%load 'lattmp'
 IRHO = lattmp.IRHO;
 KX = lattmp.KX;
 KY = lattmp.KY;
@@ -14,8 +19,8 @@ OPT_ELE = lattmp.OPT_ELE;
 nsteps = lattmp.nsteps;
 d = lattmp.d;
 
-% -- load beam parameters from rntump
-load 'runtmp'
+% -- load beam parameters from runtmp
+%load 'runtmp'
 K = runtmp.perveance; % Perveance
 Ex = runtmp.emitance; % Emmitance x
 Ey = Ex;
