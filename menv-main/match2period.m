@@ -1,5 +1,10 @@
 function newX = match2period( )
-load 'runtmp'
+
+% -- this is a stop-gap measure until I figure out what better way to
+% manage passing structure variables without hard-disk writes
+%load 'runtmp'
+global runtmp clm
+runtmp = clm.tmp.runtmp;
 
 % -- Load otimization settings
 maxIter = 40;%round(runtmp.maxIter);
@@ -45,7 +50,7 @@ format;
 % -- save error contributions in runtmp and clm.soldata;
 f =  periodfunc( X ); 
 runtmp.f = f;
-save 'runtmp' runtmp;
+%save 'runtmp' runtmp;
 global clm
 clm.soldata.f = f;
 

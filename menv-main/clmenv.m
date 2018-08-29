@@ -16,6 +16,7 @@ classdef clmenv < handle
     properties       
         usrdata = [];
         soldata = [];
+        tmp = [];
         thisFig = 0;
         % open = @openspt;
         % saveas = @savefile;
@@ -142,7 +143,7 @@ classdef clmenv < handle
         
         function clm = save( clm, filename )
             % Save clmenv memory to named file
-            save 'savetmp' clm.usrdata
+            save('savetmp.mat','clm.usrdata');
             fcopyfile( 'savetmp.mat', filename );
             delete( 'savetmp.mat' );
         end
@@ -150,8 +151,12 @@ classdef clmenv < handle
         function clm = defparam(clm)
             % Load initial beam parameters into clmenv memory
             
-            load 'params'
+            % -- moving away from hard disk saves; the 'tmp' field in 
+            % usrdata is a stop-gap measure until I find a better way
+            % load 'params'
+            params = clm.tmp.params;
             
+
             clm.usrdata.emitance = params.emitance;
             clm.usrdata.perveance = params.perveance;
             if isfield(params,'ic')
@@ -186,8 +191,13 @@ classdef clmenv < handle
             % need to make target file earlier. Target file has structure target.<name>
             % which specifies targets and their weights.
             % optiset.tmp has settings for optimizer
-            load 'target'
-            load 'optiset'
+            
+            % -- moving away from hard disk saves; the 'tmp' field in 
+            % usrdata is a stop-gap measure until I find a better way
+            % load 'target'
+            % load 'optiset'
+            target = clm.tmp.target;
+            optiset = clm.tmp.optiset;
             
             clm.usrdata.maxIter = optiset.maxIter;
             clm.usrdata.tolFun = optiset.tolFun;
@@ -279,14 +289,14 @@ classdef clmenv < handle
             end
             
             % -- parse in optional target/weight lists if given.
-            if nargin == 2 % no optional targets/weights set
+            if nargin == 2+1 % no optional targets/weights set
                 target.nuxt = 0;
                 target.nuyt = 0;
                 target.nuxw = 0;
                 target.nuyw = 0;
                 target.betaw = 0;
                 target.refw = 0;
-            elseif nargin == 3 % envelope weights specified (no tune target/weight)
+            elseif nargin == 3+1 % envelope weights specified (no tune target/weight)
                 optweightlist = varargin{3};
                 target.nuxt = 0;
                 target.nuyt = 0;
@@ -294,7 +304,7 @@ classdef clmenv < handle
                 target.nuyw = 0;
                 target.betaw = optweightlist(1);
                 target.refw = optweightlist(2);
-            elseif nargin ==4 % some combination of env + tune target/ weights
+            elseif nargin == 4+1 % some combination of env + tune target/ weights
                 opttargetlist = varargin{3};
                 optweightlist = varargin{4};
                 if isempty(opttargetlist) && length(optweightlist)==2
@@ -326,15 +336,20 @@ classdef clmenv < handle
                 else error('Wrong number of entries in optional list of targets sent to maketarget')
                 end
             end
-            
-            save 'target' target
+            % -- moving away from hard disk saves; the 'tmp' field in 
+            % usrdata is a stop-gap measure until I find a better way
+            %save('target.mat','target') 
+            clm.tmp.target = target;
         end
         
         function clm = makeoptiset(clm,iterations,tolerance)
             % Load iteration and tolerance setting into clmenv memory
             optiset.maxIter = iterations;
             optiset.tolFun = tolerance;
-            save 'optiset' optiset
+            % -- moving away from hard disk saves; the 'tmp' field in 
+            % usrdata is a stop-gap measure until I find a better way
+            %save('optiset.mat','optiset')
+            clm.tmp.optiset = optiset;
         end
         
         function clm = makeparams(clm,emit,perv,ic,stepsize,startend)
@@ -356,7 +371,10 @@ classdef clmenv < handle
                 params.distance = startend(2);
             end
             
-            save 'params' params
+            % -- moving away from hard disk saves; the 'tmp' field in 
+            % usrdata is a stop-gap measure until I find a better way
+            %save('params.mat','params')
+            clm.tmp.params = params;
         end
         
         function clm = maketraj(clm,xref,yref)
@@ -567,8 +585,11 @@ classdef clmenv < handle
             % -- Transfer to SI
             runtmp = Transfer2SI( runtmp );
             
-            % -- Save to tempary file
-            save 'runtmp' runtmp;
+            % -- Save to temporary file
+            % -- moving away from hard disk saves; the 'tmp' field in 
+            % usrdata is a stop-gap measure until I find a better way
+            %save('runtmp.mat','runtmp');
+            clm.tmp.runtmp = runtmp;
             
             % -- Run ......
             [x,y,xp,yp,D,Dp,d,nux,nuy,Cx,Cy] = runmenv();
@@ -586,7 +607,7 @@ classdef clmenv < handle
             
             hold on; h1 = plot(d,x,'b'); h2 = plot(d,y,'r'); h3 = plot(d,D,'k'); hold off;
             xlabel('z (cm)'); ylabel('X:blue, Y:red, D:black (cm)');
-            axis([ min(d) max(d) 0.0 max([x,y])*1.2 ]);
+            axis([ min(d) max(d) -0.2 max([x,y])*1.2 ]);
             
             
             % Save data, first down-convert resolution if needed.
@@ -636,7 +657,10 @@ classdef clmenv < handle
             runtmp = Transfer2SI( runtmp );
             
             % Save to tempary file
-            save 'runtmp' runtmp;
+            % -- moving away from hard disk saves; the 'tmp' field in 
+            % usrdata is a stop-gap measure until I find a better way
+            % save('runtmp.mat','runtmp');
+            clm.tmp.runtmp = runtmp;
             
             % Run ......
             newX0 = match2period();
@@ -682,12 +706,18 @@ classdef clmenv < handle
             runtmp = Transfer2SI( runtmp );
             
             % Save to temporary file
-            save 'runtmp' runtmp;
+            % -- moving away from hard disk saves; the 'tmp' field in 
+            % usrdata is a stop-gap measure until I find a better way
+            %save('runtmp.mat','runtmp');
+            clm.tmp.runtmp = runtmp;
             
             % Run ......
             newKappa = match2target;
             
-            load runtmp % this might be problematic, moves unwanted data to usrdata?
+            % -- moving away from hard disk saves; the 'tmp' field in 
+            % usrdata is a stop-gap measure until I find a better way
+            %load runtmp % this might be problematic, moves unwanted data to usrdata?
+            runtmp = clm.tmp.runtmp;
             
             % Save the new result
             [~,n] = size( runtmp.loc ); k = 1;
@@ -736,7 +766,10 @@ classdef clmenv < handle
             runtmp = Transfer2SI( runtmp );
             
             % Save to tempary file
-            save 'runtmp' runtmp;
+            % -- moving away from hard disk saves; the 'tmp' field in 
+            % usrdata is a stop-gap measure until I find a better way
+            %save('runtmp.mat','runtmp');
+            clm.tmp.runtmp = runtmp;
             
             % Run ......
             [newKappa] = GSmatch2target( 'runtmp' );
@@ -786,7 +819,10 @@ classdef clmenv < handle
             runtmp = Transfer2SI( runtmp );
             
             % Save to tempary file
-            save 'runtmp' runtmp;
+            % -- moving away from hard disk saves; the 'tmp' field in 
+            % usrdata is a stop-gap measure until I find a better way
+            %save('runtmp.mat','runtmp');
+            clm.tmp.runtmp = runtmp;
             
             % Run ......
             [newKappa] = MOmatch2target( 'runtmp' );

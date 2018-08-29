@@ -1,5 +1,9 @@
 function f =  periodfunc( X )
 
+% -- this is a stop-gap measure until I figure out what better way to
+% manage passing structure variables without hard-disk writes
+global lattmp runtmp
+
 % Initial conditions based on optimization parameter X
 ic = struct();
 ic.x0 = X(1);
@@ -10,7 +14,7 @@ ic.D0 = X(5);
 ic.Dp0 = X(6);
 
 % -- load lattice model parameters
-load 'lattmp'
+%load 'lattmp'
 IRHO = lattmp.IRHO;
 KX = lattmp.KX;
 KY = lattmp.KY;
@@ -20,7 +24,7 @@ OPT_ELE = lattmp.OPT_ELE;
 nsteps = lattmp.nsteps;
 
 % -- load runtmp (just use emitance and stepsize, in SI units)
-load 'runtmp'
+%load 'runtmp'
 K = runtmp.perveance; % Perveance
 Ex = runtmp.emitance; % Emmitance x
 Ey = Ex;

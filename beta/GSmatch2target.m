@@ -1,8 +1,13 @@
 function [X] = GSmatch2target()
 % nonlinear/global search algorithm. Run w/ matlab 2012.
 
+% -- this is a stop-gap measure until I figure out what better way to
+% manage passing structure variables without hard-disk writes
+global runtmp clm
+runtmp = clm.tmp.runtmp;
+
 % -- Load otimization settings
-load 'runtmp';
+%load 'runtmp';
 maxIter = round(runtmp.maxIter);
 tolFun = runtmp.tolFun;
 
@@ -30,7 +35,7 @@ X = xg; % new strength settings
 % -- save error contributions in runtmp and clm.soldata;
 f =  optfunc( X ); 
 runtmp.f = f;
-save 'runtmp' runtmp;
+%save 'runtmp' runtmp;
 global clm
 clm.soldata.f = f;
 
