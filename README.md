@@ -13,6 +13,10 @@ More information is in documentation/menvdoc.pdf
 
 # UPDATES
 
+8/29/2018
+Removed I/O operations for temporary files during solves (runtmp.mat, params.mat, etc) resulting in SIGNIFICANT speed-up. 
+
+6/1/2018
 An updated version has now been merged with the master branch. Updated features include: 
 * scriptable command-line version
 * now includes dispersion calculations based on bending radius in dipoles
