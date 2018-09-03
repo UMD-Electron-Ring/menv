@@ -9,6 +9,14 @@
 % x = 1 where y = (k-m)/n
 %
 function lineobj = resonance_diagram(order)
+%
+%
+%
+
+%this is important to bring up a fig window if one doesn't exist. Omit this
+%and run into memory issues
+gcf
+%
 
 offset = 0;
 linestyle = '-';

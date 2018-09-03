@@ -43,16 +43,20 @@ env_diff = rms(x-y);
 % another option: max(abs(x-y));
 
 % -- condition for reference trajectory
-% first, interpolate
-d = 1e2*(runtmp.d0:runtmp.stepsize:runtmp.distance);
-yref = interp1(runtmp.target.xref,runtmp.target.yref,d,'linear','extrap'); 
-% then calculate rms variation
 try
-    refx = rms(abs(x-yref));
-    refy = rms(abs(y-yref));
-catch % catch a warning if interpolation was off
-    [refx,refy] = deal(0);
-    warning('Error calculating deviation from reference trajectory')
+    % first, interpolate
+    d = 1e2*(runtmp.d0:runtmp.stepsize:runtmp.distance);
+    yref = interp1(runtmp.target.xref,runtmp.target.yref,d,'linear','extrap');
+    % then calculate rms variation
+    try
+        refx = rms(abs(x-yref));
+        refy = rms(abs(y-yref));
+    catch % catch a warning if interpolation was off
+        [refx,refy] = deal(0);
+        warning('Error calculating deviation from reference trajectory')
+    end
+catch
+    [refx,refy] = deal(0); % if ref traj not assigned
 end
 
 % -- calculate min. function
