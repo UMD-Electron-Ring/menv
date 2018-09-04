@@ -24,6 +24,7 @@ classdef clmenv < handle
         
         % -- functions to be used from command line
         function clm = clmenv(nofig)
+            global clm
             % -- create new fig unless told not to
             if not(exist('nofig'))
                 clm.thisFig = figure(); axes();
@@ -43,14 +44,14 @@ classdef clmenv < handle
         function clm = open(clm,varargin)
             % Open .spt file describing lattice
             % --  optional argument is string with filename
-            %global clm
+            global clm
             
             % -- Import file
             if nargin == 2
                 filename = varargin{1};
                 p = genpath(pwd); addpath(p);
                 fullpathname = which(filename);
-                if isempth(fullpathname)
+                if isempty(fullpathname)
                     error(sprintf('File %s not found on path \n',filename))
                 end
             else
@@ -465,9 +466,12 @@ classdef clmenv < handle
                 hpatch = patch([sele,eele,eele,sele],[0,0,hele,hele],col);
                 clm.usrdata.handle(i+1) = hpatch;
             end
+            
+            % -- xy=0 line
+            line(xlim,[0,0],'Color','k')
         end
         
-        function [lat] = build(ncells)
+        function [lat] = build(clm,ncells)
             
             % -- to-do: make input parser for optional FODO parameters
             
@@ -480,7 +484,7 @@ classdef clmenv < handle
             
             % -- dipo params
             dlen = 3.819;
-            dang = 7.8*pi/180;
+            dang = 10*pi/180;
             rho = dlen/dang;
             dint = 19.917;
             ridg = 338.859;
@@ -562,7 +566,7 @@ classdef clmenv < handle
             [x,y,xp,yp,D,Dp,d,nux,nuy,Cx,Cy] = runmenv();
             % -- transfer results from SI units to cm;
             x=x*1.e2; y=y*1.e2; d=d*1.e2;  % m-cm
-            D=D*1.e2;
+            %D=D*1.e2; % -- don't convert dispersion
             
             % -- Plotting
             % -- clear plots if they exist
@@ -573,7 +577,7 @@ classdef clmenv < handle
             end
             
             hold on; h1 = plot(d,x,'b'); h2 = plot(d,y,'r'); h3 = plot(d,D,'k'); hold off;
-            xlabel('z (cm)'); ylabel('X:blue, Y:red, D:black (cm)');
+            xlabel('z (cm)'); ylabel('X:blue, Y:red (cm), D:black (m)');
             axis([ min(d) max(d) -0.2 max([x,y])*1.2 ]);
             
             
@@ -892,9 +896,13 @@ end
 usrdata.loc = data.loc*1.e2;             % m->cm
 usrdata.len = data.len*1.e2;             % m->cm
 %usrdata.str
+usrdata.irho = data.irho*1.e-2;          % 1/m->1/cm
 if isfield(data,'target')
     usrdata.target.x1 = data.target.x1*1.e2;               % m->cm
     usrdata.target.y1 = data.target.y1*1.e2;               % m->cm
+    try
+        usrdata.target.Da = data.target.D1*1.e2;
+    catch end
 end
 if isfield(data,'xref')
     usrdata.xref = data.xref*1.e2;               % m->cm
@@ -908,10 +916,10 @@ usrdata = data;
 usrdata.ic.x0 = data.ic.x0*1.e-2;               % cm->m
 usrdata.ic.y0 = data.ic.y0*1.e-2;               % cm->m
 try
-    usrdata.ic.D0 = data.ic.D0*1e-2;
+    usrdata.ic.D0 = data.ic.D0*1e-2;            % cm->m
 catch end
 %usrdata.xp0,usrdata.yp0,usrdata.D0
-usrdata.emitance = data.emitance*1.e-6;   % mm.mrad->mrad
+usrdata.emitance = data.emitance*1.e-6;   % mm.mrad->rad
 %usrdata.perveance
 usrdata.stepsize = data.stepsize*1.e-2;   % cm->m
 usrdata.distance = data.distance*1.e-2;   % cm->m
@@ -924,9 +932,13 @@ end
 usrdata.loc = data.loc*1.e-2;             % cm->m
 usrdata.len = data.len*1.e-2;             % cm->m
 %usrdata.str
+usrdata.irho = data.irho*1e2;             % 1/cm->1/m
 if isfield(data,'target')
     usrdata.target.x1 = data.target.x1*1.e-2;               % cm->m
     usrdata.target.y1 = data.target.y1*1.e-2;               % cm->m
+    try
+        usrdata.target.D1 = data.target.D1*1e-2;            % cm->m
+    catch end
 end
 if isfield(data,'xref')
     usrdata.xref = data.xref*1.e-2;               % m->cm
