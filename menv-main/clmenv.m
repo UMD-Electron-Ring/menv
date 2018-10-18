@@ -23,8 +23,7 @@ classdef clmenv < handle
     methods
         
         % -- functions to be used from command line
-        function clm = clmenv(nofig)
-            global clm
+        function clm = clmenv(clm,nofig)
             % -- create new fig unless told not to
             if not(exist('nofig'))
                 clm.thisFig = figure(); axes();
@@ -566,7 +565,7 @@ classdef clmenv < handle
             [x,y,xp,yp,D,Dp,d,nux,nuy,Cx,Cy] = runmenv();
             % -- transfer results from SI units to cm;
             x=x*1.e2; y=y*1.e2; d=d*1.e2;  % m-cm
-            %D=D*1.e2; % -- don't convert dispersion
+            D=D*1.e2; % -- dispersion?
             
             % -- Plotting
             % -- clear plots if they exist
@@ -577,7 +576,7 @@ classdef clmenv < handle
             end
             
             hold on; h1 = plot(d,x,'b'); h2 = plot(d,y,'r'); h3 = plot(d,D,'k'); hold off;
-            xlabel('z (cm)'); ylabel('X:blue, Y:red (cm), D:black (m)');
+            xlabel('z (cm)'); ylabel('X:blue, Y:red, D:black (cm)');
             axis([ min(d) max(d) -0.2 max([x,y])*1.2 ]);
             
             
@@ -901,7 +900,7 @@ if isfield(data,'target')
     usrdata.target.x1 = data.target.x1*1.e2;               % m->cm
     usrdata.target.y1 = data.target.y1*1.e2;               % m->cm
     try
-        usrdata.target.Da = data.target.D1*1.e2;
+       usrdata.target.D1 = data.target.D1*1.e2;
     catch end
 end
 if isfield(data,'xref')
