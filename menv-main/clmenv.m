@@ -12,7 +12,7 @@
 %
 
 % -- main, initializing function
-classdef clmenv < handle
+classdef clmenv %< handle % i don't think i need to inherit handle methods...
     properties       
         usrdata = [];
         soldata = [];
@@ -451,6 +451,8 @@ classdef clmenv < handle
             % -- plot lattice elements
             for i=1:length(ele)
                 hele = .25 * str(i)/200;
+                % -- draw dipoles constant, regardless of focusing strength
+                if strcmp(ele(i),'D') hele = 0.005; end
                 %if str(i)==0; continue % -- if str==0, don't draw a patch
                 %end
                 sele = loc(i)-len(i)*0.5;
@@ -468,77 +470,6 @@ classdef clmenv < handle
             
             % -- xy=0 line
             line(xlim,[0,0],'Color','k')
-        end
-        
-        function [lat] = build(clm,ncells)
-            
-            % -- to-do: make input parser for optional FODO parameters
-            
-            Iquad = 1.826;
-            nD = ncells;
-            nQ = 2*ncells;
-            nele = nD+nQ;
-            lcell = 32;
-            L = lcell*ncells;
-            
-            % -- dipo params
-            dlen = 3.819;
-            dang = 10*pi/180;
-            rho = dlen/dang;
-            dint = 19.917;
-            ridg = 338.859;
-            Idipo = dang*ridg /dint;
-            dstr = Current2Kappa(Idipo,'D');
-            
-            % -- quad params
-            qlen = 5.164; % based on Santiago 2006 Tech. Note
-            Iquad = 2.194; % Amps, nom. operating pt.
-            qstr = Current2Kappa(Iquad,'Q');
-            
-            ele ='';
-            loc = zeros(1,nele);
-            len = zeros(1,nele);
-            str = zeros(1,nele);
-            opt = zeros(1,nele);
-            irho = zeros(1,nele);
-            
-            % -- make list of elements
-            for i=1:ncells
-                ele = [ele,'QDQ'];
-            end
-            
-            % -- define quads
-            for i=1:nQ
-                loc(i) = 8 + 16*(i-1);
-                len(i) = qlen;
-                str(i) = qstr * (-2*mod(i,2)+1);
-                opt(i) = 0;
-            end
-            
-            % -- define dipoles
-            for i=1:nD
-                loc(i+nQ) = 16 + 32*(i-1);
-                len(i+nQ) = dlen;
-                str(i+nQ) = dstr;
-                opt(i+nQ) = 0;
-                irho(i+nQ) = 1/rho;
-            end
-            
-            % -- sort list
-            [loc,isort] = sort(loc);
-            
-            len = len(isort);
-            str = str(isort);
-            opt = opt(isort);
-            irho = irho(isort);
-            
-            lat.ele = ele;
-            lat.len = len;
-            lat.loc = loc;
-            lat.str = str;
-            lat.opt = opt;
-            lat.irho = irho;
-            
         end
         
         
@@ -565,7 +496,7 @@ classdef clmenv < handle
             [x,y,xp,yp,D,Dp,d,nux,nuy,Cx,Cy] = runmenv();
             % -- transfer results from SI units to cm;
             x=x*1.e2; y=y*1.e2; d=d*1.e2;  % m-cm
-            D=D*1.e2; % -- dispersion?
+            %D=D*1.e2; % -- don't convert disp.
             
             % -- Plotting
             % -- clear plots if they exist
@@ -575,9 +506,21 @@ classdef clmenv < handle
                 if ishandle(clm.soldata.handle(3)) delete(clm.soldata.handle(3)); end
             end
             
-            hold on; h1 = plot(d,x,'b'); h2 = plot(d,y,'r'); h3 = plot(d,D,'k'); hold off;
-            xlabel('z (cm)'); ylabel('X:blue, Y:red, D:black (cm)');
+            yyaxis left
+            hold on; h1 = plot(d,x,'b'); h2 = plot(d,y,'r'); hold off;
+            xlabel('z (cm)'); ylabel('X:blue, Y:red (cm)')
             axis([ min(d) max(d) -0.2 max([x,y])*1.2 ]);
+            
+            yyaxis right
+            h3 = plot(d,D,'k');
+            ylabel('D:black (m)');
+            try
+                axis([ min(d) max(d) min(D)*1.5 max(D)*1.5 ]);
+            catch
+                axis([min(d) max(d) -1 1])
+            end
+            yyaxis left
+            
             
             
             % Save data, first down-convert resolution if needed.
