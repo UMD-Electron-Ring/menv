@@ -1,6 +1,6 @@
 # menv
 
-Envelope integration and matching code written by Hui Li. Based off SPOT by Chris Allen 
+Matlab-based envelope integration and matching code written by Hui Li. Based off SPOT by Chris Allen 
 
 # Quick-Start Guide 
 Download MENV directories, add to Matlab path (run setpath from Matlab command line)
